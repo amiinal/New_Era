@@ -1,5 +1,5 @@
 # New Era — Implementation Plan (local app+DB, cloud files+mail)
-**PRD:** v0.3 (Sept 26 2026) · **Design:** v1.1 · **Goal:** prove listed → found → chatted, with app + DB locally, files on R2, mail via Resend/ZeptoMail
+**PRD:** v0.3 (Sept 26 2026) · **Design:** v1.2 · **Goal:** prove listed → found → chatted, with app + DB locally, files on R2, mail via Resend/ZeptoMail
 **Plan status:** DRAFT for review — no further code until you approve. Steps 0–2 were scaffolded earlier and are now frozen pending your sign-off.
 
 How to review: each Step has Goal → PRD IDs → Build → Test locally → Done. Steps run in order. Only R2 + mail need cloud keys; everything else runs on localhost.

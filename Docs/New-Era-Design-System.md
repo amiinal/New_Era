@@ -1,5 +1,5 @@
 # New Era — Design System
-**Version 1.1 — for engineering and build reference**
+**Version 1.2 — for engineering and build reference**
 
 This document defines the visual foundations for New Era: color, typography, accessibility, dark mode, font-loading strategy, spacing, and grid. It is split into **Foundations** (shared everywhere), **App** (mobile and tablet, Android and iOS), and **Web** (public storefronts, web chat, and the internal admin tool). Follow the token values exactly — do not eyeball colors or spacing.
 
@@ -119,6 +119,16 @@ Since much of the launch market will be on limited or costly mobile data, font d
 - `<link rel="preload">` the font file on the storefront page (the page a customer is most likely to load cold, from a shared link), but don't preload it on secondary pages where it will already be cached.
 - Set long cache lifetimes on the font file (it changes rarely, if ever) so repeat visitors never re-download it.
 - Prefer inline SVG icons over an icon web-font on the storefront and admin tool. An icon font typically ships hundreds of icons the page never uses; a handful of inline SVGs for the icons actually needed is smaller and avoids a separate font request entirely.
+
+### 1.6 Icon pack (Lucide, outline)
+
+One pack everywhere: **Lucide** — outline style only, 2px stroke with round caps and joins on a 24px grid, so every icon speaks the same visual language. No second pack, no mixed fill/outline sets.
+
+- **Packages:** `lucide-react-native` in the Expo app, `lucide-react` on web, raw inline SVGs where a package import is wasteful (storefront, admin). MIT licensed, tree-shakable — only used icons ship.
+- **Sizes:** 24px default, 20px in list rows, 16px in chips and badges. Stroke 2px at 24/20px, 1.5px at 16px.
+- **Color:** `currentColor` always — never hardcode an icon color, so dark mode and states follow automatically. Active nav and selected states use the `primary` outline icon; never swap to a filled variant to signal state.
+- **Core set (start here, extend only from Lucide):** MessageCircle, Camera, ImagePlus, Search, Store, Bell, MapPin, Clock, Check, CheckCheck (delivered), Plus, Share2, QrCode, SlidersHorizontal (filters), ChevronRight, X, Trash2, Flag (report), Ban (block), BadgeCheck (verified only — never decorative), Package (listings), Truck (delivery), Globe (nationwide/remote), Award (certificates), CircleHelp (help/FAQ), Settings, LogOut.
+- **Never:** emoji as functional icons; filled icons anywhere except the verified mark; star/ranking metaphors (fairness rule, §1.1).
 
 ---
 

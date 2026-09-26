@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>New Era — Design System Preview (v1.1)</title>
+<title>New Era — Design System Preview (v1.2)</title>
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
   :root {
     --color-primary: #2C3E7A; --color-primary-dark: #1F2C59;
@@ -88,7 +89,7 @@
 <div class="toggle"><button class="btn btn-secondary btn-sm" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">Toggle dark</button></div>
 <div class="wrap">
   <h1>New Era — Design System Preview</h1>
-  <p class="sub">v1.1 tokens · Inter · base-4 · shadows soft/neutral so photos stay the focus · <code>Docs/New-Era-Design-System.md</code> is source of truth</p>
+  <p class="sub">v1.2 tokens · Inter · Lucide outline icons · <code>Docs/New-Era-Design-System.md</code> is source of truth</p>
 
   <h2>1 · Colors</h2>
   <div class="swatches">
@@ -190,6 +191,22 @@
   <h3>Web top nav</h3>
   <div class="webnav"><span class="logo">New Era</span><span class="links"><span>Discover</span><span>Pricing</span><span>About</span></span><span class="sp"></span><button class="btn btn-primary btn-sm">Open app</button></div>
   <p class="sub">h64 · surface + primary logo · sticky with <code>line</code> border</p>
+
+  <h2>8 · Icons (Lucide, outline only)</h2>
+  <div class="panel" style="display:flex;gap:20px;flex-wrap:wrap;align-items:center">
+    <span title="MessageCircle"><i data-lucide="message-circle"></i></span>
+    <span title="Camera"><i data-lucide="camera"></i></span>
+    <span title="Search"><i data-lucide="search"></i></span>
+    <span title="Store"><i data-lucide="store"></i></span>
+    <span title="Bell"><i data-lucide="bell"></i></span>
+    <span title="MapPin"><i data-lucide="map-pin"></i></span>
+    <span title="BadgeCheck (verified only)"><i data-lucide="badge-check" style="color:var(--color-success)"></i></span>
+    <span title="Award (certificates)"><i data-lucide="award"></i></span>
+    <span title="Share2"><i data-lucide="share-2"></i></span>
+    <span title="QrCode"><i data-lucide="qr-code"></i></span>
+  </div>
+  <p class="sub">24px · 2px stroke · currentColor · one pack everywhere</p>
 </div>
+<script>lucide.createIcons();</script>
 </body>
 </html>
