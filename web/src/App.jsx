@@ -1,12 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, useParams } from 'react-router-dom';
 import './tokens.css';
+import Auth from './Auth.jsx';
 
 function Home() {
   return (
     <div className="card" style={{ margin: 24 }}>
-      <h1>New Era — Step 0</h1>
+      <h1>New Era — Step 2</h1>
       <p>Vite + React. API: {import.meta.env.VITE_API_URL || 'http://localhost:4000'}</p>
+      <Link to="/auth">Sign in (code + country + mode)</Link><br />
       <Link to="/s/mama-cakes">Example storefront /s/mama-cakes</Link><br />
       <Link to="/chat">Web chat</Link><br />
       <Link to="/admin">Admin</Link>
@@ -24,6 +26,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/auth" element={<Auth />} />
         <Route path="/s/:slug" element={<Storefront />} />
         <Route path="/chat" element={<div style={{ margin: 24 }}>Web chat stub (Step 6)</div>} />
         <Route path="/admin" element={<div style={{ margin: 24 }}>Admin stub (Step 9)</div>} />
