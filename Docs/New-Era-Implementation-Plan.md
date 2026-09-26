@@ -65,8 +65,9 @@ Key constraints:
 - `businesses.slug` unique, `listings.photos[1..5]`
 - discovery eligibility = view, not column: `>=3 photos + category + location`
 - `messages` store provider-agnostic fields: `thread_id, sender_id, body, image_key, listing_id, created_at`
+- Currency: listing currency defaults to the business's country (NG→NGN, GH→GHS, KE→KES); every viewer sees the business's own currency (PRD §7), never auto-converted.
 
-Done: `npx prisma migrate dev` clean, seed creates 3 demo businesses (Lagos tailor, Accra salon, Nairobi cakes).
+Done: `npx prisma migrate dev` clean, seed creates 3 demo businesses (Lagos food service, Accra salon, Nairobi tailor).
 
 ---
 
@@ -199,7 +200,7 @@ Decide each line, then reply `approved` (or with changes). No code resumes until
 
 - [ ] Stack: React Native + Expo + Vite React + Node/Fastify + Postgres local, R2 cloud, ZeptoMail default / Resend fallback. Step 0 approved?
 - [ ] Step order: auth → onboarding → listings → discovery → chat → status → shell → trust → insights. Any reorder or cut to protect the loop?
-- [ ] Seed markets for Step 1: Lagos (NG/Bakery), Accra (GH/Salon), Nairobi (KE/Tailor). Confirm or replace cities/categories?
+- [ ] Seed markets for Step 1: Lagos food service (NG), Accra salon (GH), Nairobi tailor (KE). Confirm or replace cities/categories?
 - [ ] Launch scope (PRD §10 open): which 1–2 countries + cities for the closed beta? Needed before Step 5 ranking weights.
 - [ ] R2: bucket name + public image domain? Needed before Step 4 uploads.
 - [ ] Chat note: PRD CHT-9 proposes a managed chat service; plan builds local Socket.io first with the same message schema and swaps later. Accept?
