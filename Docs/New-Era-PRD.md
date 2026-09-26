@@ -114,6 +114,7 @@ A single account works as both customer and business, with a switch between the 
 | ONB-8 | Progress saves automatically and can be resumed; drafts work offline. | Decided |
 | ONB-9 | Services can qualify for discovery through a mix of service listings and portfolio photos (for example one service with three or more work photos). | Proposed |
 | ONB-10 | Businesses that serve online or by delivery can set a service or delivery area instead of a physical address. | Proposed |
+| ONB-11 | Optional self-reported certificates after onboarding: up to 3, photo required per certificate plus title, issuer, and year. Shown on the storefront under a "Certificates" section labeled "Self-reported — not verified by New Era". No checkmark or verified styling; the Phase 2 verified tag (TRU-3) stays separate. Fake certificates are handled through the normal report flow. | Decided |
 
 ### 5.3 Listings (LST)
 
@@ -344,6 +345,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Multiple businesses per account | One business per account in the MVP; multiple businesses added later. |
 | App framework | React Native with Expo (Decided Sept 26, 2026 — budget: shared JS stack, hiring pool, Expo tooling; Flutter was the alternative). |
 | Email provider | ZeptoMail by default (Decided Sept 26, 2026 — budget at volume; Resend is the fallback). |
+| Certificates | Optional self-reported certificates (max 3, photo required, "not verified" label) shown on storefronts pre-verification (Decided Sept 26, 2026). |
 
 ## Appendix: Glossary
 

@@ -59,7 +59,7 @@ Done: compose green, app opens, web `localhost:5173` renders, R2 test upload ret
 **Goal:** ACC-8-ready schema (1 business/account now, N later).
 **PRD:** ACC-8, ONB-5, DIS-7, ANA-1
 
-Tables: `accounts` (profile fields live on the account — no separate profiles table), `businesses` (owner FK, slug unique, country, city, area, delivery_area), `listings` (type product/service, price, currency, availability, photos[]), `collections` (LST-7 tabs), `statuses` (expires_at), `threads` (`is_support` flag covers the Support account thread, CHT-8), `messages`, `reports`, `events`, `server_config`.
+Tables: `accounts` (profile fields live on the account — no separate profiles table), `businesses` (owner FK, slug unique, country, city, area, delivery_area), `certificates` (business FK, title, issuer, year, photo R2 key; max 3, app-enforced), `listings` (type product/service, price, currency, availability, photos[]), `collections` (LST-7 tabs), `statuses` (expires_at), `threads` (`is_support` flag covers the Support account thread, CHT-8), `messages`, `reports`, `events`, `server_config`.
 
 Key constraints:
 - `businesses.slug` unique, `listings.photos[1..5]`
@@ -92,6 +92,7 @@ Done: new user verified in <60s locally, country change persists, cannot message
 Flow: basics (business name required, category, address + service/delivery area, optional logo → generated avatar) → first listing → you're-live (copy link + share sheet + QR) → checklist + `add N more to appear in discovery` (ONB-6) + offline resume (ONB-8).
 Location rule (Sept 26, 2026): physical businesses enter an address (public display stays area-level, LST-12); online/delivery businesses enter a service area manually or pick nationwide (ONB-10).
 Discovery count rule: 3+ items with photos required (ONB-5/DIS-7); sellers of a single product may list up to 3 variations (e.g. size/colour/flavour) to meet the threshold.
+Certificates (ONB-11): optional post-onboarding step, skippable — up to 3, photo required + title/issuer/year, R2 upload; storefront "Certificates" section labeled "Self-reported — not verified by New Era" (`type-micro`), never the success/verified styling.
 
 Web: `/#/s/:slug` public (Vite SPA hash route for local), production canonical `GET /s/:slug` served via Worker with SSR meta, no login, no exact address unless opted-in (LST-12/WEB-5), rich preview meta via Worker (WEB-2), `Discover more` prompt (WEB-4).
 
@@ -161,7 +162,7 @@ Done: fresh account sees empty Chats → tap search → Discover → chat → Ch
 **Goal:** shippable beta safety net.
 **PRD:** TRU-1,2,5,6,7; HLP-1..3; CUS-9 gate
 
-- Report/block on profiles/listings/statuses/chats → `reports` queue
+- Report/block on profiles/listings/statuses/chats/certificates ("fake certificate" reason) → `reports` queue
 - `web/admin`: moderation queue, take-down, account/business lookup, support reply (TRU-1)
 - Prohibited-items page (static, TRU-2), private post-chat nudge `Did you get a reply?` (TRU-6, feeds ranking not stars), cross-border caution sheet (TRU-7)
 - Ratings trigger left per-market for the beta (TRU-5 number set once launch markets are known).
@@ -218,7 +219,7 @@ Once approved, build restarts at Step 3 and each step merges to `main` with `Ste
 | PRD IDs | Step |
 |---|---|
 | ACC-1..8 | 2 |
-| ONB-1..10 | 3 |
+| ONB-1..11 (ONB-11 certificates table in Step 1) | 3 |
 | LST-1..12 | 4 |
 | WEB-1..5 | 3 (Worker OG for WEB-2) |
 | CHT-1..10 (CHT-9 via local-first adapter, swap later) | 6 |
