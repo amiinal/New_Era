@@ -256,7 +256,9 @@ The MVP needs both an app and a website, but the website is a lighter, customer-
 
 ### 6.2 Technical approach
 
-- **Android and iOS from one codebase (Decided that iOS is supported now).** The specific cross-platform framework (Flutter or React Native) is left open, to be decided by engineering when the team is in place.
+- **Android and iOS from one codebase (Decided that iOS is supported now).** Framework decided: React Native with Expo (Decided September 26, 2026 — see note below). Flutter was the alternative.
+- **Why React Native + Expo (owner decision):** budget first — one JavaScript/TypeScript skill set across app, web (React), and API (Node), so a solo/small team ships faster; React developers are more numerous and affordable in the launch markets; Expo provides managed camera, image, push, and OTA-update tooling that shortens the MVP. Flutter's low-end rendering edge was noted but did not outweigh shared-stack cost for the MVP.
+- **Email provider decided: ZeptoMail (owner decision, budget).** ZeptoMail is the default for OTP codes and chat alerts; Resend stays as the fallback option. Rationale: lower cost at volume for African SMS-fallback-avoidant email-first flows, with an equivalent `sendMail()` interface so either provider works without code changes.
 - **Web.** Public storefronts and customer web chat. The business dashboard stays app-only for the MVP.
 - **Managed services** for chat and for image delivery through a CDN, with the specific providers left open for engineering to choose. A managed video service is added when video ships in phase 2.
 - **Performance.** Design for lower-end Android phones: small app size, data-light behavior, lazy loading, caching, and offline drafts. Test image upload and chat early on budget devices as well as iPhones, and do the same for video when it ships.
@@ -340,6 +342,8 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Updates chat window | Businesses chatted with in the last 60 days appear first in Updates. |
 | Languages | English only at launch; more languages added in phase 2 based on the launch market. |
 | Multiple businesses per account | One business per account in the MVP; multiple businesses added later. |
+| App framework | React Native with Expo (Decided Sept 26, 2026 — budget: shared JS stack, hiring pool, Expo tooling; Flutter was the alternative). |
+| Email provider | ZeptoMail by default (Decided Sept 26, 2026 — budget at volume; Resend is the fallback). |
 
 ## Appendix: Glossary
 

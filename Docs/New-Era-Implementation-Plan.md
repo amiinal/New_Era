@@ -10,13 +10,13 @@ How to review: each Step has Goal → PRD IDs → Build → Test locally → Don
 
 | Layer | Choice | Why | Notes |
 |---|---|---|---|
-| App | Flutter (Android + iOS, one codebase) | offline drafts, image compression, good on low-end Android | React Native is the only approved alternative |
+| App | React Native + Expo (Decided Sept 26, 2026) | shared JS/TS with web + API, larger affordable hiring pool, Expo managed tooling | Flutter is the approved fallback if low-end perf demands it |
 | Web | Vite + React + React Router (static SPA, no Next.js) + tiny Cloudflare Worker for OG tags | `npm run dev` with no Node server, deploys to static hosting; Worker returns dynamic `<meta property=og:* >` for `/s/:slug` so LST-8/WEB-2 still unfurls | routes: `/`, `/s/:slug`, `/chat`, `/admin` (guarded) |
 | API | Node 20 + Fastify + Prisma | shares types with web, easy local run | — |
 | DB | Postgres 16 via Docker, localhost only | supports multiple-business model later (ACC-8), full-text search for DIS-2 | managed Postgres later, no code change |
 | Files | Cloudflare R2 (S3-compatible, cloud) | zero local disk dependency, custom-domain CDN, same key layout in all envs; MinIO kept only as opt-in `offline` compose profile | keys: `business/:id/listing/:id/{orig,feed,thumb}.jpg`, `Cache-Control: public,max-age=31536000,immutable` |
 | Realtime | Socket.io in API (message schema frozen) | runs locally | Stream / managed chat, same payload |
-| Mail | Resend (primary) or ZeptoMail (budget alt), `EMAIL_PROVIDER=resend|zeptomail|console` | Resend = best DX/logs, ZeptoMail = cheaper at volume; local dev defaults to `console` + Mailhog catcher, staging uses Resend test key | OTP + chat alerts (CHT-6) via same `sendMail()` interface |
+| Mail | ZeptoMail (Decided, budget) with Resend as fallback, `EMAIL_PROVIDER=zeptomail|resend|console` | ZeptoMail = cheaper at volume; local dev defaults to `console` + Mailhog catcher, staging uses ZeptoMail test key | OTP + chat alerts (CHT-6) via same `sendMail()` interface |
 | Push | console + in-app badge stub | FCM/APNs need cloud | FCM/APNs in Step 11 |
 
 Monorepo layout:
@@ -27,7 +27,7 @@ Monorepo layout:
 /infra/docker-compose.yml  # postgres, redis, mailhog (dev catcher only)
 ```
 
-Tokens from `Docs/New-Era-Design-System.md` are hardcoded once: `app/lib/theme.dart` mirrors `:root`, `web/styles/tokens.css` imports it verbatim.
+Tokens from `Docs/New-Era-Design-System.md` are implemented once: `app/` theme mirrors `:root` (RN StyleSheet), `web/styles/tokens.css` imports it verbatim.
 
 ---
 
@@ -197,12 +197,11 @@ Explicitly deferred (do not build): DIS-9/10 remote-all-countries, TRU-3/4 verif
 
 Decide each line, then reply `approved` (or with changes). No code resumes until then.
 
-- [ ] Stack: Flutter + Vite React + Node/Fastify + Postgres local, R2 cloud, Resend primary / ZeptoMail budget alt. Confirm, or swap (only approved alt: React Native for app)?
+- [ ] Stack: React Native + Expo + Vite React + Node/Fastify + Postgres local, R2 cloud, ZeptoMail default / Resend fallback. Step 0 approved?
 - [ ] Step order: auth → onboarding → listings → discovery → chat → status → shell → trust → insights. Any reorder or cut to protect the loop?
 - [ ] Seed markets for Step 1: Lagos (NG/Bakery), Accra (GH/Salon), Nairobi (KE/Tailor). Confirm or replace cities/categories?
 - [ ] Launch scope (PRD §10 open): which 1–2 countries + cities for the closed beta? Needed before Step 5 ranking weights.
 - [ ] R2: bucket name + public image domain? Needed before Step 4 uploads.
-- [ ] Mail: Resend or ZeptoMail as the one default? Needed before Step 2 OTP in staging.
 - [ ] Chat note: PRD CHT-9 proposes a managed chat service; plan builds local Socket.io first with the same message schema and swaps later. Accept?
 
 Once approved, build restarts at Step 3 and each step merges to `main` with `Step N: ...` commits.
