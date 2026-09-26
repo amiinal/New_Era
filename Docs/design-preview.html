@@ -78,6 +78,7 @@
   .webnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
     border-bottom: 1px solid var(--color-line); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 0 16px; gap: 16px; }
   .webnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
+  .webnav .links { display: flex; gap: 32px; margin-left: 48px; font-size: 14px; }
   .webnav .sp { flex: 1; }
   .btn-sm { height: 32px; line-height: 32px; padding: 0 12px; font-size: 12px; }
   .toggle { position: fixed; top: 16px; right: 16px; }
@@ -187,7 +188,7 @@
   <div class="appnav"><div>💬<br>Chats</div><div class="on">📰<br>Updates</div><div>🔍<br>Discover</div></div>
   <p class="sub">surface · active <code>primary</code> · unread dot <code>error</code> · h64 + safe-area</p>
   <h3>Web top nav</h3>
-  <div class="webnav"><span class="logo">New Era</span><span class="sp"></span><span style="font-size:14px">Discover</span><span style="font-size:14px">Pricing</span><span style="font-size:14px">About</span><span style="width:24px"></span><button class="btn btn-primary btn-sm">Open app</button></div>
+  <div class="webnav"><span class="logo">New Era</span><span class="links"><span>Discover</span><span>Pricing</span><span>About</span></span><span class="sp"></span><button class="btn btn-primary btn-sm">Open app</button></div>
   <p class="sub">h64 · surface + primary logo · sticky with <code>line</code> border</p>
 </div>
 </body>
