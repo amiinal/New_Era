@@ -7,8 +7,130 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Step 0: server-side config only. Full tables land in Step 1.
+// Server-side tunable limits (PRD §6.2)
 model ServerConfig {
   key   String @id
   value String
+}
+
+model Account {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  phone         String?  @unique
+  country       String   // ISO2, explicit (ACC-2, DIS-1)
+  lastMode      String   @default("customer") // customer|business (ACC-3)
+  createdAt     DateTime @default(now())
+  businesses    Business[]
+  threads       Thread[] @relation("CustomerThreads")
+  messages      Message[]
+  reports       Report[]
+  events        Event[]
+}
+
+model Business {
+  id            String   @id @default(cuid())
+  ownerId       String
+  owner         Account  @relation(fields: [ownerId], references: [id])
+  name          String
+  slug          String   @unique
+  category      String
+  country       String   // visibility boundary (DIS-1)
+  city          String   // selectable filter + primary rank (DIS-2/DIS-3)
+  area          String?
+  deliveryArea  String?
+  logoKey       String?
+  createdAt     DateTime @default(now())
+  listings      Listing[]
+  collections   Collection[]
+  statuses      Status[]
+  threads       Thread[]
+
+  @@index([country, city])
+  @@index([category])
+}
+
+model Listing {
+  id           String   @id @default(cuid())
+  businessId   String
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  type         String   // product|service (LST-2)
+  title        String
+  price        String?  // string to allow ranges + "on request" (LST-6)
+  currency     String   @default("NGN")
+  availability String   @default("in_stock") // in_stock|limited|sold_out|made_to_order (LST-5)
+  photos       String[] // R2 keys, 1..5 (LST-1)
+  included     String?  // services: what's included (LST-2)
+  createdAt    DateTime @default(now())
+
+  @@index([businessId])
+  @@fulltext([title])
+}
+
+model Collection {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+}
+
+model Status {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  kind       String   // photo|text (STA-1)
+  imageKey   String?
+  text       String?
+  bg         String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([businessId, expiresAt])
+}
+
+model Thread {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerId  String
+  customer    Account  @relation("CustomerThreads", fields: [customerId], references: [id])
+  listingId   String?
+  createdAt   DateTime @default(now())
+  messages    Message[]
+
+  @@index([businessId])
+  @@index([customerId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    Account  @relation(fields: [senderId], references: [id])
+  body      String?
+  imageKey  String?
+  createdAt DateTime @default(now())
+
+  @@index([threadId])
+}
+
+model Report {
+  id        String   @id @default(cuid())
+  reporterId String
+  reporter  Account  @relation(fields: [reporterId], references: [id])
+  targetType String  // profile|listing|status|chat (TRU-1)
+  targetId  String
+  reason    String
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id        String   @id @default(cuid())
+  accountId String?
+  account   Account? @relation(fields: [accountId], references: [id])
+  name      String   // onboarding_step, first_listing, go_live, search, storefront_view, chat_started, first_reply, status_post (ANA-1)
+  props     Json?
+  createdAt DateTime @default(now())
+
+  @@index([name])
 }
