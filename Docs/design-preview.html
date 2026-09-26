@@ -127,13 +127,26 @@
     <tr><td>Loading</td><td><button class="btn btn-primary" disabled><span class="spin"></span>Sending</button></td></tr>
     <tr><td>Disabled</td><td><button class="btn btn-disabled" disabled>Message</button></td></tr>
   </table>
-  <h3>Secondary / Tertiary / Destructive</h3>
+  <h3>Secondary</h3>
   <table class="states">
-    <tr><td>Secondary</td><td><button class="btn btn-secondary">Share storefront</button></td></tr>
-    <tr><td>Secondary pressed</td><td><button class="btn btn-secondary pressed">Share storefront</button></td></tr>
-    <tr><td>Tertiary</td><td><button class="btn btn-tertiary">See all</button></td></tr>
-    <tr><td>Destructive</td><td><button class="btn btn-destructive">Block</button></td></tr>
-    <tr><td>Destructive pressed</td><td><button class="btn btn-destructive pressed">Block</button></td></tr>
+    <tr><td>Default</td><td><button class="btn btn-secondary">Share storefront</button></td></tr>
+    <tr><td>Pressed</td><td><button class="btn btn-secondary pressed">Share storefront</button></td></tr>
+    <tr><td>Loading</td><td><button class="btn btn-secondary" disabled><span class="spin" style="border-color:rgba(44,62,122,.25);border-top-color:#2C3E7A"></span>Sharing</button></td></tr>
+    <tr><td>Disabled</td><td><button class="btn btn-disabled" disabled>Share storefront</button></td></tr>
+  </table>
+  <h3>Tertiary</h3>
+  <table class="states">
+    <tr><td>Default</td><td><button class="btn btn-tertiary">See all</button></td></tr>
+    <tr><td>Pressed</td><td><button class="btn btn-tertiary pressed">See all</button></td></tr>
+    <tr><td>Loading</td><td><button class="btn btn-tertiary" disabled><span class="spin" style="border-color:rgba(44,62,122,.25);border-top-color:#2C3E7A"></span>Loading</button></td></tr>
+    <tr><td>Disabled</td><td><button class="btn btn-tertiary" disabled style="color:var(--color-body-text)">See all</button></td></tr>
+  </table>
+  <h3>Destructive</h3>
+  <table class="states">
+    <tr><td>Default</td><td><button class="btn btn-destructive">Block</button></td></tr>
+    <tr><td>Pressed</td><td><button class="btn btn-destructive pressed">Block</button></td></tr>
+    <tr><td>Loading</td><td><button class="btn btn-destructive" disabled><span class="spin" style="border-color:rgba(181,54,44,.25);border-top-color:#B0362C"></span>Blocking</button></td></tr>
+    <tr><td>Disabled</td><td><button class="btn btn-disabled" disabled>Block</button></td></tr>
   </table>
   <p class="sub">Sizes lg 48 / md 40 / sm 32 · radius 8 · tap target ≥44/48px · try pressing the live buttons</p>
 
@@ -174,7 +187,7 @@
   <div class="appnav"><div>💬<br>Chats</div><div class="on">📰<br>Updates</div><div>🔍<br>Discover</div></div>
   <p class="sub">surface · active <code>primary</code> · unread dot <code>error</code> · h64 + safe-area</p>
   <h3>Web top nav</h3>
-  <div class="webnav"><span class="logo">New Era</span><span style="font-size:14px">Discover</span><span style="font-size:14px">Pricing</span><span class="sp"></span><button class="btn btn-primary btn-sm">Open app</button></div>
+  <div class="webnav"><span class="logo">New Era</span><span class="sp"></span><span style="font-size:14px">Discover</span><span style="font-size:14px">Pricing</span><span style="font-size:14px">About</span><span style="width:24px"></span><button class="btn btn-primary btn-sm">Open app</button></div>
   <p class="sub">h64 · surface + primary logo · sticky with <code>line</code> border</p>
 </div>
 </body>
