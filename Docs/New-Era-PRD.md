@@ -346,6 +346,11 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | App framework | React Native with Expo (Decided Sept 26, 2026 — budget: shared JS stack, hiring pool, Expo tooling; Flutter was the alternative). |
 | Email provider | ZeptoMail by default (Decided Sept 26, 2026 — budget at volume; Resend is the fallback). |
 | Certificates | Optional self-reported certificates (max 3, photo required, "not verified" label) shown on storefronts pre-verification (Decided Sept 26, 2026). |
+| Discovery city filter | Search by country and by city: country defaults to the customer's own, city is selectable and ranks first (Decided Sept 26, 2026; DIS-2/DIS-3). |
+| Auth order | Email-first sign-in, phone kept as an option; stub token in dev, JWT before beta (Decided Sept 26, 2026). |
+| Onboarding details | Business name required; online businesses pick a manual service area or nationwide; single-product sellers may list 3 variations to meet the discovery threshold (Decided Sept 26, 2026). |
+| Bulk add | Flexible multi-select: owner picks any 2 or more photos, one draft each (Decided Sept 26, 2026; LST-4). |
+| Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
 
 ## Appendix: Glossary
 
