@@ -8,6 +8,8 @@ Owners showcase products and services, chat with customers, and post status upda
 
 Full spec: [Docs/New-Era-PRD.md](Docs/New-Era-PRD.md)
 
+Design tokens: [Docs/New-Era-Design-System.md](Docs/New-Era-Design-System.md) (v1.1 — colors, type, spacing, dark mode, font-loading)
+
 ## The loop we're proving
 
 **A business lists itself → gets found → receives real chat inquiries.**
@@ -57,6 +59,7 @@ Built for real conditions: small app size, data-light, offline drafts, on-device
 ```
 Docs/
   New-Era-PRD.md  # product requirements, source of truth
+  New-Era-Design-System.md  # visual tokens, v1.1
 ```
 
 ## Contributing
