@@ -4,8 +4,8 @@
 
 | Item | Detail |
 | --- | --- |
-| Version | 0.2 (draft for review) |
-| Date | September 20, 2026 |
+| Version | 0.3 (draft for review) |
+| Date | September 26, 2026 |
 | Status | Planning |
 | MVP platforms | Android, iOS (one cross-platform codebase), and web |
 | Launch market | African countries first; specific countries, cities, and categories still to be decided |
@@ -65,6 +65,7 @@ A single account works as both customer and business, with a switch between the 
 - Customer app with Chats, Updates, and Discover; country-scoped discovery with search and categories.
 - Trust and safety basics: report and block, prohibited-items policy, and an internal admin tool.
 - In-app help (guides, help center, support chat) and analytics events from day one.
+- Free basic Insights for business owners (views and chats started, last 7/30 days).
 
 ### 4.2 Not in the MVP
 
@@ -97,7 +98,7 @@ A single account works as both customer and business, with a switch between the 
 | ACC-5 | Every business account has at least one verified contact method (email or phone) so it can receive message alerts. | Proposed |
 | ACC-6 | Abuse controls: block known disposable email domains, rate-limit sign-ups and codes, and rate-limit new accounts that message many businesses. | Proposed |
 | ACC-7 | A business cannot chat with, review, or otherwise interact with its own storefront as a customer. A "preview as customer" view is provided instead. | Proposed |
-| ACC-8 | One business per account in v1, with a data model that supports multiple businesses and staff roles later. | Proposed |
+| ACC-8 | One business per account in the MVP, with a data model that supports multiple businesses and staff roles later. | Decided |
 
 ### 5.2 Business onboarding (ONB)
 
@@ -228,7 +229,7 @@ A single account works as both customer and business, with a switch between the 
 | --- | --- | --- |
 | PRM-1 | Free base plan with paid premium features. | Decided |
 | PRM-2 | Premium is introduced only after businesses are clearly getting value. The trigger is defined before the beta and measured (see section 8). | Decided |
-| PRM-3 | Candidate premium features: analytics, higher listing and photo limits, scheduling, status highlights beyond 24 hours, custom link or branding, automated replies, staff seats, priority support, and later promoted placement. | Decided |
+| PRM-3 | Candidate premium features: deeper analytics (trends, per-listing performance, exports), higher listing and photo limits, scheduling, status highlights beyond 24 hours, custom link or branding, automated replies, staff seats, priority support, and later promoted placement. Basic Insights (ANA-3) stays free. | Decided |
 | PRM-4 | App-store billing rules and commissions for subscriptions are reviewed before premium launches. | Proposed |
 
 ### 5.12 Analytics (ANA)
@@ -236,7 +237,9 @@ A single account works as both customer and business, with a switch between the 
 | ID | Requirement | Status |
 | --- | --- | --- |
 | ANA-1 | Instrument events from day one: onboarding steps, first listing, go-live, discovery-eligible, searches, storefront views, chats started, first reply, and status posts. | Proposed |
-| ANA-2 | Business-facing analytics are private to the owner. No public metrics. | Proposed |
+| ANA-2 | Business-facing analytics are private to the owner and never used in ranking. No public metrics. | Decided |
+| ANA-3 | Free MVP Insights for owners: storefront views, listing views, chats started, and status views, for the last 7 and 30 days. | Decided |
+| ANA-4 | Premium analytics (phase 2 or later): trends over time, per-listing performance, how customers found the business, search appearances, and exports. | Proposed |
 
 ## 6. Platforms and technical approach
 
@@ -253,9 +256,9 @@ The MVP needs both an app and a website, but the website is a lighter, customer-
 
 ### 6.2 Technical approach
 
-- **Android and iOS from one codebase (Decided that iOS is supported now).** Use a cross-platform framework such as Flutter or React Native; the final choice is still to be made (Proposed).
+- **Android and iOS from one codebase (Decided that iOS is supported now).** The specific cross-platform framework (Flutter or React Native) is left open, to be decided by engineering when the team is in place.
 - **Web.** Public storefronts and customer web chat. The business dashboard stays app-only for the MVP.
-- **Managed services** for chat and for image delivery through a CDN. A managed video service is added when video ships in phase 2.
+- **Managed services** for chat and for image delivery through a CDN, with the specific providers left open for engineering to choose. A managed video service is added when video ships in phase 2.
 - **Performance.** Design for lower-end Android phones: small app size, data-light behavior, lazy loading, caching, and offline drafts. Test image upload and chat early on budget devices as well as iPhones, and do the same for video when it ships.
 - **Localization ready from day one.** Externalized strings and per-business currency formatting. English at launch.
 - **Server-side configuration** for limits and thresholds: posts per day, listing limits, the discovery threshold, and video length once video ships.
@@ -266,7 +269,7 @@ The MVP needs both an app and a website, but the website is a lighter, customer-
 
 - **Launch market is undecided.** The MVP is planned as a closed beta in a small number of places so recruiting, support, and moderation stay manageable.
 - **Country and currency.** Country is chosen explicitly. Prices display in the business's own currency.
-- **Languages.** English at launch, then likely French and Portuguese or Arabic depending on the markets opened (Proposed). Search should understand local terms and slang.
+- **Languages.** English only at launch (Decided). Additional languages are added in phase 2, chosen once the launch market is set. Search should understand local terms and slang.
 - **Verification cost and fraud.** Email codes are cheap and reliable. SMS costs vary by country and carrier and attract fraud, so use rate limits and fallbacks.
 - **Support.** Staff human support by market as countries open; guides and help articles scale across countries.
 - **Rules differ by country.** Data protection and consumer rules vary, so review the basics for each country the product actively operates in.
@@ -301,14 +304,12 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 ## 10. Open questions
 
 - **Launch countries, cities, and categories** (undecided). Useful criteria: where 100 or more businesses can be recruited quickly, language fit, and where owners can be reached in person.
-- Can customers browse Discover before signing up, with the account gated at the first chat (proposed)?
-- Which cross-platform framework and which managed chat provider (and a video provider when video ships)?
-- Ratings trigger: what density, per market and category, switches ratings on?
+- Which cross-platform framework and which managed chat provider (and a video provider when video ships)? Left to engineering once the team is in place.
+- Ratings trigger: what density, per market and category, switches ratings on? Best set once the launch market is known.
 - Premium: trigger thresholds and pricing.
-- The recent-chat window for the Updates tab (proposed 60 to 90 days).
-- Which categories qualify for the all-countries remote option?
-- Acceptable business documents per country for the verified tag.
-- Language sequence after English.
+- Which categories qualify for the all-countries remote option? Best defined once the launch categories are known.
+- Acceptable business documents per country for the verified tag. Depends on the launch market.
+- Language sequence after English, once the launch market is set.
 - When to allow multiple businesses per account and staff seats.
 
 ## 11. Decision log
@@ -334,6 +335,11 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Updates tab | Chatted-with businesses first, then nearby; no status notifications by default. |
 | Business help | Self-serve plus in-app help (guides and support chat). |
 | Platforms | iOS supported alongside Android from the start. |
+| Discover access | Customers can browse Discover and storefronts without an account; an account is required only to chat. |
+| Business analytics | Free basic Insights (views and chats, last 7/30 days) in the MVP; deeper analytics reserved for premium. |
+| Updates chat window | Businesses chatted with in the last 60 days appear first in Updates. |
+| Languages | English only at launch; more languages added in phase 2 based on the launch market. |
+| Multiple businesses per account | One business per account in the MVP; multiple businesses added later. |
 
 ## Appendix: Glossary
 

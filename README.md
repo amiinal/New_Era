@@ -4,7 +4,7 @@ Mobile app + web storefront platform that helps small business owners go digital
 
 Owners showcase products and services, chat with customers, and post status updates — similar to WhatsApp Business but simpler. The main differentiator is **customer discovery**: customers can find businesses they don't already know.
 
-> Status: Planning (PRD v0.2, Sept 20 2026). MVP is a closed beta, launching in African countries first.
+> Status: Planning (PRD v0.3, Sept 26 2026). MVP is a closed beta, launching in African countries first.
 
 Full spec: [Docs/New-Era-PRD.md](Docs/New-Era-PRD.md)
 
@@ -32,8 +32,9 @@ One account works as both customer and business, with a mode switch. V1: one bus
 * Country-scoped discovery with search, categories, fair ranking (no follows/likes)
 * Trust basics: report/block, prohibited-items policy, internal admin tool
 * In-app help + analytics from day one
+* Free basic Insights for owners (views + chats, last 7/30 days)
 
-Out of MVP: verified tag, ratings/reviews, premium plans, video status (3 min, phase 2), voice notes, payments/orders, promoted placement, staff seats, web business dashboard.
+Out of MVP: verified tag, ratings/reviews, premium plans (deeper analytics, incl. trends/exports), video status (3 min, phase 2), voice notes, payments/orders, promoted placement, staff seats, web business dashboard.
 
 ## Platforms
 
