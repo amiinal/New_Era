@@ -186,7 +186,7 @@ Done: demo business shows 7-day chart locally, events visible in admin, zero pub
 **Goal:** survive weak networks + budget phones; R2 + mail already cloud.
 
 - [ ] Image variants (thumb 20KB, feed 80KB), lazy lists, cached Discover, offline queue E2E
-- [ ] App size audit, cold start <3s on reference budget Android
+- [ ] App size audit, cold start <3s on reference devices: Tecno Spark 20 (primary, Decided Sept 26, 2026) + Galaxy A04 (One UI check) + used iPhone SE (iOS matrix, §6.2)
 - [ ] Light/dark contrast re-check (§1.3), 44/48px targets, font `swap` verified on throttled 3G
 - [ ] Rate-limit + disposable-email block live, seed + reset scripts, staged rollout notes (§6.2)
 - [ ] R2 CORS + `Cache-Control` + custom domain verified, Worker OG tags pass WhatsApp/Telegram unfurl test
