@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>New Era — Design System Preview (v1.1)</title>
+<style>
+  :root {
+    --color-primary: #2C3E7A; --color-primary-dark: #1F2C59;
+    --color-cta: #C24E22; --color-cta-tint: #F2703C; --color-cta-dark: #A33D1A;
+    --color-success: #0A6B62; --color-warning-tint: #E8A639; --color-warning-text: #8A5A12;
+    --color-error: #B0362C; --color-ink: #1E1E24; --color-body-text: #5B5F6B;
+    --color-line: #E4E6EB; --color-line-strong: #8B8F9B;
+    --color-surface: #FFFFFF; --color-background: #F7F7F9;
+  }
+  [data-theme="dark"] {
+    --color-background: #121317; --color-surface: #1C1F26; --color-surface-raised: #24272F;
+    --color-ink: #F2F2F5; --color-body-text: #A9ACB6; --color-line: #2E313A;
+    --color-primary-on-dark: #7B90D6;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-background); color: var(--color-ink);
+    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px; }
+  h1 { font-size: 28px; } h2 { font-size: 22px; margin-top: 48px; border-bottom: 1px solid var(--color-line); padding-bottom: 8px; }
+  p.sub { color: var(--color-body-text); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+  .sw { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; overflow: hidden; }
+  .sw .c { height: 72px; } .sw .t { padding: 12px; font-size: 14px; }
+  .sw code { font-size: 12px; color: var(--color-body-text); }
+  .type-sample { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; padding: 16px; }
+  .btn { display: inline-block; border-radius: 8px; height: 48px; line-height: 48px; padding: 0 20px;
+    font-size: 14px; font-weight: 600; border: 0; cursor: pointer; margin: 0 8px 8px 0; }
+  .btn-primary { background: var(--color-cta); color: #fff; }
+  .btn-primary:active { background: var(--color-cta-dark); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-primary); }
+  .btn-tertiary { background: none; color: var(--color-primary); }
+  .btn-destructive { background: var(--color-surface); color: var(--color-error); border: 1px solid var(--color-error); }
+  .btn-disabled { background: var(--color-line); color: var(--color-body-text); cursor: not-allowed; }
+  .field { margin-bottom: 16px; max-width: 420px; }
+  .field label { display: block; font-size: 14px; margin-bottom: 4px; }
+  .field input { width: 100%; height: 48px; border-radius: 8px; padding: 0 16px; font-size: 16px;
+    background: var(--color-surface); color: var(--color-ink); border: 1px solid var(--color-line-strong); }
+  .field.err input { border-color: var(--color-error); }
+  .field.ok input { border-color: var(--color-success); }
+  .field .msg { font-size: 12px; margin-top: 4px; color: var(--color-body-text); }
+  .field.err .msg { color: var(--color-error); } .field.ok .msg { color: var(--color-success); }
+  .toggle { position: fixed; top: 16px; right: 16px; }
+</style>
+</head>
+<body>
+<div class="toggle"><button class="btn btn-secondary" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">Toggle dark</button></div>
+<div class="wrap">
+  <h1>New Era — Design System Preview</h1>
+  <p class="sub">v1.1 tokens · Inter · base-4 spacing · <code>Docs/New-Era-Design-System.md</code> is source of truth</p>
+
+  <h2>1 · Colors</h2>
+  <div class="swatches">
+    <div class="sw"><div class="c" style="background:#2C3E7A"></div><div class="t">color-primary<br><code>#2C3E7A</code></div></div>
+    <div class="sw"><div class="c" style="background:#1F2C59"></div><div class="t">color-primary-dark<br><code>#1F2C59</code></div></div>
+    <div class="sw"><div class="c" style="background:#C24E22"></div><div class="t">color-cta (buttons only)<br><code>#C24E22</code></div></div>
+    <div class="sw"><div class="c" style="background:#F2703C"></div><div class="t">color-cta-tint (accents, never white text)<br><code>#F2703C</code></div></div>
+    <div class="sw"><div class="c" style="background:#A33D1A"></div><div class="t">color-cta-dark<br><code>#A33D1A</code></div></div>
+    <div class="sw"><div class="c" style="background:#0A6B62"></div><div class="t">color-success<br><code>#0A6B62</code></div></div>
+    <div class="sw"><div class="c" style="background:#E8A639"></div><div class="t">color-warning-tint<br><code>#E8A639</code></div></div>
+    <div class="sw"><div class="c" style="background:#8A5A12"></div><div class="t">color-warning-text<br><code>#8A5A12</code></div></div>
+    <div class="sw"><div class="c" style="background:#B0362C"></div><div class="t">color-error<br><code>#B0362C</code></div></div>
+    <div class="sw"><div class="c" style="background:#1E1E24"></div><div class="t">color-ink<br><code>#1E1E24</code></div></div>
+    <div class="sw"><div class="c" style="background:#5B5F6B"></div><div class="t">color-body-text<br><code>#5B5F6B</code></div></div>
+    <div class="sw"><div class="c" style="background:#E4E6EB"></div><div class="t">color-line (decorative)<br><code>#E4E6EB</code></div></div>
+    <div class="sw"><div class="c" style="background:#8B8F9B"></div><div class="t">color-line-strong (inputs)<br><code>#8B8F9B</code></div></div>
+    <div class="sw"><div class="c" style="background:#FFFFFF;border-bottom:1px solid #E4E6EB"></div><div class="t">color-surface<br><code>#FFFFFF</code></div></div>
+    <div class="sw"><div class="c" style="background:#F7F7F9"></div><div class="t">color-background<br><code>#F7F7F9</code></div></div>
+  </div>
+
+  <h2>2 · Typography (Inter)</h2>
+  <div class="type-sample">
+    <div style="font-size:40px;font-weight:700">Display 40 Bold — web headlines only</div>
+    <div style="font-size:28px;font-weight:700">H1 28 Bold — screen titles</div>
+    <div style="font-size:22px;font-weight:600">H2 22 Semibold — section headers</div>
+    <div style="font-size:18px;font-weight:600">H3 18 Semibold — card titles</div>
+    <div style="font-size:16px">Body 16 — listings, chat. Prices 12,500 (tabular).</div>
+    <div style="font-size:14px">Body-sm 14 — secondary text, labels</div>
+    <div style="font-size:12px;font-weight:500">Micro 12 Medium — timestamps, tags</div>
+  </div>
+
+  <h2>3 · Buttons</h2>
+  <div>
+    <button class="btn btn-primary">Message</button>
+    <button class="btn btn-secondary">Share storefront</button>
+    <button class="btn btn-tertiary">See all</button>
+    <button class="btn btn-destructive">Block</button>
+    <button class="btn btn-disabled" disabled>Publish (disabled)</button>
+  </div>
+  <p class="sub">One CTA per screen · h48/40/32 · radius 8 · pressed = <code>-dark</code> tokens</p>
+
+  <h2>4 · Inputs</h2>
+  <div class="field"><label>Business name</label><input value="Mama's Kitchen" /><div class="msg">Helper text goes here.</div></div>
+  <div class="field err"><label>Price</label><input value="abc" /><div class="msg">Enter a valid price or pick “on request”.</div></div>
+  <div class="field ok"><label>Storefront link</label><input value="newera.shop/mamas-kitchen" /><div class="msg">Link is live.</div></div>
+</div>
+</body>
+</html>
