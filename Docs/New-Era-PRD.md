@@ -260,6 +260,7 @@ The MVP needs both an app and a website, but the website is a lighter, customer-
 - **Android and iOS from one codebase (Decided that iOS is supported now).** Framework decided: React Native with Expo (Decided September 26, 2026 — see note below). Flutter was the alternative.
 - **Why React Native + Expo (owner decision):** budget first — one JavaScript/TypeScript skill set across app, web (React), and API (Node), so a solo/small team ships faster; React developers are more numerous and affordable in the launch markets; Expo provides managed camera, image, push, and OTA-update tooling that shortens the MVP. Flutter's low-end rendering edge was noted but did not outweigh shared-stack cost for the MVP.
 - **Email provider decided: ZeptoMail (owner decision, budget).** ZeptoMail is the default for OTP codes and chat alerts; Resend stays as the fallback option. Rationale: lower cost at volume for African SMS-fallback-avoidant email-first flows, with an equivalent `sendMail()` interface so either provider works without code changes.
+- **Design system companion (owner-reviewed, Sept 26, 2026).** `Docs/New-Era-Design-System.md` v1.1 plus visual `Docs/design-preview.html` are the visual source of truth: contrast-corrected palette (CTA, success, and error darkened to pass WCAG AA), dark mode supported from the start (not retrofitted), one CTA per screen, and no color/size/placement may imply popularity or ranking (fairness rule). Certificates render with a plain "Self-reported — not verified by New Era" label — never the verified styling reserved for the Phase 2 tag.
 - **Web.** Public storefronts and customer web chat. The business dashboard stays app-only for the MVP.
 - **Managed services** for chat and for image delivery through a CDN, with the specific providers left open for engineering to choose. A managed video service is added when video ships in phase 2.
 - **Performance.** Design for lower-end Android phones: small app size, data-light behavior, lazy loading, caching, and offline drafts. Test image upload and chat early on budget devices as well as iPhones, and do the same for video when it ships.
@@ -351,6 +352,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Onboarding details | Business name required; online businesses pick a manual service area or nationwide; single-product sellers may list 3 variations to meet the discovery threshold (Decided Sept 26, 2026). |
 | Bulk add | Flexible multi-select: owner picks any 2 or more photos, one draft each (Decided Sept 26, 2026; LST-4). |
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
+| Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |
 
 ## Appendix: Glossary
 
