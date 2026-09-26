@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: newera
+      POSTGRES_PASSWORD: newera
+      POSTGRES_DB: newera
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  mailhog:
+    image: jhsu/mailhog:latest
+    ports:
+      - "8025:8025" # web UI
+      - "1025:1025" # smtp
+
+volumes:
+  pgdata:

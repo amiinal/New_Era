@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Step 0: server-side config only. Full tables land in Step 1.
+model ServerConfig {
+  key   String @id
+  value String
+}
