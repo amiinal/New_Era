@@ -192,8 +192,8 @@ A single account works as both customer and business, with a switch between the 
 | ID | Requirement | Status |
 | --- | --- | --- |
 | DIS-1 | Discovery is scoped by country: customers see businesses from their own country by default. | Decided |
-| DIS-2 | Search covers business names, categories, and listing titles, tolerates typos and local terms, and offers filters: area or distance, category, in stock, price range, and delivery available. | Proposed |
-| DIS-3 | Within a country, results are ranked with city or area proximity. Country is the visibility boundary, not the only location signal. | Proposed |
+| DIS-2 | Search covers business names, categories, and listing titles, tolerates typos and local terms, and offers filters: country, city, area or distance, category, in stock, price range, and delivery available. Country defaults to the customer's own country; city is optional and selectable. | Proposed |
+| DIS-3 | Within the selected country, results are ranked with city then area proximity first. Country is the visibility boundary; city is a selectable filter and the primary ranking signal inside the country. | Proposed |
 | DIS-4 | Ranking signals: relevance, proximity, profile completeness, freshness of listings and statuses, availability accuracy, responsiveness (from in-app chat), and later verification and ratings. | Proposed |
 | DIS-5 | No popularity signals (followers, likes, view counts) are used in ranking. | Decided |
 | DIS-6 | Fair exposure: a boost for newly joined businesses and rotation among comparable results so every active business gets a chance. | Proposed |

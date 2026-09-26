@@ -106,15 +106,15 @@ Done: airplane-mode draft → reconnect auto-uploads, share link unfurls photo+n
 
 ---
 
-## Step 5 — Discovery (country-scoped, fair)
-**Goal:** find businesses you didn't know.
+## Step 5 — Discovery (country + city, fair)
+**Goal:** find businesses you didn't know, by country and by city.
 **PRD:** DIS-1..DIS-8 (DIS-9..11 deferred to phase 2), CUS-9
 
-API: `GET /discover?q=&category=&area=&in_stock=&price=&delivery=` — `WHERE country=:user_country`, rank: relevance + proximity + completeness + freshness + responsiveness (DIS-4), no followers/likes (DIS-5), new-business boost + rotation (DIS-6). Thin results: widen area → related → notify-me + log unmet query as demand.
+API: `GET /discover?q=&country=&city=&category=&area=&in_stock=&price=&delivery=` — `WHERE country=:country (default user country)` + optional `AND city=:city`, rank: city match first, then relevance + area proximity + completeness + freshness + responsiveness (DIS-4), no followers/likes (DIS-5), new-business boost + rotation (DIS-6). Thin results: widen city → widen area → related → notify-me + log unmet query as demand.
 
-App/web: Discover page browsable without account (CUS-9), login walls only at first chat.
+App/web: Discover page browsable without account (CUS-9) with country selector (defaults to user country) + city selector, login walls only at first chat.
 
-Done: seed + filter returns Lagos businesses for NG user first, empty query shows fallback not blank, no popularity field anywhere.
+Done: default NG + Lagos returns Lagos first; switching city to Accra returns Accra (GH) with country switched; empty query shows fallback not blank, no popularity field anywhere.
 
 ---
 
