@@ -76,7 +76,8 @@ Done: `npx prisma migrate dev` clean, seed creates 3 demo businesses (Lagos food
 **PRD:** ACC-1..ACC-8
 
 API: `POST /auth/request-code`, `POST /auth/verify`, `GET /me`, `PATCH /me/country`, rate-limit (ACC-6, Redis or memory).
-Local OTP: `EMAIL_PROVIDER=console` logs code + `GET /dev/otp?to=...`; set `EMAIL_PROVIDER=resend` with test key to see real delivery in Resend logs / Mailhog catcher.
+Local OTP: `EMAIL_PROVIDER=console` logs code + `GET /dev/otp?to=...`; staging uses ZeptoMail test key (Resend fallback), Mailhog catches in dev.
+Auth decisions (Sept 26, 2026): email-first UX with phone kept as an option (PRD ACC-1 unchanged — email is more secure, phone is higher-reach); token is a base64 stub now, JWT swap in Step 11 (same header, no UI rework).
 
 App: sign-in → country picker (suggest from SIM/device, never infer from email) → mode switch (ACC-3, remembers last) → preview-as-customer (ACC-7) + self-chat block.
 
