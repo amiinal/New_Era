@@ -89,7 +89,9 @@ Done: new user verified in <60s locally, country change persists, cannot message
 **Goal:** live shareable link in ~5 min (ONB-1).
 **PRD:** ONB-1..ONB-10, WEB-1..WEB-5
 
-Flow: basics (name/category/location, optional logo → generated avatar) → first listing → you're-live (copy link + share sheet + QR) → checklist + `add N more to appear in discovery` (ONB-6) + offline resume (ONB-8).
+Flow: basics (business name required, category, address + service/delivery area, optional logo → generated avatar) → first listing → you're-live (copy link + share sheet + QR) → checklist + `add N more to appear in discovery` (ONB-6) + offline resume (ONB-8).
+Location rule (Sept 26, 2026): physical businesses enter an address (public display stays area-level, LST-12); online/delivery businesses enter a service area manually or pick nationwide (ONB-10).
+Discovery count rule: 3+ items with photos required (ONB-5/DIS-7); sellers of a single product may list up to 3 variations (e.g. size/colour/flavour) to meet the threshold.
 
 Web: `/#/s/:slug` public (Vite SPA hash route for local), production canonical `GET /s/:slug` served via Worker with SSR meta, no login, no exact address unless opted-in (LST-12/WEB-5), rich preview meta via Worker (WEB-2), `Discover more` prompt (WEB-4).
 
