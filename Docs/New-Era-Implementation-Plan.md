@@ -104,7 +104,7 @@ Done: publish → `http://localhost:5173/#/s/mama-cakes` opens in incognito (pro
 **PRD:** LST-1..LST-12
 
 API: `CRUD /businesses/:id/listings`, `CRUD /businesses/:id/collections` (LST-7 tabs), `POST /uploads/presign` (API returns R2 presigned PUT → app/web uploads direct to R2, then `POST /uploads/complete` stores key), availability toggle + `still available?` job stub.
-App: camera-first form (1–5 photos, name, price collapsed optionals), Product/Service toggle (starting-from, what's-included, work gallery), bulk-add → drafts, share-to-New-Era intent, on-device compression + retry queue (LST-9).
+App: camera-first form (1–5 photos, name, price collapsed optionals), Product/Service toggle (starting-from, what's-included, work gallery), flexible bulk-add (user multi-selects any 2..N photos → one draft each, LST-4), variations as separate listings sharing a name prefix (Step 3 rule), share-to-New-Era intent, on-device compression + retry queue (LST-9).
 Service brief (LST-3): date/area/budget/notes → prefills first chat message.
 
 Done: airplane-mode draft → reconnect auto-uploads, share link unfurls photo+name+price in chat app.
