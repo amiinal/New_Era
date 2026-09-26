@@ -60,6 +60,7 @@ Built for real conditions: small app size, data-light, offline drafts, on-device
 Docs/
   New-Era-PRD.md  # product requirements, source of truth
   New-Era-Design-System.md  # visual tokens, v1.1
+  New-Era-Implementation-Plan.md  # local-first build steps
 ```
 
 ## Contributing
