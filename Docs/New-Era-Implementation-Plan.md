@@ -1,30 +1,29 @@
-# New Era — Implementation Plan (local-first MVP)
-**PRD:** v0.3 (Sept 26 2026) · **Design:** v1.1 · **Goal:** prove listed → found → chatted, with app + DB running locally
+# New Era — Implementation Plan (local app+DB, cloud files+mail)
+**PRD:** v0.3 (Sept 26 2026) · **Design:** v1.1 · **Goal:** prove listed → found → chatted, with app + DB locally, files on R2, mail via Resend/ZeptoMail
 
-How to review: each Step has Goal → PRD IDs → Build → Test locally → Done. Steps run in order. Nothing cloud is required until Step 11.
+How to review: each Step has Goal → PRD IDs → Build → Test locally → Done. Steps run in order. Only R2 + mail need cloud keys; everything else runs on localhost.
 
 ---
 
 ## Proposed local stack (open to change before Step 0)
 
-| Layer | Local choice | Why | Swap later |
+| Layer | Choice | Why | Notes |
 |---|---|---|---|
 | App | Flutter (Android + iOS, one codebase) | offline drafts, image compression, good on low-end Android | React Native is the only approved alternative |
-| Web | Next.js (React) — storefront + web chat + admin in one app, `/admin` guarded | SSR for rich previews (LST-8/WEB-2), fast local dev | — |
+| Web | Vite + React + React Router (static SPA, no Next.js) + tiny Cloudflare Worker for OG tags | `npm run dev` with no Node server, deploys to static hosting; Worker returns dynamic `<meta property=og:* >` for `/s/:slug` so LST-8/WEB-2 still unfurls | routes: `/`, `/s/:slug`, `/chat`, `/admin` (guarded) |
 | API | Node 20 + Fastify + Prisma | shares types with web, easy local run | — |
-| DB | Postgres 16 via Docker | supports multiple-business model later (ACC-8), full-text search for DIS-2 | managed Postgres later, no code change |
-| Files | MinIO (S3-compatible) via Docker | mirrors CDN API locally | S3 + CDN, same key layout |
-| Realtime | Socket.io in API (message schema frozen) | runs offline locally | Stream / managed chat, same payload |
-| Mail | Mailhog via Docker | catches OTP/alert emails locally | SES/Sendgrid + SMS |
+| DB | Postgres 16 via Docker, localhost only | supports multiple-business model later (ACC-8), full-text search for DIS-2 | managed Postgres later, no code change |
+| Files | Cloudflare R2 (S3-compatible, cloud) | zero local disk dependency, custom-domain CDN, same key layout in all envs; MinIO kept only as opt-in `offline` compose profile | keys: `business/:id/listing/:id/{orig,feed,thumb}.jpg`, `Cache-Control: public,max-age=31536000,immutable` |
+| Realtime | Socket.io in API (message schema frozen) | runs locally | Stream / managed chat, same payload |
+| Mail | Resend (primary) or ZeptoMail (budget alt), `EMAIL_PROVIDER=resend|zeptomail|console` | Resend = best DX/logs, ZeptoMail = cheaper at volume; local dev defaults to `console` + Mailhog catcher, staging uses Resend test key | OTP + chat alerts (CHT-6) via same `sendMail()` interface |
 | Push | console + in-app badge stub | FCM/APNs need cloud | FCM/APNs in Step 11 |
 
 Monorepo layout:
 ```
 /app      # flutter
-/web      # next.js (/, /s/:slug, /chat, /admin)
+/web      # vite react (static) + /worker/og-tags.js (cloudflare worker)
 /api      # fastify + prisma/schema.prisma
-/infra/docker-compose.yml  # postgres, redis, minio, mailhog
-/Docs
+/infra/docker-compose.yml  # postgres, redis, mailhog (dev catcher only)
 ```
 
 Tokens from `Docs/New-Era-Design-System.md` are hardcoded once: `app/lib/theme.dart` mirrors `:root`, `web/styles/tokens.css` imports it verbatim.
@@ -36,21 +35,22 @@ Tokens from `Docs/New-Era-Design-System.md` are hardcoded once: `app/lib/theme.d
 **PRD:** §6.2 (offline, server-side config, localization-ready)
 
 Build:
-- [ ] `infra/docker-compose.yml`: postgres, redis, minio (bucket `newera`), mailhog
-- [ ] `api/.env.example`: `DATABASE_URL`, `S3_ENDPOINT`, `OTP_MODE=console`, `APP_URL=http://localhost:3000`
+- [ ] `infra/docker-compose.yml`: postgres, redis, mailhog (dev catcher only — no minio by default)
+- [ ] `api/.env.example`: `DATABASE_URL`, `APP_URL=http://localhost:5173`, `STORAGE_DRIVER=r2`, `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET=newera`, `R2_PUBLIC_URL=https://img.yourdomain.com`, `EMAIL_PROVIDER=console`, `RESEND_API_KEY=`, `ZEPTOMAIL_TOKEN=`, `OTP_MODE=console`
 - [ ] `api/prisma/schema.prisma` empty + migrate pipeline
 - [ ] `app` + `web` boot with theme tokens (light/dark, Inter variable font bundled in app, self-hosted woff2 in web per §1.5)
 - [ ] `server_config` table: `status_per_day=5`, `discovery_min_items=3`, `video_max_sec=180`
+- [ ] R2 bucket + custom domain connected, CORS allows `localhost:5173` for direct uploads; Worker route for `/s/:slug` OG tags stubbed
 
 Test locally:
 ```
 docker compose -f infra/docker-compose.yml up -d
 cd api && npm i && npx prisma migrate dev && npm run dev
-cd web && npm i && npm run dev
+cd web && npm i && npm run dev   # vite on :5173
 cd app && flutter run
 ```
 
-Done: compose green, app opens, web `localhost:3000` renders, dark toggle follows system.
+Done: compose green, app opens, web `localhost:5173` renders, R2 test upload returns public URL, dark toggle follows system.
 
 ---
 
@@ -74,7 +74,7 @@ Done: `npx prisma migrate dev` clean, seed creates 3 demo businesses (Lagos tail
 **PRD:** ACC-1..ACC-8
 
 API: `POST /auth/request-code`, `POST /auth/verify`, `GET /me`, `PATCH /me/country`, rate-limit (ACC-6, Redis or memory).
-Local OTP: log to console + `GET /dev/otp?to=...`, email visible in Mailhog.
+Local OTP: `EMAIL_PROVIDER=console` logs code + `GET /dev/otp?to=...`; set `EMAIL_PROVIDER=resend` with test key to see real delivery in Resend logs / Mailhog catcher.
 
 App: sign-in → country picker (suggest from SIM/device, never infer from email) → mode switch (ACC-3, remembers last) → preview-as-customer (ACC-7) + self-chat block.
 
@@ -88,9 +88,9 @@ Done: new user verified in <60s locally, country change persists, cannot message
 
 Flow: basics (name/category/location, optional logo → generated avatar) → first listing → you're-live (copy link + share sheet + QR) → checklist + `add N more to appear in discovery` (ONB-6) + offline resume (ONB-8).
 
-Web: `GET /s/:slug` public, no login, no exact address unless opted-in (LST-12/WEB-5), rich preview meta (WEB-2), `Discover more` prompt (WEB-4).
+Web: `/#/s/:slug` public (Vite SPA hash route for local), production canonical `GET /s/:slug` served via Worker with SSR meta, no login, no exact address unless opted-in (LST-12/WEB-5), rich preview meta via Worker (WEB-2), `Discover more` prompt (WEB-4).
 
-Done: publish → `http://localhost:3000/s/mama-cakes` opens in incognito, link works immediately, <3 items = live but hidden from discovery.
+Done: publish → `http://localhost:5173/#/s/mama-cakes` opens in incognito (prod: `/s/mama-cakes` unfurls via Worker), link works immediately, <3 items = live but hidden from discovery.
 
 ---
 
@@ -98,7 +98,7 @@ Done: publish → `http://localhost:3000/s/mama-cakes` opens in incognito, link 
 **Goal:** <30s listing, inquiry-only services.
 **PRD:** LST-1..LST-12
 
-API: `CRUD /businesses/:id/listings`, `POST /uploads` (API → MinIO, returns key), availability toggle + `still available?` job stub.
+API: `CRUD /businesses/:id/listings`, `POST /uploads/presign` (API returns R2 presigned PUT → app/web uploads direct to R2, then `POST /uploads/complete` stores key), availability toggle + `still available?` job stub.
 App: camera-first form (1–5 photos, name, price collapsed optionals), Product/Service toggle (starting-from, what's-included, work gallery), bulk-add → drafts, share-to-New-Era intent, on-device compression + retry queue (LST-9).
 Service brief (LST-3): date/area/budget/notes → prefills first chat message.
 
@@ -125,7 +125,7 @@ Done: seed + filter returns Lagos businesses for NG user first, empty query show
 API: `POST /threads (listing_id?)`, `GET /threads`, `WS /chat` + `POST /messages {text,image_key}`, quick-replies/business-hours/away (CHT-5), `first_reply_at` for metrics.
 App: business inbox (unread, CHT-5), chat from product card (CHT-3) shows context header, report/block (CHT-7).
 Web: lightweight code sign-in → chat without install (CHT-4), same thread appears in app after install. Support thread `New Era Support` (CHT-8).
-Local alerts: push stub + Mailhog email with reopen link (CHT-6). No WhatsApp links (CHT-1).
+Alerts: `sendMail()` via Resend/ZeptoMail (CHT-6) with reopen link; local `console` mode logs + Mailhog shows it. No WhatsApp links (CHT-1).
 
 Done: customer web chat → owner app reply <10s locally, history identical both sides, images load <100KB via compressed variants.
 
@@ -177,12 +177,14 @@ Done: demo business shows 7-day chart locally, events visible in admin, zero pub
 ---
 
 ## Step 11 — Local hardening → beta-ready
-**Goal:** survive weak networks + budget phones before any cloud spend.
+**Goal:** survive weak networks + budget phones; R2 + mail already cloud.
 
 - [ ] Image variants (thumb 20KB, feed 80KB), lazy lists, cached Discover, offline queue E2E
 - [ ] App size audit, cold start <3s on reference budget Android
 - [ ] Light/dark contrast re-check (§1.3), 44/48px targets, font `swap` verified on throttled 3G
 - [ ] Rate-limit + disposable-email block live, seed + reset scripts, staged rollout notes (§6.2)
+- [ ] R2 CORS + `Cache-Control` + custom domain verified, Worker OG tags pass WhatsApp/Telegram unfurl test
+- [ ] Resend (or ZeptoMail) domain verified, `sendMail()` failover to console logged
 
 Exit criteria (PRD §8, no guessed targets): measure time-to-first-item, % live, % discovery-eligible, % with weekly chat, median first-reply, link-to-chat conversion — record baselines locally, set beta targets after prototype tests.
 
@@ -192,7 +194,7 @@ Explicitly deferred (do not build): DIS-9/10 remote-all-countries, TRU-3/4 verif
 
 ## Review checklist for you
 
-- [ ] Stack OK for local? (Flutter + Next + Node + Postgres + MinIO)
+- [ ] Stack OK? (Flutter + Vite React + Node + Postgres local, R2 cloud, Resend/ZeptoMail)
 - [ ] Step order OK? (auth → onboarding → listings → discovery → chat → status → shell → trust → insights)
 - [ ] Anything in Steps 0–10 you want cut to protect the loop?
 - [ ] Confirm seed markets (e.g. Lagos/Accra/Nairobi) + categories for Step 1
