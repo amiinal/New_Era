@@ -12,31 +12,46 @@
     --color-error: #B0362C; --color-ink: #1E1E24; --color-body-text: #5B5F6B;
     --color-line: #E4E6EB; --color-line-strong: #8B8F9B;
     --color-surface: #FFFFFF; --color-background: #F7F7F9;
+    --shadow-sm: 0 1px 2px rgba(30,30,36,.06);
+    --shadow-md: 0 2px 8px rgba(30,30,36,.08);
+    --shadow-lg: 0 8px 24px rgba(30,30,36,.12);
   }
   [data-theme="dark"] {
     --color-background: #121317; --color-surface: #1C1F26; --color-surface-raised: #24272F;
     --color-ink: #F2F2F5; --color-body-text: #A9ACB6; --color-line: #2E313A;
     --color-primary-on-dark: #7B90D6;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+    --shadow-md: 0 2px 8px rgba(0,0,0,.45);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,.5);
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--color-background); color: var(--color-ink);
     font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
   .wrap { max-width: 960px; margin: 0 auto; padding: 32px; }
   h1 { font-size: 28px; } h2 { font-size: 22px; margin-top: 48px; border-bottom: 1px solid var(--color-line); padding-bottom: 8px; }
+  h3 { font-size: 18px; margin: 24px 0 12px; }
   p.sub { color: var(--color-body-text); }
+  code { font-size: 12px; color: var(--color-body-text); }
   .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-  .sw { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; overflow: hidden; }
+  .sw { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-sm); }
   .sw .c { height: 72px; } .sw .t { padding: 12px; font-size: 14px; }
-  .sw code { font-size: 12px; color: var(--color-body-text); }
-  .type-sample { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; padding: 16px; }
-  .btn { display: inline-block; border-radius: 8px; height: 48px; line-height: 48px; padding: 0 20px;
-    font-size: 14px; font-weight: 600; border: 0; cursor: pointer; margin: 0 8px 8px 0; }
+  .panel { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: 16px; padding: 16px; box-shadow: var(--shadow-sm); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; height: 48px; padding: 0 20px;
+    font-size: 14px; font-weight: 600; border: 0; cursor: pointer; margin: 0 8px 8px 0; box-shadow: var(--shadow-sm); }
   .btn-primary { background: var(--color-cta); color: #fff; }
-  .btn-primary:active { background: var(--color-cta-dark); }
+  .btn-primary:active, .btn-primary.pressed { background: var(--color-cta-dark); }
   .btn-secondary { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-primary); }
-  .btn-tertiary { background: none; color: var(--color-primary); }
+  .btn-secondary:active, .btn-secondary.pressed { background: var(--color-primary); color: #fff; }
+  .btn-tertiary { background: none; color: var(--color-primary); box-shadow: none; }
+  .btn-tertiary:active, .btn-tertiary.pressed { background: rgba(44,62,122,.08); }
   .btn-destructive { background: var(--color-surface); color: var(--color-error); border: 1px solid var(--color-error); }
-  .btn-disabled { background: var(--color-line); color: var(--color-body-text); cursor: not-allowed; }
+  .btn-destructive:active, .btn-destructive.pressed { background: var(--color-error); color: #fff; }
+  .btn-disabled { background: var(--color-line); color: var(--color-body-text); cursor: not-allowed; box-shadow: none; }
+  .btn .spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+    border-radius: 50%; margin-right: 8px; animation: sp 0.8s linear infinite; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  table.states { border-collapse: collapse; margin-bottom: 8px; }
+  table.states td { padding: 4px 12px 4px 0; font-size: 12px; color: var(--color-body-text); vertical-align: middle; }
   .field { margin-bottom: 16px; max-width: 420px; }
   .field label { display: block; font-size: 14px; margin-bottom: 4px; }
   .field input { width: 100%; height: 48px; border-radius: 8px; padding: 0 16px; font-size: 16px;
@@ -45,14 +60,34 @@
   .field.ok input { border-color: var(--color-success); }
   .field .msg { font-size: 12px; margin-top: 4px; color: var(--color-body-text); }
   .field.err .msg { color: var(--color-error); } .field.ok .msg { color: var(--color-success); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; }
+  .card:active { box-shadow: var(--shadow-sm); }
+  .card .ph { height: 140px; background: linear-gradient(135deg, var(--color-cta-tint), var(--color-primary)); }
+  .card .bd { padding: 16px; }
+  .card .price { font-size: 16px; font-variant-numeric: tabular-nums; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .chip { display: inline-block; height: 32px; line-height: 32px; padding: 0 12px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+  .chip-warn { background: rgba(232,166,57,.15); color: var(--color-warning-text); }
+  .badge-ok { color: var(--color-success); font-size: 12px; font-weight: 500; }
+  .micro { font-size: 12px; color: var(--color-body-text); }
+  .appnav { display: flex; background: var(--color-surface); border-top: 1px solid var(--color-line);
+    border-radius: 16px 16px 0 0; box-shadow: var(--shadow-lg); overflow: hidden; max-width: 420px; }
+  .appnav div { flex: 1; text-align: center; padding: 10px 0 14px; font-size: 12px; color: var(--color-body-text); }
+  .appnav .on { color: var(--color-primary); font-weight: 600; }
+  .webnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 0 16px; gap: 16px; }
+  .webnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
+  .webnav .sp { flex: 1; }
+  .btn-sm { height: 32px; line-height: 32px; padding: 0 12px; font-size: 12px; }
   .toggle { position: fixed; top: 16px; right: 16px; }
 </style>
 </head>
 <body>
-<div class="toggle"><button class="btn btn-secondary" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">Toggle dark</button></div>
+<div class="toggle"><button class="btn btn-secondary btn-sm" onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? '' : 'dark'">Toggle dark</button></div>
 <div class="wrap">
   <h1>New Era — Design System Preview</h1>
-  <p class="sub">v1.1 tokens · Inter · base-4 spacing · <code>Docs/New-Era-Design-System.md</code> is source of truth</p>
+  <p class="sub">v1.1 tokens · Inter · base-4 · shadows soft/neutral so photos stay the focus · <code>Docs/New-Era-Design-System.md</code> is source of truth</p>
 
   <h2>1 · Colors</h2>
   <div class="swatches">
@@ -74,7 +109,7 @@
   </div>
 
   <h2>2 · Typography (Inter)</h2>
-  <div class="type-sample">
+  <div class="panel">
     <div style="font-size:40px;font-weight:700">Display 40 Bold — web headlines only</div>
     <div style="font-size:28px;font-weight:700">H1 28 Bold — screen titles</div>
     <div style="font-size:22px;font-weight:600">H2 22 Semibold — section headers</div>
@@ -84,20 +119,63 @@
     <div style="font-size:12px;font-weight:500">Micro 12 Medium — timestamps, tags</div>
   </div>
 
-  <h2>3 · Buttons</h2>
-  <div>
-    <button class="btn btn-primary">Message</button>
-    <button class="btn btn-secondary">Share storefront</button>
-    <button class="btn btn-tertiary">See all</button>
-    <button class="btn btn-destructive">Block</button>
-    <button class="btn btn-disabled" disabled>Publish (disabled)</button>
-  </div>
-  <p class="sub">One CTA per screen · h48/40/32 · radius 8 · pressed = <code>-dark</code> tokens</p>
+  <h2>3 · Buttons + states</h2>
+  <h3>Primary (CTA — one per screen)</h3>
+  <table class="states">
+    <tr><td>Default</td><td><button class="btn btn-primary">Message</button></td></tr>
+    <tr><td>Pressed</td><td><button class="btn btn-primary pressed">Message</button></td></tr>
+    <tr><td>Loading</td><td><button class="btn btn-primary" disabled><span class="spin"></span>Sending</button></td></tr>
+    <tr><td>Disabled</td><td><button class="btn btn-disabled" disabled>Message</button></td></tr>
+  </table>
+  <h3>Secondary / Tertiary / Destructive</h3>
+  <table class="states">
+    <tr><td>Secondary</td><td><button class="btn btn-secondary">Share storefront</button></td></tr>
+    <tr><td>Secondary pressed</td><td><button class="btn btn-secondary pressed">Share storefront</button></td></tr>
+    <tr><td>Tertiary</td><td><button class="btn btn-tertiary">See all</button></td></tr>
+    <tr><td>Destructive</td><td><button class="btn btn-destructive">Block</button></td></tr>
+    <tr><td>Destructive pressed</td><td><button class="btn btn-destructive pressed">Block</button></td></tr>
+  </table>
+  <p class="sub">Sizes lg 48 / md 40 / sm 32 · radius 8 · tap target ≥44/48px · try pressing the live buttons</p>
 
   <h2>4 · Inputs</h2>
   <div class="field"><label>Business name</label><input value="Mama's Kitchen" /><div class="msg">Helper text goes here.</div></div>
   <div class="field err"><label>Price</label><input value="abc" /><div class="msg">Enter a valid price or pick “on request”.</div></div>
   <div class="field ok"><label>Storefront link</label><input value="newera.shop/mamas-kitchen" /><div class="msg">Link is live.</div></div>
+
+  <h2>5 · Shadows (app feel)</h2>
+  <div class="swatches">
+    <div class="sw" style="box-shadow:var(--shadow-sm)"><div class="t">shadow-sm<br><code>0 1px 2px · 6% — buttons, chips</code></div></div>
+    <div class="sw" style="box-shadow:var(--shadow-md)"><div class="t">shadow-md<br><code>0 2px 8px · 8% — cards</code></div></div>
+    <div class="sw" style="box-shadow:var(--shadow-lg)"><div class="t">shadow-lg<br><code>0 8px 24px · 12% — sheets, nav</code></div></div>
+  </div>
+  <p class="sub">Soft black on ink, never coloured — backgrounds stay neutral so photos stay the focus. Dark mode uses deeper black at 40–50%.</p>
+
+  <h2>6 · Cards</h2>
+  <div class="cards">
+    <div class="card"><div class="ph"></div><div class="bd">
+      <div style="font-size:18px;font-weight:600">Jollof Rice — Large</div>
+      <div class="price">₦5,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div>
+    </div></div>
+    <div class="card"><div class="bd">
+      <div style="font-size:18px;font-weight:600">Mama's Kitchen <span class="badge-ok">✓</span></div>
+      <div class="micro">Food service · Lagos</div>
+      <div style="margin-top:8px"><span class="chip chip-warn">Low stock</span></div>
+      <div class="micro" style="margin-top:8px">Certificates · <i>Self-reported — not verified by New Era</i></div>
+    </div></div>
+    <div class="card"><div class="bd">
+      <div class="micro">STATUS · 23h left</div>
+      <div style="font-size:16px;margin:8px 0">Back in stock — party jollof pans 🍲</div>
+      <button class="btn btn-primary btn-sm">Message</button>
+    </div></div>
+  </div>
+
+  <h2>7 · Nav bars</h2>
+  <h3>App bottom nav (customer)</h3>
+  <div class="appnav"><div>💬<br>Chats</div><div class="on">📰<br>Updates</div><div>🔍<br>Discover</div></div>
+  <p class="sub">surface · active <code>primary</code> · unread dot <code>error</code> · h64 + safe-area</p>
+  <h3>Web top nav</h3>
+  <div class="webnav"><span class="logo">New Era</span><span style="font-size:14px">Discover</span><span style="font-size:14px">Pricing</span><span class="sp"></span><button class="btn btn-primary btn-sm">Open app</button></div>
+  <p class="sub">h64 · surface + primary logo · sticky with <code>line</code> border</p>
 </div>
 </body>
 </html>
