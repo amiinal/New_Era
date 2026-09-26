@@ -1,5 +1,6 @@
 # New Era — Implementation Plan (local app+DB, cloud files+mail)
 **PRD:** v0.3 (Sept 26 2026) · **Design:** v1.1 · **Goal:** prove listed → found → chatted, with app + DB locally, files on R2, mail via Resend/ZeptoMail
+**Plan status:** DRAFT for review — no further code until you approve. Steps 0–2 were scaffolded earlier and are now frozen pending your sign-off.
 
 How to review: each Step has Goal → PRD IDs → Build → Test locally → Done. Steps run in order. Only R2 + mail need cloud keys; everything else runs on localhost.
 
@@ -58,7 +59,7 @@ Done: compose green, app opens, web `localhost:5173` renders, R2 test upload ret
 **Goal:** ACC-8-ready schema (1 business/account now, N later).
 **PRD:** ACC-8, ONB-5, DIS-7, ANA-1
 
-Tables: `accounts`, `profiles`, `businesses` (owner FK, slug unique, country, category, area, delivery_area), `listings` (type product/service, price, currency, availability, photos[]), `collections`, `statuses` (expires_at), `threads`, `messages`, `reports`, `support_threads`, `events`, `server_config`.
+Tables: `accounts` (profile fields live on the account — no separate profiles table), `businesses` (owner FK, slug unique, country, city, area, delivery_area), `listings` (type product/service, price, currency, availability, photos[]), `collections` (LST-7 tabs), `statuses` (expires_at), `threads` (`is_support` flag covers the Support account thread, CHT-8), `messages`, `reports`, `events`, `server_config`.
 
 Key constraints:
 - `businesses.slug` unique, `listings.photos[1..5]`
@@ -98,7 +99,7 @@ Done: publish → `http://localhost:5173/#/s/mama-cakes` opens in incognito (pro
 **Goal:** <30s listing, inquiry-only services.
 **PRD:** LST-1..LST-12
 
-API: `CRUD /businesses/:id/listings`, `POST /uploads/presign` (API returns R2 presigned PUT → app/web uploads direct to R2, then `POST /uploads/complete` stores key), availability toggle + `still available?` job stub.
+API: `CRUD /businesses/:id/listings`, `CRUD /businesses/:id/collections` (LST-7 tabs), `POST /uploads/presign` (API returns R2 presigned PUT → app/web uploads direct to R2, then `POST /uploads/complete` stores key), availability toggle + `still available?` job stub.
 App: camera-first form (1–5 photos, name, price collapsed optionals), Product/Service toggle (starting-from, what's-included, work gallery), bulk-add → drafts, share-to-New-Era intent, on-device compression + retry queue (LST-9).
 Service brief (LST-3): date/area/budget/notes → prefills first chat message.
 
@@ -194,9 +195,34 @@ Explicitly deferred (do not build): DIS-9/10 remote-all-countries, TRU-3/4 verif
 
 ## Review checklist for you
 
-- [ ] Stack OK? (Flutter + Vite React + Node + Postgres local, R2 cloud, Resend/ZeptoMail)
-- [ ] Step order OK? (auth → onboarding → listings → discovery → chat → status → shell → trust → insights)
-- [ ] Anything in Steps 0–10 you want cut to protect the loop?
-- [ ] Confirm seed markets (e.g. Lagos/Accra/Nairobi) + categories for Step 1
+Decide each line, then reply `approved` (or with changes). No code resumes until then.
 
-Once approved, build starts at Step 0 and each step merges to `main` with `Step N: ...` commits.
+- [ ] Stack: Flutter + Vite React + Node/Fastify + Postgres local, R2 cloud, Resend primary / ZeptoMail budget alt. Confirm, or swap (only approved alt: React Native for app)?
+- [ ] Step order: auth → onboarding → listings → discovery → chat → status → shell → trust → insights. Any reorder or cut to protect the loop?
+- [ ] Seed markets for Step 1: Lagos (NG/Bakery), Accra (GH/Salon), Nairobi (KE/Tailor). Confirm or replace cities/categories?
+- [ ] Launch scope (PRD §10 open): which 1–2 countries + cities for the closed beta? Needed before Step 5 ranking weights.
+- [ ] R2: bucket name + public image domain? Needed before Step 4 uploads.
+- [ ] Mail: Resend or ZeptoMail as the one default? Needed before Step 2 OTP in staging.
+- [ ] Chat note: PRD CHT-9 proposes a managed chat service; plan builds local Socket.io first with the same message schema and swaps later. Accept?
+
+Once approved, build restarts at Step 3 and each step merges to `main` with `Step N: ...` commits.
+
+---
+
+## Appendix: PRD ID → Step coverage
+
+| PRD IDs | Step |
+|---|---|
+| ACC-1..8 | 2 |
+| ONB-1..10 | 3 |
+| LST-1..12 | 4 |
+| WEB-1..5 | 3 (Worker OG for WEB-2) |
+| CHT-1..10 (CHT-9 via local-first adapter, swap later) | 6 |
+| STA-1..9 (STA-7/10 deferred) | 7 |
+| CUS-1..10 | 8 (tabs), 7 (Updates rules), 5 (Discover) |
+| DIS-1..8 (DIS-9..11 deferred) | 5 |
+| TRU-1,2,5,6,7 (TRU-3/4 deferred) | 9 |
+| HLP-1..3 | 9 |
+| PRM-1..4 (build nothing; measure trigger) | 10 |
+| ANA-1..4 | 10 |
+| §6.2 perf/offline/i18n-ready, §7 country rules, §8 metrics | 0, 11 |
