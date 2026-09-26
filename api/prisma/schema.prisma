@@ -63,7 +63,7 @@ model Listing {
   createdAt    DateTime @default(now())
 
   @@index([businessId])
-  @@fulltext([title])
+  @@index([title])
 }
 
 model Collection {
