@@ -164,7 +164,8 @@ Done: fresh account sees empty Chats → tap search → Discover → chat → Ch
 - Report/block on profiles/listings/statuses/chats → `reports` queue
 - `web/admin`: moderation queue, take-down, account/business lookup, support reply (TRU-1)
 - Prohibited-items page (static, TRU-2), private post-chat nudge `Did you get a reply?` (TRU-6, feeds ranking not stars), cross-border caution sheet (TRU-7)
-- Help: per-step guides + searchable center + support chat (HLP-1), hours display (HLP-2), `help_opened {step}` event (HLP-3)
+- Ratings trigger left per-market for the beta (TRU-5 number set once launch markets are known).
+- Help: onboarding guides + FAQ first (HLP-1); human support chat exists but scoped to bug reports and important issues not covered in the FAQ — not onboarding hand-holding. Hours display (HLP-2), `help_opened {step}` event (HLP-3).
 
 Done: report → appears in `/admin` → hide → gone from Discover + storefront, all without restart.
 
