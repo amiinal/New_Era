@@ -92,7 +92,8 @@
   .chatbox { display: flex; gap: 8px; padding: 12px 16px; background: var(--color-surface); border-top: 1px solid var(--color-line); }
   .chatbox input { flex: 1; height: 48px; border-radius: 8px; border: 1px solid var(--color-line-strong); padding: 0 16px; font-size: 16px; }
   .chatbox button { width: 48px; height: 48px; border-radius: 8px; border: 0; background: var(--color-cta);
-    color: #fff; cursor: pointer; box-shadow: var(--shadow-cta); font-size: 20px; }
+    color: #fff; cursor: pointer; box-shadow: var(--shadow-cta); display: flex; align-items: center; justify-content: center; }
+  .chatbox button svg { width: 22px; height: 22px; }
   .ctx { background: var(--color-surface); border-bottom: 1px solid var(--color-line); padding: 8px 16px; font-size: 14px; }
   .topbar { background: var(--color-primary); color: #fff; padding: 14px 16px; font-size: 18px; font-weight: 600;
     display: flex; align-items: center; gap: 8px; }
@@ -248,7 +249,7 @@
       <div class="bubble them">Hello! Yes, party jollof is available this Friday.</div>
     </div>
     <div class="spacer"></div>
-    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" readonly onclick="kbdtoggle()" /><button onclick="send()">›</button></div>
+    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" readonly onclick="kbdtoggle()" /><button id="sendbtn" onclick="send()">›</button></div>
     <div class="bottomnav"><span class="ind" style="left:0"></span>
       <div class="tab on" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
       <div class="tab" onclick="tab('s-updates')"><i data-lucide="newspaper"></i><br>Updates</div>
@@ -300,11 +301,24 @@
     i.value += (caps && /[a-z]/.test(c)) ? c.toUpperCase() : c;
     if (caps) { caps = false; drawKb(); }
     document.getElementById('afield').textContent = i.value;
+    syncSend();
   }
   function back() {
     const i = document.getElementById('chatinput');
     i.value = i.value.slice(0, -1);
     document.getElementById('afield').textContent = i.value;
+    syncSend();
+  }
+  function svg(paths) {
+    return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + paths + '</svg>';
+  }
+  const I_UP = svg('<path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>');
+  const I_DEL = svg('<path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><line x1="18" x2="12" y1="9" y2="15"/><line x1="12" x2="18" y1="9" y2="15"/>');
+  const I_MIC = svg('<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>');
+  const I_SEND = svg('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>');
+  function syncSend() {
+    document.getElementById('sendbtn').innerHTML =
+      document.getElementById('chatinput').value.trim() ? I_SEND : I_MIC;
   }
   function toast(msg) {
     const t = document.getElementById('toast');
@@ -328,12 +342,12 @@
     [...set[1]].forEach(c => r2.appendChild(kbBtn(c, '', () => key(c))));
     const s2 = document.createElement('span'); s2.className = 'kspacer'; r2.appendChild(s2);
     const r3 = document.getElementById('kr3'); r3.innerHTML = '';
-    if (!sym) r3.appendChild(kbBtn('<i data-lucide="arrow-big-up"></i>', 'kw kfn' + (caps ? ' on' : ''), () => { caps = !caps; drawKb(); }));
+    if (!sym) r3.appendChild(kbBtn(I_UP, 'kw kfn' + (caps ? ' on' : ''), () => { caps = !caps; drawKb(); }));
     [...set[2]].forEach(c => r3.appendChild(kbBtn(c, '', () => key(c))));
-    r3.appendChild(kbBtn('<i data-lucide="delete"></i>', 'kw', back));
+    r3.appendChild(kbBtn(I_DEL, 'kw', back));
     const r4 = document.getElementById('kr4'); r4.innerHTML = '';
     r4.appendChild(kbBtn(sym ? 'ABC' : '?123', 'kw', () => { sym = !sym; drawKb(); }));
-    r4.appendChild(kbBtn('<i data-lucide="mic"></i>', 'kw', () => toast('Voice input is phase 2')));
+    r4.appendChild(kbBtn(I_MIC, 'kw', () => toast('Voice input is phase 2')));
     r4.appendChild(kbBtn('Space', 'ksp', () => key(' ')));
     r4.appendChild(kbBtn('.', 'kw', () => key('.')));
     r4.appendChild(kbBtn('Return', 'kw', () => { send(); kbd(false); }));
@@ -351,8 +365,11 @@
     const log = document.getElementById('chatlog');
     const b = document.createElement('div'); b.className = 'bubble me'; b.textContent = inp.value;
     log.appendChild(b); inp.value = '';
+    document.getElementById('afield').textContent = '';
+    syncSend();
     setTimeout(() => log.insertAdjacentHTML('beforeend', '<div class="bubble them">Thanks! We reply within an hour (demo reply).</div>'), 800);
   }
+  syncSend();
   const track = document.getElementById('track');
   const dots = document.getElementById('dots').children;
   track.addEventListener('scroll', () => {
