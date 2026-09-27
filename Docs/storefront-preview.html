@@ -189,7 +189,7 @@
         <div class="meta">Food service · Ikeja, Lagos · Delivery available</div></div>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" onclick="tab('s-chat')">Message</button>
+        <button class="btn btn-primary" onclick="msg()">Message</button>
         <button class="btn btn-secondary" onclick="sheet(true)">Share</button>
       </div>
     </div>
@@ -225,7 +225,7 @@
     <div class="biz"><h1>Jollof Rice — Large</h1>
       <div class="p" style="font-size:16px;font-variant-numeric:tabular-nums">₦5,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div>
       <div class="micro" style="margin-top:8px">Party-size portion with chicken and plantain · Ready Fridays · Ikeja pickup or Lagos delivery</div>
-      <div class="actions"><button class="btn btn-primary" onclick="tab('s-chat')">Message about this</button></div>
+      <div class="actions"><button class="btn btn-primary" onclick="msg('Jollof Rice — Large', '₦5,000')">Message about this</button></div>
     </div><div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:66.66%"></span>
       <div class="tab" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
@@ -238,7 +238,7 @@
     <div class="biz"><h1>Fried Rice — Medium</h1>
       <div class="p" style="font-size:16px;font-variant-numeric:tabular-nums">₦6,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div>
       <div class="micro" style="margin-top:8px">Shrimp and chicken fried rice · Ready daily · Ikeja pickup or Lagos delivery</div>
-      <div class="actions"><button class="btn btn-primary" onclick="tab('s-chat')">Message about this</button></div>
+      <div class="actions"><button class="btn btn-primary" onclick="msg('Fried Rice — Medium', '₦6,000')">Message about this</button></div>
     </div><div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:66.66%"></span>
       <div class="tab" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
@@ -251,7 +251,7 @@
     <div class="biz"><h1>Moi Moi (4 wraps)</h1>
       <div class="p" style="font-size:16px;font-variant-numeric:tabular-nums">₦2,000 · <span class="dot" style="background:#E8A639"></span><span class="micro">Limited</span></div>
       <div class="micro" style="margin-top:8px">Steamed bean pudding with egg · Weekends only · Ikeja pickup</div>
-      <div class="actions"><button class="btn btn-primary" onclick="tab('s-chat')">Message about this</button></div>
+      <div class="actions"><button class="btn btn-primary" onclick="msg('Moi Moi (4 wraps)', '₦2,000')">Message about this</button></div>
     </div><div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:66.66%"></span>
       <div class="tab" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
@@ -265,10 +265,10 @@
     <div class="pad"></div>
     <div class="statuscard"><div class="micro">MAMA'S KITCHEN · 5h left</div>
       <div style="font-size:16px;margin:8px 0">Back in stock — party jollof pans</div>
-      <button class="btn btn-primary" onclick="tab('s-chat')">Message</button></div>
+      <button class="btn btn-primary" onclick="msg('Jollof Rice — Large', '₦5,000')">Message</button></div>
     <div class="statuscard"><div class="micro">MAMA'S KITCHEN · 11h left</div>
       <div style="font-size:16px;margin:8px 0">Weekend Moi Moi — limited wraps</div>
-      <button class="btn btn-primary" onclick="tab('s-chat')">Message</button></div>
+      <button class="btn btn-primary" onclick="msg('Moi Moi (4 wraps)', '₦2,000')">Message</button></div>
     <div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:33.33%"></span>
       <div class="tab" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
@@ -279,7 +279,7 @@
   <!-- CHAT -->
   <div class="screen" id="s-chat">
     <div class="topbar"><button onclick="go('s-store')">‹</button> Mama's Kitchen</div>
-    <div class="ctx micro" style="background:var(--color-surface);padding:8px 16px">About: Jollof Rice — Large · ₦5,000</div>
+    <div class="ctx micro" style="background:var(--color-surface);padding:8px 16px"><span id="ctxtext">Say hello to Mama's Kitchen</span></div>
     <div class="pad" id="chatlog" style="display:flex;flex-direction:column">
       <div class="bubble them">Hello! Yes, party jollof is available this Friday.</div>
     </div>
@@ -320,6 +320,11 @@
     sheet(false);
   }
   function tab(id) { go(id); moveInd(id); }
+  function msg(dish, price) {
+    document.getElementById('ctxtext').textContent =
+      dish ? ('About: ' + dish + ' · ' + price) : "Say hello to Mama's Kitchen";
+    tab('s-chat');
+  }
   function moveInd(id) {
     const map = { 's-chat': '0', 's-updates': '33.33%', 's-store': '66.66%', 's-d-jollof': '66.66%', 's-d-fried': '66.66%', 's-d-moi': '66.66%' };
     document.querySelectorAll('.bottomnav').forEach(nav => {
