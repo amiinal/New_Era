@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta property="og:title" content="Mama's Kitchen — Food service in Lagos" />
+<meta property="og:description" content="Jollof Rice from ₦3,500" />
+<title>Mama's Kitchen — New Era</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --color-primary: #2C3E7A; --color-cta: #C24E22; --color-cta-dark: #A33D1A;
+    --color-success: #0A6B62; --color-warning-tint: #E8A639; --color-warning-text: #8A5A12;
+    --color-error: #B0362C; --color-ink: #1E1E24; --color-body-text: #5B5F6B;
+    --color-line: #E4E6EB; --color-line-strong: #8B8F9B;
+    --color-surface: #FFFFFF; --color-background: #F7F7F9;
+    --shadow-sm: 0 1px 2px rgba(30,30,36,.06); --shadow-md: 0 2px 8px rgba(30,30,36,.08);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-background); color: var(--color-ink);
+    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .topnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
+    border-bottom: 1px solid var(--color-line); padding: 0 16px; position: sticky; top: 0; }
+  .topnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
+  .topnav .links { display: flex; gap: 32px; margin-left: 48px; font-size: 14px; }
+  .topnav .sp { flex: 1; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px;
+    height: 48px; padding: 0 20px; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .btn-primary { background: var(--color-cta); color: #fff; }
+  .btn-secondary { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-primary); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 12px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  .hero { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-md); padding: 24px; display: flex; gap: 16px; align-items: center; }
+  .avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(44,62,122,.12);
+    color: var(--color-primary); font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hero h1 { font-size: 22px; margin: 0; }
+  .hero .meta { font-size: 12px; color: var(--color-body-text); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
+  .hero .actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .sec { font-size: 18px; font-weight: 600; margin: 32px 0 12px; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .chip { height: 32px; line-height: 30px; padding: 0 12px; border-radius: 4px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--color-line-strong); color: var(--color-body-text); }
+  .chip.on { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (min-width: 700px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .card { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; }
+  .card .ph { height: 140px; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .card .bd { padding: 16px; }
+  .card .t { font-size: 18px; font-weight: 600; }
+  .card .p { font-size: 16px; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .micro { font-size: 12px; color: var(--color-body-text); }
+  .cert { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-md); padding: 16px; display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .cert .ic { width: 40px; height: 40px; border-radius: 8px; background: rgba(44,62,122,.12); color: var(--color-primary);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .footer { margin-top: 40px; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="topnav"><span class="logo">New Era</span>
+    <span class="links"><span>Discover</span><span>Pricing</span><span>About</span></span>
+    <span class="sp"></span><button class="btn btn-primary btn-sm">Open app</button>
+  </div>
+  <div class="wrap">
+    <div class="hero">
+      <div class="avatar">M</div>
+      <div>
+        <h1>Mama's Kitchen</h1>
+        <div class="meta"><span>Food service · Ikeja, Lagos</span></div>
+        <div class="actions">
+          <button class="btn btn-primary"><span>Message</span></button>
+          <button class="btn btn-secondary">Share</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">Listings</div>
+    <div class="tabs"><span class="chip on">All</span><span class="chip">Rice dishes</span><span class="chip">Sides</span></div>
+    <div class="grid">
+      <div class="card"><div class="ph" style="background:linear-gradient(135deg,#F2703C,#2C3E7A)">Jollof</div>
+        <div class="bd"><div class="t">Jollof Rice — Large</div>
+        <div class="p">₦5,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div></div></div>
+      <div class="card"><div class="ph" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)">Fried</div>
+        <div class="bd"><div class="t">Fried Rice — Medium</div>
+        <div class="p">₦3,500 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div></div></div>
+      <div class="card"><div class="ph" style="background:linear-gradient(135deg,#E8A639,#A33D1A)">Moi</div>
+        <div class="bd"><div class="t">Moi Moi (4 wraps)</div>
+        <div class="p">₦2,000 · <span class="dot" style="background:#E8A639"></span><span class="micro">Limited</span></div></div></div>
+    </div>
+
+    <div class="sec">Certificates</div>
+    <div class="cert"><div class="ic"><i data-lucide="award"></i></div>
+      <div><div style="font-size:14px;font-weight:600">Lagos Food Hygiene Certificate</div>
+      <div class="micro">Lagos State Food Safety · 2025 · <i>Self-reported — not verified by New Era</i></div></div>
+    </div>
+
+    <div class="footer">
+      <p class="micro">Discover more businesses on New Era</p>
+      <button class="btn btn-secondary">Open in the app</button>
+    </div>
+  </div>
+<script>lucide.createIcons();</script>
+</body>
+</html>
