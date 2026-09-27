@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>New Era — App Prototype: Storefront flow</title>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --color-primary: #2C3E7A; --color-cta: #C24E22; --color-cta-dark: #A33D1A;
+    --color-success: #0A6B62; --color-warning-tint: #E8A639; --color-warning-text: #8A5A12;
+    --color-error: #B0362C; --color-ink: #1E1E24; --color-body-text: #5B5F6B;
+    --color-line: #E4E6EB; --color-line-strong: #8B8F9B;
+    --color-surface: #FFFFFF; --color-background: #F7F7F9;
+    --shadow-sm: 0 1px 2px rgba(30,30,36,.06); --shadow-md: 0 2px 8px rgba(30,30,36,.08);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: #101218; color: var(--color-ink);
+    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    display: flex; justify-content: center; padding: 24px 12px; }
+  .hint { color: #9aa0ae; font-size: 13px; max-width: 300px; margin-right: 24px; display: none; }
+  @media (min-width: 900px) { .hint { display: block; } }
+  .phone { width: 390px; height: 844px; background: var(--color-background); border-radius: 40px;
+    overflow: hidden; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,.5); display: flex; flex-direction: column; }
+  .screen { display: none; flex: 1; overflow-y: auto; flex-direction: column; }
+  .screen.on { display: flex; }
+  .topbar { background: var(--color-primary); color: #fff; padding: 14px 16px; font-size: 18px; font-weight: 600;
+    display: flex; align-items: center; gap: 8px; }
+  .topbar button { background: none; border: 0; color: #fff; cursor: pointer; padding: 4px; }
+  .body { padding: 16px; padding-bottom: 24px; }
+  .search { display: flex; align-items: center; gap: 8px; background: var(--color-surface);
+    border: 1px solid var(--color-line-strong); border-radius: 8px; height: 48px; padding: 0 16px; color: var(--color-body-text); }
+  .card { background: var(--color-surface); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; margin-top: 12px; cursor: pointer; }
+  .card .ph { height: 120px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+  .card .bd { padding: 16px; }
+  .card .t { font-size: 18px; font-weight: 600; }
+  .card .p { font-size: 16px; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .micro { font-size: 12px; color: var(--color-body-text); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .avatar { width: 64px; height: 64px; border-radius: 50%; background: rgba(44,62,122,.12);
+    color: var(--color-primary); font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px;
+    height: 48px; padding: 0 20px; font-size: 14px; font-weight: 600; border: 0; cursor: pointer; width: 100%; }
+  .btn-primary { background: var(--color-cta); color: #fff; }
+  .btn-primary:active { background: var(--color-cta-dark); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-primary); border: 1px solid var(--color-primary); }
+  .row2 { display: flex; gap: 8px; margin-top: 12px; }
+  .row2 .btn-secondary { flex: 1; } .row2 .btn-primary { flex: 2; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .chip { display: inline-block; height: 32px; line-height: 30px; padding: 0 12px; border-radius: 4px; font-size: 12px;
+    border: 1px solid var(--color-line-strong); color: var(--color-body-text); margin: 12px 8px 0 0; }
+  .chip.on { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+  .cert { display: flex; gap: 12px; align-items: center; margin-top: 12px; }
+  .cert .ic { width: 40px; height: 40px; border-radius: 8px; background: rgba(44,62,122,.12);
+    color: var(--color-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bubble { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 16px; margin-bottom: 8px; }
+  .bubble.them { background: var(--color-surface); box-shadow: var(--shadow-sm); align-self: flex-start; }
+  .bubble.me { background: var(--color-primary); color: #fff; align-self: flex-end; }
+  .chatbox { display: flex; gap: 8px; padding: 12px 16px; background: var(--color-surface); border-top: 1px solid var(--color-line); }
+  .chatbox input { flex: 1; height: 48px; border-radius: 8px; border: 1px solid var(--color-line-strong); padding: 0 16px; font-size: 16px; }
+  .chatbox button { width: 48px; height: 48px; border-radius: 8px; border: 0; background: var(--color-cta); color: #fff; cursor: pointer; }
+  .ctx { background: var(--color-surface); border-bottom: 1px solid var(--color-line); padding: 8px 16px; font-size: 14px;
+    display: flex; align-items: center; gap: 8px; }
+  .bottomnav { display: flex; background: var(--color-surface); border-top: 1px solid var(--color-line); }
+  .bottomnav div { flex: 1; text-align: center; padding: 10px 0 18px; font-size: 12px; color: var(--color-body-text); cursor: pointer; }
+  .bottomnav .on { color: var(--color-primary); font-weight: 600; }
+  .spacer { flex: 1; }
+  /* PHOTO SLOTS: replace .ph gradient divs with <img src="images/NAME.jpg"> when real photos arrive */
+</style>
+</head>
+<body>
+<div class="hint">
+  <h3>How to click through</h3>
+  <p>Discover → tap Mama's Kitchen → storefront → tap a listing → detail → Message → chat. Type and send — the reply is canned for now. Bottom nav switches tabs.</p>
+  <p>Built from Design v1.2 tokens. Photos are placeholders until real shots arrive.</p>
+</div>
+<div class="phone">
+
+  <!-- DISCOVER -->
+  <div class="screen on" id="s-discover">
+    <div class="topbar">Discover</div>
+    <div class="body">
+      <div class="search">Search businesses…</div>
+      <div class="micro" style="margin-top:12px">Lagos, Nigeria · Food service</div>
+      <div class="card" onclick="go('s-store')">
+        <div class="ph" data-photo="business" style="background:linear-gradient(135deg,#F2703C,#2C3E7A)">Mama's Kitchen</div>
+        <div class="bd"><div class="t">Mama's Kitchen</div><div class="micro">Food service · Ikeja, Lagos</div></div>
+      </div>
+      <div class="card"><div class="ph" style="background:linear-gradient(135deg,#0A6B62,#1F2C59)">Accra Style Salon</div>
+        <div class="bd"><div class="t">Accra Style Salon</div><div class="micro">Salon · Osu, Accra</div></div></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+  </div>
+
+  <!-- STOREFRONT -->
+  <div class="screen" id="s-store">
+    <div class="topbar"><button onclick="go('s-discover')">‹</button> Storefront</div>
+    <div class="body">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="avatar">M</div>
+        <div><div style="font-size:22px;font-weight:600">Mama's Kitchen</div>
+        <div class="micro">Food service · Ikeja, Lagos</div></div>
+      </div>
+      <div class="row2">
+        <button class="btn btn-primary" onclick="go('s-chat')">Message</button>
+        <button class="btn btn-secondary">Share</button>
+      </div>
+      <div><span class="chip on">All</span><span class="chip">Rice dishes</span><span class="chip">Sides</span></div>
+      <div class="grid2">
+        <div class="card" onclick="go('s-listing')"><div class="ph" data-photo="listing1" style="background:linear-gradient(135deg,#F2703C,#2C3E7A);height:100px">Jollof</div>
+          <div class="bd"><div class="t" style="font-size:16px">Jollof — Large</div>
+          <div class="p" style="font-size:14px">₦5,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div></div></div>
+        <div class="card"><div class="ph" data-photo="listing2" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A);height:100px">Fried</div>
+          <div class="bd"><div class="t" style="font-size:16px">Fried — Medium</div>
+          <div class="p" style="font-size:14px">₦3,500 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div></div></div>
+        <div class="card"><div class="ph" data-photo="listing3" style="background:linear-gradient(135deg,#E8A639,#A33D1A);height:100px">Moi</div>
+          <div class="bd"><div class="t" style="font-size:16px">Moi Moi ×4</div>
+          <div class="p" style="font-size:14px">₦2,000 · <span class="dot" style="background:#E8A639"></span><span class="micro">Limited</span></div></div></div>
+      </div>
+      <div style="font-size:18px;font-weight:600;margin:20px 0 4px">Certificates</div>
+      <div class="cert"><div class="ic"><i data-lucide="award"></i></div>
+        <div><div style="font-size:14px;font-weight:600">Food Hygiene Certificate</div>
+        <div class="micro"><i>Self-reported — not verified by New Era</i></div></div></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+  </div>
+
+  <!-- LISTING DETAIL -->
+  <div class="screen" id="s-listing">
+    <div class="topbar"><button onclick="go('s-store')">‹</button> Listing</div>
+    <div class="body">
+      <div class="card" style="cursor:default"><div class="ph" data-photo="listing1" style="background:linear-gradient(135deg,#F2703C,#2C3E7A);height:180px">Jollof — Large</div>
+        <div class="bd"><div class="t">Jollof Rice — Large</div>
+        <div class="p">₦5,000 · <span class="dot" style="background:#0A6B62"></span><span class="micro">In stock</span></div>
+        <div class="micro" style="margin-top:8px">Party-size portion · Ready Fridays · Ikeja pickup or delivery</div></div></div>
+      <div class="row2"><button class="btn btn-primary" onclick="go('s-chat')">Message about this</button></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="screen" id="s-chat">
+    <div class="topbar"><button onclick="go('s-store')">‹</button> Mama's Kitchen</div>
+    <div class="ctx"><span class="micro">About:</span> Jollof Rice — Large · ₦5,000</div>
+    <div class="body" id="chatlog" style="display:flex;flex-direction:column">
+      <div class="bubble them">Hello! Yes, party jollof is available this Friday.</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" /><button onclick="send()">›</button></div>
+    <div class="bottomnav"><div class="on">Chats</div><div>Updates</div><div>Discover</div></div>
+  </div>
+
+</div>
+<script>
+  lucide.createIcons();
+  function go(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+    document.getElementById(id).classList.add('on');
+  }
+  function send() {
+    const inp = document.getElementById('chatinput');
+    if (!inp.value.trim()) return;
+    const log = document.getElementById('chatlog');
+    log.insertAdjacentHTML('beforeend', '<div class="bubble me"></div>');
+    log.lastChild.textContent = inp.value;
+    inp.value = '';
+    setTimeout(() => log.insertAdjacentHTML('beforeend', '<div class="bubble them">Thanks! We reply within an hour (demo reply).</div>'), 800);
+  }
+</script>
+</body>
+</html>
