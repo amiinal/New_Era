@@ -114,6 +114,15 @@
   .toast { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--color-ink);
     color: #fff; font-size: 14px; border-radius: 8px; padding: 12px 20px; display: none; box-shadow: var(--shadow-lg); }
   .toast.on { display: block; }
+  .kbd { position: absolute; inset: auto 0 0 0; background: #D1D5DB; padding: 6px 4px 20px; display: none; z-index: 10; }
+  .kbd.on { display: block; animation: fade .18s ease; }
+  .kbd .kr { display: flex; gap: 5px; justify-content: center; margin-bottom: 6px; }
+  .kbd .kk { flex: 1; max-width: 36px; height: 42px; background: #fff; border-radius: 5px; border: 0;
+    font-size: 16px; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,.25); cursor: pointer; }
+  .kbd .kk:active { background: #E4E6EB; }
+  .kbd .kw { max-width: none; flex: 2; font-size: 13px; background: #B9BDC6; }
+  .kbd .ksp { flex: 5; max-width: none; }
+  .kbd .kgo { background: var(--color-primary); color: #fff; }
   .spacer { flex: 1; }
 </style>
 </head>
@@ -231,7 +240,7 @@
       <div class="bubble them">Hello! Yes, party jollof is available this Friday.</div>
     </div>
     <div class="spacer"></div>
-    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" /><button onclick="send()">›</button></div>
+    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" readonly onclick="kbd(true)" /><button onclick="send()">›</button></div>
     <div class="bottomnav"><span class="ind" style="left:0"></span>
       <div class="tab on" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
       <div class="tab" onclick="tab('s-updates')"><i data-lucide="newspaper"></i><br>Updates</div>
@@ -243,6 +252,12 @@
     <button class="btn btn-secondary" onclick="sheet(false)">Close</button>
   </div>
   <div class="toast" id="toast">Link copied</div>
+  <div class="kbd" id="kbd">
+    <div class="kr" data-r="qwertyuiop"></div>
+    <div class="kr" data-r="asdfghjkl"></div>
+    <div class="kr" data-r="zxcvbnm"></div>
+    <div class="kr"><button class="kk kw" onclick="kbd(false)">⌄</button><button class="kk ksp" onclick="key(' ')">space</button><button class="kk kw kgo" onclick="send();kbd(false)">send</button></div>
+  </div>
 </div>
 <script>
   lucide.createIcons();
@@ -269,6 +284,19 @@
       c.classList.toggle('hide', cat !== 'all' && c.dataset.cat !== cat));
   }
   function sheet(open) { document.getElementById('sheet').classList.toggle('on', open); }
+  function kbd(open) { document.getElementById('kbd').classList.toggle('on', open); }
+  function key(c) { document.getElementById('chatinput').value += c; }
+  document.querySelectorAll('.kbd .kr[data-r]').forEach(row => {
+    [...row.dataset.r].forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'kk'; b.textContent = c; b.onclick = () => key(c);
+      row.appendChild(b);
+    });
+    const del = document.createElement('button');
+    del.className = 'kk kw'; del.textContent = '⌫';
+    del.onclick = () => { const i = document.getElementById('chatinput'); i.value = i.value.slice(0, -1); };
+    row.appendChild(del);
+  });
   function copy() {
     sheet(false);
     const t = document.getElementById('toast');
