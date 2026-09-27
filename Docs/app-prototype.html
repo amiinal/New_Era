@@ -64,6 +64,7 @@
   .bottomnav { display: flex; background: var(--color-surface); border-top: 1px solid var(--color-line); }
   .bottomnav div { flex: 1; text-align: center; padding: 10px 0 18px; font-size: 12px; color: var(--color-body-text); cursor: pointer; }
   .bottomnav .on { color: var(--color-primary); font-weight: 600; }
+  .bottomnav div svg { width: 24px; height: 24px; }
   .spacer { flex: 1; }
   /* PHOTO SLOTS: replace .ph gradient divs with <img src="images/NAME.jpg"> when real photos arrive */
 </style>
@@ -90,7 +91,7 @@
         <div class="bd"><div class="t">Accra Style Salon</div><div class="micro">Salon · Osu, Accra</div></div></div>
     </div>
     <div class="spacer"></div>
-    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+    <div class="bottomnav"><div><i data-lucide="message-circle"></i><br>Chats</div><div><i data-lucide="newspaper"></i><br>Updates</div><div class="on"><i data-lucide="compass"></i><br>Discover</div></div>
   </div>
 
   <!-- STOREFRONT -->
@@ -124,7 +125,7 @@
         <div class="micro"><i>Self-reported — not verified by New Era</i></div></div></div>
     </div>
     <div class="spacer"></div>
-    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+    <div class="bottomnav"><div><i data-lucide="message-circle"></i><br>Chats</div><div><i data-lucide="newspaper"></i><br>Updates</div><div class="on"><i data-lucide="compass"></i><br>Discover</div></div>
   </div>
 
   <!-- LISTING DETAIL -->
@@ -138,7 +139,7 @@
       <div class="row2"><button class="btn btn-primary" onclick="go('s-chat')">Message about this</button></div>
     </div>
     <div class="spacer"></div>
-    <div class="bottomnav"><div>Chats</div><div>Updates</div><div class="on">Discover</div></div>
+    <div class="bottomnav"><div><i data-lucide="message-circle"></i><br>Chats</div><div><i data-lucide="newspaper"></i><br>Updates</div><div class="on"><i data-lucide="compass"></i><br>Discover</div></div>
   </div>
 
   <!-- CHAT -->
@@ -150,7 +151,7 @@
     </div>
     <div class="spacer"></div>
     <div class="chatbox"><input id="chatinput" placeholder="Type a message…" /><button onclick="send()">›</button></div>
-    <div class="bottomnav"><div class="on">Chats</div><div>Updates</div><div>Discover</div></div>
+    <div class="bottomnav"><div class="on"><i data-lucide="message-circle"></i><br>Chats</div><div><i data-lucide="newspaper"></i><br>Updates</div><div><i data-lucide="compass"></i><br>Discover</div></div>
   </div>
 
 </div>
