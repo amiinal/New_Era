@@ -123,6 +123,14 @@
   .kbd .kw { max-width: none; flex: 2; font-size: 13px; background: #B9BDC6; }
   .kbd .ksp { flex: 5; max-width: none; }
   .kbd .kgo { background: var(--color-primary); color: #fff; }
+  .kbd .acc { display: flex; align-items: center; gap: 14px; background: #ECEEF1; padding: 6px 14px; margin-bottom: 6px; }
+  .kbd .acc svg { width: 26px; height: 26px; color: #5B7FD4; }
+  .kbd .afield { flex: 1; height: 36px; background: #fff; border: 1px solid #C9CDD4; border-radius: 18px;
+    font-size: 14px; padding: 0 12px; line-height: 36px; color: #111; overflow: hidden; white-space: nowrap; }
+  .kbd .kfn.on { background: #fff; }
+  .kbd .kspacer { flex: .5; max-width: 18px; }
+  .kbd .kk svg { width: 20px; height: 20px; }
+  .kbd .kk { display: inline-flex; align-items: center; justify-content: center; }
   .spacer { flex: 1; }
 </style>
 </head>
@@ -240,7 +248,7 @@
       <div class="bubble them">Hello! Yes, party jollof is available this Friday.</div>
     </div>
     <div class="spacer"></div>
-    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" readonly onclick="kbd(true)" /><button onclick="send()">›</button></div>
+    <div class="chatbox"><input id="chatinput" placeholder="Type a message…" readonly onclick="kbdtoggle()" /><button onclick="send()">›</button></div>
     <div class="bottomnav"><span class="ind" style="left:0"></span>
       <div class="tab on" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
       <div class="tab" onclick="tab('s-updates')"><i data-lucide="newspaper"></i><br>Updates</div>
@@ -253,10 +261,11 @@
   </div>
   <div class="toast" id="toast">Link copied</div>
   <div class="kbd" id="kbd">
-    <div class="kr" data-r="qwertyuiop"></div>
-    <div class="kr" data-r="asdfghjkl"></div>
-    <div class="kr" data-r="zxcvbnm"></div>
-    <div class="kr"><button class="kk kw" onclick="kbd(false)">⌄</button><button class="kk ksp" onclick="key(' ')">space</button><button class="kk kw kgo" onclick="send();kbd(false)">send</button></div>
+    <div class="acc"><i data-lucide="plus"></i><span class="afield" id="afield"></span><i data-lucide="sticker"></i><i data-lucide="camera"></i><i data-lucide="mic"></i></div>
+    <div class="kr" id="kr1"></div>
+    <div class="kr" id="kr2"></div>
+    <div class="kr" id="kr3"></div>
+    <div class="kr" id="kr4"></div>
   </div>
 </div>
 <script>
@@ -285,18 +294,52 @@
   }
   function sheet(open) { document.getElementById('sheet').classList.toggle('on', open); }
   function kbd(open) { document.getElementById('kbd').classList.toggle('on', open); }
-  function key(c) { document.getElementById('chatinput').value += c; }
-  document.querySelectorAll('.kbd .kr[data-r]').forEach(row => {
-    [...row.dataset.r].forEach(c => {
-      const b = document.createElement('button');
-      b.className = 'kk'; b.textContent = c; b.onclick = () => key(c);
-      row.appendChild(b);
-    });
-    const del = document.createElement('button');
-    del.className = 'kk kw'; del.textContent = '⌫';
-    del.onclick = () => { const i = document.getElementById('chatinput'); i.value = i.value.slice(0, -1); };
-    row.appendChild(del);
-  });
+  function kbdtoggle() { document.getElementById('kbd').classList.toggle('on'); }
+  function key(c) {
+    const i = document.getElementById('chatinput');
+    i.value += (caps && /[a-z]/.test(c)) ? c.toUpperCase() : c;
+    if (caps) { caps = false; drawKb(); }
+    document.getElementById('afield').textContent = i.value;
+  }
+  function back() {
+    const i = document.getElementById('chatinput');
+    i.value = i.value.slice(0, -1);
+    document.getElementById('afield').textContent = i.value;
+  }
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('on');
+    setTimeout(() => t.classList.remove('on'), 2000);
+  }
+  let caps = false, sym = false;
+  const ABC = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+  const SYM = ['1234567890', '@#$_&-+()', '*?!:;/%-+'];
+  function kbBtn(label, cls, fn) {
+    const b = document.createElement('button');
+    b.className = 'kk ' + (cls || ''); b.textContent = label; b.onclick = fn;
+    return b;
+  }
+  function drawKb() {
+    const set = sym ? SYM : ABC;
+    const r1 = document.getElementById('kr1'); r1.innerHTML = '';
+    [...set[0]].forEach(c => r1.appendChild(kbBtn(c, '', () => key(c))));
+    const r2 = document.getElementById('kr2'); r2.innerHTML = '';
+    const s1 = document.createElement('span'); s1.className = 'kspacer'; r2.appendChild(s1);
+    [...set[1]].forEach(c => r2.appendChild(kbBtn(c, '', () => key(c))));
+    const s2 = document.createElement('span'); s2.className = 'kspacer'; r2.appendChild(s2);
+    const r3 = document.getElementById('kr3'); r3.innerHTML = '';
+    if (!sym) r3.appendChild(kbBtn('<i data-lucide="arrow-big-up"></i>', 'kw kfn' + (caps ? ' on' : ''), () => { caps = !caps; drawKb(); }));
+    [...set[2]].forEach(c => r3.appendChild(kbBtn(c, '', () => key(c))));
+    r3.appendChild(kbBtn('<i data-lucide="delete"></i>', 'kw', back));
+    const r4 = document.getElementById('kr4'); r4.innerHTML = '';
+    r4.appendChild(kbBtn(sym ? 'ABC' : '?123', 'kw', () => { sym = !sym; drawKb(); }));
+    r4.appendChild(kbBtn('<i data-lucide="mic"></i>', 'kw', () => toast('Voice input is phase 2')));
+    r4.appendChild(kbBtn('Space', 'ksp', () => key(' ')));
+    r4.appendChild(kbBtn('.', 'kw', () => key('.')));
+    r4.appendChild(kbBtn('Return', 'kw', () => { send(); kbd(false); }));
+    lucide.createIcons();
+  }
+  drawKb();
   function copy() {
     sheet(false);
     const t = document.getElementById('toast');
