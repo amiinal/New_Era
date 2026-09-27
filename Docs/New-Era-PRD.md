@@ -82,7 +82,7 @@ A single account works as both customer and business, with a switch between the 
 | --- | --- |
 | Phase 0: Prep | PRD sign-off, design, prototype tests with business owners, choose the launch country, cities, and categories, and recruit the first businesses. |
 | Phase 1: MVP beta | The scope in section 4.1, released as a closed beta in a small number of places so density, support, and moderation can be managed. |
-| Phase 2: Expand | Verified business tag, all-countries remote services, ratings once density is reached, video status (up to 3 minutes), voice notes, premium (when value is proven), and more languages as markets require. |
+| Phase 2: Expand | Verified business tag, all-countries remote services, ratings once density is reached, video status (up to 3 minutes), voice notes, pick-list attachment (multi-item inquiry from the store, no checkout), premium (when value is proven), and more languages as markets require. |
 | Phase 3: Grow | Promoted placement (clearly labeled), staff seats, payments and orders, and a web dashboard for businesses. |
 
 ## 5. Functional requirements
@@ -352,6 +352,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Onboarding details | Business name required; online businesses pick a manual service area or nationwide; single-product sellers may list 3 variations to meet the discovery threshold (Decided Sept 26, 2026). |
 | Bulk add | Flexible multi-select: owner picks any 2 or more photos, one draft each (Decided Sept 26, 2026; LST-4). |
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
+| Pick-list (cart-lite) | Multi-item pick attached to the first chat message, no totals or checkout; Phase 2 after chat loop is proven (Decided Sept 27, 2026). |
 | Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |
 
 ## Appendix: Glossary
