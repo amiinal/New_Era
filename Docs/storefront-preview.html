@@ -115,15 +115,25 @@
   .toast { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--color-ink);
     color: #fff; font-size: 14px; border-radius: 8px; padding: 12px 20px; display: none; box-shadow: var(--shadow-lg); }
   .toast.on { display: block; }
-  .kbd { position: absolute; inset: auto 0 0 0; background: #D1D5DB; padding: 6px 4px 20px; display: none; z-index: 10; }
-  .kbd.on { display: block; animation: fade .18s ease; }
-  .kbd .kr { display: flex; gap: 5px; justify-content: center; margin-bottom: 6px; }
-  .kbd .kk { flex: 1; max-width: 36px; height: 42px; background: #fff; border-radius: 5px; border: 0;
-    font-size: 16px; color: #111; box-shadow: 0 1px 1px rgba(0,0,0,.25); cursor: pointer; }
-  .kbd .kk:active { background: #E4E6EB; }
-  .kbd .kw { max-width: none; flex: 2; font-size: 13px; background: #B9BDC6; }
-  .kbd .ksp { flex: 5; max-width: none; }
-  .kbd .kgo { background: var(--color-primary); color: #fff; }
+  .kbd { position: absolute; inset: auto 0 0 0; background: #D1D3D9; padding: 4px 3px 22px; display: none; z-index: 10; }
+  .kbd.on { display: block; }
+  .kbd .kr { display: flex; gap: 6px; margin: 0 0 11px; }
+  .kbd .kr:last-child { margin-bottom: 0; }
+  .kbd .kr.inset { padding: 0 14px; }
+  .kbd .kk { flex: 1 1 0; min-width: 0; height: 42px; background: #fff; border-radius: 5px; border: 0;
+    font-size: 22px; color: #111; box-shadow: 0 1px 0 rgba(0,0,0,.35); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; touch-action: none; }
+  .kbd .kk:active { background: #E5E5EA; }
+  .kbd .kfn { background: #ABADBA; font-size: 15px; flex: 1.55 1 0; }
+  .kbd .kfn:active { background: #8E8E93; }
+  .kbd .kfn.on { background: #fff; }
+  .kbd .ksp { flex: 5 1 0; }
+  .kbd .kret { flex: 1.7 1 0; background: #ABADBA; font-size: 16px; }
+  .kbd .kret:active { background: #8E8E93; }
+  .kbd .kk svg { width: 22px; height: 22px; }
+  .kbd .kpop { position: absolute; width: 42px; height: 58px; background: #fff; border-radius: 6px;
+    box-shadow: var(--shadow-lg); display: none; align-items: flex-start; justify-content: center;
+    font-size: 30px; padding-top: 4px; z-index: 11; }
   .kbd .acc { display: flex; align-items: center; gap: 14px; background: #ECEEF1; padding: 6px 14px; margin-bottom: 6px; }
   .kbd .acc svg { width: 26px; height: 26px; color: #5B7FD4; }
   .kbd .afield { flex: 1; height: 36px; background: #fff; border: 1px solid #C9CDD4; border-radius: 18px;
@@ -262,9 +272,9 @@
   </div>
   <div class="toast" id="toast">Link copied</div>
   <div class="kbd" id="kbd">
-    <div class="acc"><i data-lucide="plus"></i><span class="afield" id="afield"></span><i data-lucide="sticker"></i><i data-lucide="camera"></i><i data-lucide="mic"></i></div>
+    <div class="kpop" id="kpop"></div>
     <div class="kr" id="kr1"></div>
-    <div class="kr" id="kr2"></div>
+    <div class="kr inset" id="kr2"></div>
     <div class="kr" id="kr3"></div>
     <div class="kr" id="kr4"></div>
   </div>
@@ -300,13 +310,11 @@
     const i = document.getElementById('chatinput');
     i.value += (caps && /[a-z]/.test(c)) ? c.toUpperCase() : c;
     if (caps) { caps = false; drawKb(); }
-    document.getElementById('afield').textContent = i.value;
     syncSend();
   }
   function back() {
     const i = document.getElementById('chatinput');
     i.value = i.value.slice(0, -1);
-    document.getElementById('afield').textContent = i.value;
     syncSend();
   }
   function svg(paths) {
@@ -330,28 +338,45 @@
   const SYM = ['1234567890', '@#$_&-+()', '*?!:;/%-+'];
   function kbBtn(label, cls, fn) {
     const b = document.createElement('button');
-    b.className = 'kk ' + (cls || ''); b.textContent = label; b.onclick = fn;
+    b.className = 'kk ' + (cls || ''); b.innerHTML = label; b.onclick = fn;
     return b;
   }
+  function kLetter(c) {
+    const b = document.createElement('button');
+    b.className = 'kk'; b.textContent = c;
+    b.onpointerdown = e => { e.preventDefault(); b.setPointerCapture(e.pointerId); popShow(b, c); };
+    b.onpointerup = () => { popHide(); key(c); };
+    b.onpointercancel = popHide;
+    return b;
+  }
+  function popShow(btn, ch) {
+    const p = document.getElementById('kpop');
+    const kb = document.getElementById('kbd').getBoundingClientRect();
+    const r = btn.getBoundingClientRect();
+    p.textContent = ch;
+    p.style.display = 'flex';
+    p.style.left = Math.max(2, r.left - kb.left + r.width / 2 - 21) + 'px';
+    p.style.top = (r.top - kb.top - 60) + 'px';
+  }
+  function popHide() { document.getElementById('kpop').style.display = 'none'; }
   function drawKb() {
     const set = sym ? SYM : ABC;
+    const show = c => sym ? c : c;
     const r1 = document.getElementById('kr1'); r1.innerHTML = '';
-    [...set[0]].forEach(c => r1.appendChild(kbBtn(c, '', () => key(c))));
+    [...set[0]].forEach(c => r1.appendChild(kLetter(show(c))));
     const r2 = document.getElementById('kr2'); r2.innerHTML = '';
-    const s1 = document.createElement('span'); s1.className = 'kspacer'; r2.appendChild(s1);
-    [...set[1]].forEach(c => r2.appendChild(kbBtn(c, '', () => key(c))));
-    const s2 = document.createElement('span'); s2.className = 'kspacer'; r2.appendChild(s2);
+    [...set[1]].forEach(c => r2.appendChild(kLetter(show(c))));
     const r3 = document.getElementById('kr3'); r3.innerHTML = '';
-    if (!sym) r3.appendChild(kbBtn(I_UP, 'kw kfn' + (caps ? ' on' : ''), () => { caps = !caps; drawKb(); }));
-    [...set[2]].forEach(c => r3.appendChild(kbBtn(c, '', () => key(c))));
-    r3.appendChild(kbBtn(I_DEL, 'kw', back));
+    r3.appendChild(kbBtn(sym ? 'ABC' : I_UP, 'kfn' + (caps && !sym ? ' on' : ''), () => {
+      if (sym) { sym = false; } else { caps = !caps; } drawKb();
+    }));
+    [...set[2]].forEach(c => r3.appendChild(kLetter(show(c))));
+    r3.appendChild(kbBtn(I_DEL, 'kfn', back));
     const r4 = document.getElementById('kr4'); r4.innerHTML = '';
-    r4.appendChild(kbBtn(sym ? 'ABC' : '?123', 'kw', () => { sym = !sym; drawKb(); }));
-    r4.appendChild(kbBtn(I_MIC, 'kw', () => toast('Voice input is phase 2')));
-    r4.appendChild(kbBtn('Space', 'ksp', () => key(' ')));
-    r4.appendChild(kbBtn('.', 'kw', () => key('.')));
-    r4.appendChild(kbBtn('Return', 'kw', () => { send(); kbd(false); }));
-    lucide.createIcons();
+    r4.appendChild(kbBtn(sym ? 'ABC' : '123', 'kfn', () => { sym = !sym; caps = false; drawKb(); }));
+    r4.appendChild(kbBtn(I_MIC, 'kfn', () => toast('Voice input is phase 2')));
+    r4.appendChild(kbBtn('', 'ksp', () => key(' ')));
+    r4.appendChild(kbBtn('return', 'kret', () => { send(); kbd(false); }));
   }
   drawKb();
   function copy() {
@@ -365,7 +390,6 @@
     const log = document.getElementById('chatlog');
     const b = document.createElement('div'); b.className = 'bubble me'; b.textContent = inp.value;
     log.appendChild(b); inp.value = '';
-    document.getElementById('afield').textContent = '';
     syncSend();
     setTimeout(() => log.insertAdjacentHTML('beforeend', '<div class="bubble them">Thanks! We reply within an hour (demo reply).</div>'), 800);
   }
