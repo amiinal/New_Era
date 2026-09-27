@@ -115,8 +115,17 @@
   .toast { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--color-ink);
     color: #fff; font-size: 14px; border-radius: 8px; padding: 12px 20px; display: none; box-shadow: var(--shadow-lg); }
   .toast.on { display: block; }
-  .kbd { position: absolute; inset: auto 0 0 0; background: #D1D3D9; padding: 4px 3px 22px; display: none; z-index: 10; }
-  .kbd.on { display: block; }
+  .kbwrap { position: absolute; left: 0; right: 0; bottom: 0; display: none; z-index: 10; }
+  .kbwrap.on { display: block; animation: fade .18s ease; }
+  .accbar { display: flex; align-items: center; gap: 6px; background: var(--color-surface);
+    border-top: 1px solid var(--color-line); padding: 8px 10px; }
+  .accbar input { flex: 1; min-width: 0; height: 38px; border-radius: 19px; border: 1px solid var(--color-line-strong);
+    padding: 0 14px; font-size: 16px; }
+  .accbar .abtn { width: 38px; height: 38px; border-radius: 50%; border: 0; background: none;
+    color: var(--color-primary); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .accbar .abtn.send { background: var(--color-cta); color: #fff; box-shadow: var(--shadow-cta); }
+  .accbar .abtn svg { width: 22px; height: 22px; }
+  .kbd { background: #D1D3D9; padding: 4px 3px 22px; }
   .kbd .kr { display: flex; gap: 6px; margin: 0 0 11px; }
   .kbd .kr:last-child { margin-bottom: 0; }
   .kbd .kr.inset { padding: 0 14px; }
@@ -271,12 +280,20 @@
     <button class="btn btn-secondary" onclick="sheet(false)">Close</button>
   </div>
   <div class="toast" id="toast">Link copied</div>
+  <div class="kbwrap" id="kbwrap">
+  <div class="accbar">
+    <button class="abtn" onclick="toast('Attachments are phase 2')"><i data-lucide="plus"></i></button>
+    <input id="accinput" readonly placeholder="Type a message…" />
+    <button class="abtn" onclick="toast('Camera is phase 2')"><i data-lucide="camera"></i></button>
+    <button class="abtn send" id="accsend" onclick="send()"><i data-lucide="mic"></i></button>
+  </div>
   <div class="kbd" id="kbd">
     <div class="kpop" id="kpop"></div>
     <div class="kr" id="kr1"></div>
     <div class="kr inset" id="kr2"></div>
     <div class="kr" id="kr3"></div>
     <div class="kr" id="kr4"></div>
+  </div>
   </div>
 </div>
 <script>
@@ -304,16 +321,24 @@
       c.classList.toggle('hide', cat !== 'all' && c.dataset.cat !== cat));
   }
   function sheet(open) { document.getElementById('sheet').classList.toggle('on', open); }
-  function kbd(open) { document.getElementById('kbd').classList.toggle('on', open); }
-  function kbdtoggle() { document.getElementById('kbd').classList.toggle('on'); }
+  function kbd(open) {
+    document.getElementById('kbwrap').classList.toggle('on', open);
+    if (open) document.getElementById('accinput').value = document.getElementById('chatinput').value;
+  }
+  function kbdtoggle() {
+    const w = document.getElementById('kbwrap');
+    const open = !w.classList.contains('on');
+    kbd(open);
+  }
+  function AI() { return document.getElementById('accinput'); }
   function key(c) {
-    const i = document.getElementById('chatinput');
+    const i = AI();
     i.value += (caps && /[a-z]/.test(c)) ? c.toUpperCase() : c;
     if (caps) { caps = false; drawKb(); }
     syncSend();
   }
   function back() {
-    const i = document.getElementById('chatinput');
+    const i = AI();
     i.value = i.value.slice(0, -1);
     syncSend();
   }
@@ -325,8 +350,9 @@
   const I_MIC = svg('<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>');
   const I_SEND = svg('<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>');
   function syncSend() {
-    document.getElementById('sendbtn').innerHTML =
-      document.getElementById('chatinput').value.trim() ? I_SEND : I_MIC;
+    const html = AI().value.trim() ? I_SEND : I_MIC;
+    document.getElementById('sendbtn').innerHTML = html;
+    document.getElementById('accsend').innerHTML = html;
   }
   function toast(msg) {
     const t = document.getElementById('toast');
@@ -385,11 +411,12 @@
     t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2000);
   }
   function send() {
-    const inp = document.getElementById('chatinput');
+    const inp = AI();
     if (!inp.value.trim()) return;
     const log = document.getElementById('chatlog');
     const b = document.createElement('div'); b.className = 'bubble me'; b.textContent = inp.value;
     log.appendChild(b); inp.value = '';
+    document.getElementById('chatinput').value = '';
     syncSend();
     setTimeout(() => log.insertAdjacentHTML('beforeend', '<div class="bubble them">Thanks! We reply within an hour (demo reply).</div>'), 800);
   }
