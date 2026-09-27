@@ -152,6 +152,22 @@
   .kbd .kk svg { width: 20px; height: 20px; }
   .kbd .kk { display: inline-flex; align-items: center; justify-content: center; }
   .spacer { flex: 1; }
+  @media (hover: hover) {
+    .btn-primary:hover { background: #D15E2F; box-shadow: 0 6px 16px rgba(194,78,34,.45); }
+    .btn-secondary:hover { background: rgba(44,62,122,.06); }
+    .btn-tertiary:hover { background: rgba(44,62,122,.08); }
+    .btn-destructive:hover { background: rgba(181,54,44,.06); }
+    .chip:hover { border-color: var(--color-primary); color: var(--color-primary); }
+    .listcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .listcard { transition: transform .15s ease, box-shadow .15s ease; }
+    .bottomnav div.tab:hover { color: var(--color-primary); background: rgba(44,62,122,.05); }
+    .chatbox button:hover { background: #D15E2F; }
+    .accbar .abtn:hover { background: rgba(44,62,122,.08); }
+    .accbar .abtn.send:hover { background: #D15E2F; }
+    .kbd .kk:hover { background: #F0F0F4; }
+    .kbd .kfn:hover { background: #9EA0AB; }
+    .topbar button:hover, .cover .back:hover { background: rgba(0,0,0,.6); }
+  }
 </style>
 </head>
 <body>
