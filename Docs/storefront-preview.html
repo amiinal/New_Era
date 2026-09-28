@@ -173,11 +173,16 @@
   .vprog { display: flex; gap: 4px; padding: 40px 12px 8px; }
   .vprog span { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
   .vprog span i { display: block; height: 100%; width: 0; background: #fff; }
-  .vhead { display: flex; align-items: center; gap: 8px; padding: 4px 12px 8px; }
+  .vhead { display: flex; align-items: center; gap: 8px; padding: 4px 12px 8px; position: relative; z-index: 5; }
   .vx { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
   .vtap { position: absolute; inset: 0; display: flex; }
   .vtap div { flex: 1; }
-  #vmsg { margin: 12px 16px 28px; }
+  #vmsg { margin: 12px 16px 28px; position: relative; z-index: 5; }
+  #vcap { position: absolute; left: 16px; right: 16px; bottom: 104px; background: rgba(0,0,0,.45);
+    color: #fff; font-size: 14px; border-radius: 8px; padding: 10px 12px; display: none; }
+  .tpreview { width: 180px; height: 320px; border-radius: 12px; margin: 0 auto 8px; display: flex;
+    align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 700;
+    padding: 20px; text-align: center; }
   #vtext { display: none; flex: 1; align-items: center; justify-content: center; color: #fff;
     font-size: 22px; font-weight: 700; padding: 32px; text-align: center; min-height: 0; }
   .cdot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
@@ -338,6 +343,7 @@
       <div><div style="color:#fff;font-size:14px;font-weight:600">Mama's Kitchen</div><div class="micro" id="vtime" style="color:rgba(255,255,255,.7)">5h ago</div></div>
       <span style="flex:1"></span><button class="vx" onclick="closeViewer()">✕</button></div>
     <img id="vimg" alt="status" />
+    <div id="vcap"></div>
     <div id="vtext"></div>
     <div class="vtap"><div onclick="vNav(-1)"></div><div onclick="vNav(1)"></div></div>
     <button class="btn btn-primary" id="vmsg">Message</button>
@@ -351,10 +357,12 @@
     </div>
     <div id="comgal" style="display:none">
       <img id="comprev" style="width:100%;height:180px;object-fit:cover;border-radius:12px" alt="preview" />
+      <input id="comcap" style="width:100%;height:48px;border-radius:8px;border:1px solid var(--color-line-strong);padding:0 12px;font-size:16px;margin-top:8px" placeholder="Add a caption…" />
       <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="postGal()">Post</button>
     </div>
     <div id="comtext" style="display:none">
-      <textarea id="comta" rows="3" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…"></textarea>
+      <div class="tpreview" id="tpreview" style="background:linear-gradient(135deg,#C24E22,#F2703C)">Your text here</div>
+      <textarea id="comta" rows="2" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…" oninput="document.getElementById('tpreview').textContent=this.value||'Your text here'"></textarea>
       <div style="display:flex;gap:8px;margin:8px 0">
         <span class="cdot on" data-bg="linear-gradient(135deg,#C24E22,#F2703C)" style="background:linear-gradient(135deg,#C24E22,#F2703C)" onclick="compColor(this)"></span>
         <span class="cdot" data-bg="linear-gradient(135deg,#0A6B62,#2C3E7A)" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)" onclick="compColor(this)"></span>
@@ -425,6 +433,9 @@
       vim.style.display = 'block'; vtx.style.display = 'none';
       vim.src = s.src || document.querySelectorAll('#s-store .listcard img')[s.img].src;
     }
+    const vc = document.getElementById('vcap');
+    if (s.kind === 'img' && s.cap) { vc.style.display = 'block'; vc.textContent = s.cap; }
+    else vc.style.display = 'none';
     document.getElementById('vtime').textContent = s.time;
     document.getElementById('vmsg').onclick = () => msg(s.dish, s.price);
     const pg = document.getElementById('vprog'); pg.innerHTML = '';
@@ -459,6 +470,7 @@
   function compColor(el) {
     document.querySelectorAll('#comcolors, #composer .cdot').forEach(d => d.classList.remove('on'));
     el.classList.add('on'); comBG = el.dataset.bg;
+    document.getElementById('tpreview').style.background = comBG;
   }
   function galPick(e) {
     const f = e.target.files[0]; if (!f) return;
@@ -474,8 +486,9 @@
   }
   function postGal() {
     if (!galURL) return;
-    EXTRA.push({ kind: 'img', src: galURL, dish: 'Photo update', price: '', time: 'now' });
+    EXTRA.push({ kind: 'img', src: galURL, cap: document.getElementById('comcap').value.trim(), dish: 'Photo update', price: '', time: 'now' });
     galURL = null; document.getElementById('gal').value = '';
+    document.getElementById('comcap').value = '';
     afterPost(allV().length);
   }
   function postText() {
