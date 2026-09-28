@@ -73,6 +73,19 @@ model Collection {
   name       String
 }
 
+// ONB-11: optional self-reported certificates (max 3, app-enforced).
+// Never styled as verified — the TRU-3 tag stays separate.
+model Certificate {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title      String
+  issuer     String?
+  year       Int?
+  photo      String   // R2 key
+  createdAt  DateTime @default(now())
+}
+
 model Status {
   id         String   @id @default(cuid())
   businessId String

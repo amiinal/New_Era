@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { getPresignedPut, publicUrlFor } from './r2.js';
 import { sendMail } from './mail.js';
 import { authRoutes } from './auth.js';
+import { storeRoutes } from './store.js';
 
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
@@ -10,6 +11,7 @@ const PORT = process.env.PORT || 4000;
 
 app.get('/health', async () => ({ ok: true, stack: 'fastify+pg+r2' }));
 authRoutes(app, prisma);
+storeRoutes(app, prisma);
 
 // Step 4 stub: presigned upload to R2 (app uploads direct)
 app.post('/uploads/presign', async (req) => {

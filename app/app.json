@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "New Era",
+    "slug": "new-era",
+    "scheme": "newera",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": { "backgroundColor": "#2C3E7A" },
+    "ios": { "supportsTablet": true },
+    "android": { "adaptiveIcon": { "backgroundColor": "#2C3E7A" } },
+    "extra": { "apiUrl": "http://10.0.2.2:4000" }
+  }
+}
