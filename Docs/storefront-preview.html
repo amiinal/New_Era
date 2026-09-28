@@ -178,6 +178,10 @@
   .vtap { position: absolute; inset: 0; display: flex; }
   .vtap div { flex: 1; }
   #vmsg { margin: 12px 16px 28px; }
+  #vtext { display: none; flex: 1; align-items: center; justify-content: center; color: #fff;
+    font-size: 22px; font-weight: 700; padding: 32px; text-align: center; min-height: 0; }
+  .cdot { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+  .cdot.on { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary); }
   @media (hover: hover) {
     .btn-primary:hover { background: #D15E2F; box-shadow: 0 6px 16px rgba(194,78,34,.45); }
     .btn-secondary:hover { background: rgba(44,62,122,.06); }
@@ -291,20 +295,20 @@
   <div class="screen" id="s-updates">
     <div class="topbar">Updates</div>
     <div class="pad"></div>
-    <div class="statuscard" onclick="openViewer(0)">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="avatar ring" style="width:48px;height:48px;font-size:18px;margin:0">M</div>
-        <div><div style="font-size:16px;font-weight:600">Mama's Kitchen</div>
-        <div class="micro">2 updates · latest 5h ago</div></div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px" onclick="event.stopPropagation();msg()">Message</button>
-    </div>
-    <div class="statuscard" onclick="toast('Photo picker opens here in the app')">
+    <div class="statuscard" onclick="composer(true)">
       <div style="display:flex;gap:12px;align-items:center">
         <div class="avatar" style="width:48px;height:48px;font-size:24px;margin:0;background:rgba(194,78,34,.12);color:var(--color-cta);border:0">+</div>
         <div><div style="font-size:16px;font-weight:600">Add to your story</div>
         <div class="micro">Share a photo or text update</div></div>
       </div>
+    </div>
+    <div class="statuscard" onclick="openViewer(0)">
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="avatar ring" style="width:48px;height:48px;font-size:18px;margin:0">M</div>
+        <div><div style="font-size:16px;font-weight:600">Mama's Kitchen</div>
+        <div class="micro" id="upcount">2 updates · latest 5h ago</div></div>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="event.stopPropagation();msg()">Message</button>
     </div>
     <div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:33.33%"></span>
@@ -334,8 +338,31 @@
       <div><div style="color:#fff;font-size:14px;font-weight:600">Mama's Kitchen</div><div class="micro" id="vtime" style="color:rgba(255,255,255,.7)">5h ago</div></div>
       <span style="flex:1"></span><button class="vx" onclick="closeViewer()">✕</button></div>
     <img id="vimg" alt="status" />
+    <div id="vtext"></div>
     <div class="vtap"><div onclick="vNav(-1)"></div><div onclick="vNav(1)"></div></div>
     <button class="btn btn-primary" id="vmsg">Message</button>
+  </div>
+  <div class="sheet" id="composer"><div class="grab"></div>
+    <div style="font-size:18px;font-weight:600;margin-bottom:8px">New status</div>
+    <div id="compick">
+      <button class="btn btn-secondary" style="width:100%" onclick="document.getElementById('gal').click()">Add from gallery</button>
+      <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="compText()">Text update</button>
+      <input type="file" id="gal" accept="image/*" style="display:none" onchange="galPick(event)" />
+    </div>
+    <div id="comgal" style="display:none">
+      <img id="comprev" style="width:100%;height:180px;object-fit:cover;border-radius:12px" alt="preview" />
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="postGal()">Post</button>
+    </div>
+    <div id="comtext" style="display:none">
+      <textarea id="comta" rows="3" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…"></textarea>
+      <div style="display:flex;gap:8px;margin:8px 0">
+        <span class="cdot on" data-bg="linear-gradient(135deg,#C24E22,#F2703C)" style="background:linear-gradient(135deg,#C24E22,#F2703C)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#0A6B62,#2C3E7A)" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#2C3E7A,#1F2C59)" style="background:linear-gradient(135deg,#2C3E7A,#1F2C59)" onclick="compColor(this)"></span>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="postText()">Post</button>
+    </div>
+    <button class="btn btn-secondary" style="width:100%;margin-top:8px" onclick="composer(false)">Close</button>
   </div>
   <div class="sheet" id="sheet"><div class="grab"></div>
     <button class="btn btn-primary" onclick="copy()">Copy link</button>
@@ -365,19 +392,22 @@
     document.getElementById(id).classList.add('on');
     sheet(false);
     kbd(false);
+    const c = document.getElementById('composer'); if (c) c.classList.remove('on');
     const q = document.getElementById('qmenu'); if (q) q.classList.remove('on');
   }
   function tab(id) { go(id); moveInd(id); }
   function msg(dish, price) {
     closeViewer();
     document.getElementById('ctxtext').textContent =
-      dish ? ('About: ' + dish + ' · ' + price) : "Say hello to Mama's Kitchen";
+      dish ? ('About: ' + dish + (price ? ' · ' + price : '')) : "Say hello to Mama's Kitchen";
     tab('s-chat');
   }
-  const VDATA = [
-    { dish: 'Jollof Rice — Large', price: '₦5,000', time: '5h ago', img: 0 },
-    { dish: 'Moi Moi (4 wraps)', price: '₦2,000', time: '11h ago', img: 2 }
+  const VDATA_BASE = [
+    { kind: 'img', dish: 'Jollof Rice — Large', price: '₦5,000', time: '5h ago', img: 0 },
+    { kind: 'img', dish: 'Moi Moi (4 wraps)', price: '₦2,000', time: '11h ago', img: 2 }
   ];
+  let EXTRA = [];
+  const allV = () => VDATA_BASE.concat(EXTRA);
   let vi = 0, vt = null;
   function openViewer(i) { vi = i; document.getElementById('viewer').classList.add('on'); drawV(); }
   function closeViewer() {
@@ -386,19 +416,74 @@
     clearTimeout(vt);
   }
   function drawV() {
-    const s = VDATA[vi];
-    document.getElementById('vimg').src = document.querySelectorAll('#s-store .listcard img')[s.img].src;
+    const all = allV(), s = all[vi];
+    const vim = document.getElementById('vimg'), vtx = document.getElementById('vtext');
+    if (s.kind === 'text') {
+      vim.style.display = 'none'; vtx.style.display = 'flex';
+      vtx.textContent = s.text; vtx.style.background = s.bg;
+    } else {
+      vim.style.display = 'block'; vtx.style.display = 'none';
+      vim.src = s.src || document.querySelectorAll('#s-store .listcard img')[s.img].src;
+    }
     document.getElementById('vtime').textContent = s.time;
     document.getElementById('vmsg').onclick = () => msg(s.dish, s.price);
-    document.querySelectorAll('#vprog span').forEach((g, j) => {
-      g.innerHTML = '<i></i>';
+    const pg = document.getElementById('vprog'); pg.innerHTML = '';
+    all.forEach((_, j) => {
+      const g = document.createElement('span'); g.innerHTML = '<i></i>'; pg.appendChild(g);
       const f = g.firstChild;
       f.style.transition = 'none'; f.style.width = j < vi ? '100%' : '0';
       if (j === vi) requestAnimationFrame(() => { f.style.transition = 'width 5s linear'; f.style.width = '100%'; });
     });
     clearTimeout(vt); vt = setTimeout(() => vNav(1), 5000);
   }
-  function vNav(d) { vi += d; if (vi > 1) { closeViewer(); return; } if (vi < 0) vi = 0; drawV(); }
+  function vNav(d) {
+    vi += d;
+    if (vi >= allV().length) { closeViewer(); return; }
+    if (vi < 0) vi = 0;
+    drawV();
+  }
+  let galURL = null, comBG = 'linear-gradient(135deg,#C24E22,#F2703C)';
+  function composer(open) {
+    document.getElementById('composer').classList.toggle('on', open);
+    if (open) { compHome(); }
+  }
+  function compHome() {
+    document.getElementById('compick').style.display = 'block';
+    document.getElementById('comgal').style.display = 'none';
+    document.getElementById('comtext').style.display = 'none';
+  }
+  function compText() {
+    document.getElementById('compick').style.display = 'none';
+    document.getElementById('comtext').style.display = 'block';
+  }
+  function compColor(el) {
+    document.querySelectorAll('#comcolors, #composer .cdot').forEach(d => d.classList.remove('on'));
+    el.classList.add('on'); comBG = el.dataset.bg;
+  }
+  function galPick(e) {
+    const f = e.target.files[0]; if (!f) return;
+    galURL = URL.createObjectURL(f);
+    document.getElementById('comprev').src = galURL;
+    document.getElementById('compick').style.display = 'none';
+    document.getElementById('comgal').style.display = 'block';
+  }
+  function afterPost(n) {
+    composer(false); compHome();
+    document.getElementById('upcount').textContent = n + ' updates · latest now';
+    toast('Status posted — expires in 24h');
+  }
+  function postGal() {
+    if (!galURL) return;
+    EXTRA.push({ kind: 'img', src: galURL, dish: 'Photo update', price: '', time: 'now' });
+    galURL = null; document.getElementById('gal').value = '';
+    afterPost(allV().length);
+  }
+  function postText() {
+    const t = document.getElementById('comta').value.trim(); if (!t) return;
+    EXTRA.push({ kind: 'text', text: t, bg: comBG, dish: 'Text update', price: '', time: 'now' });
+    document.getElementById('comta').value = '';
+    afterPost(allV().length);
+  }
   function moveInd(id) {
     const map = { 's-chat': '0', 's-updates': '33.33%', 's-store': '66.66%', 's-d-jollof': '66.66%', 's-d-fried': '66.66%', 's-d-moi': '66.66%' };
     document.querySelectorAll('.bottomnav').forEach(nav => {
