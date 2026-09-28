@@ -99,7 +99,7 @@
     display: flex; align-items: center; gap: 8px; }
   .topbar button { background: none; border: 0; color: #fff; cursor: pointer; padding: 4px; font-size: 20px; }
   .pad { padding: 16px; }
-  .bottomnav { display: flex; background: var(--color-surface); border-top: 1px solid var(--color-line); position: relative; }
+  .bottomnav { display: flex; background: var(--color-surface); border-top: 1px solid var(--color-line); position: sticky; bottom: 0; z-index: 4; margin-top: auto; }
   .bottomnav .ind { position: absolute; top: 0; height: 3px; width: 33.33%; background: var(--color-primary);
     border-radius: 0 0 3px 3px; transition: left .25s ease; }
   .bottomnav div.tab { flex: 1; text-align: center; padding: 10px 0 18px; font-size: 12px; color: var(--color-body-text);
@@ -108,7 +108,7 @@
   .bottomnav .on { color: var(--color-primary); font-weight: 600; }
   .bottomnav div.tab svg { width: 24px; height: 24px; }
   .sheet { position: absolute; inset: auto 0 0 0; background: var(--color-surface); border-radius: 24px 24px 0 0;
-    box-shadow: var(--shadow-lg); padding: 12px 16px 28px; display: none; }
+    box-shadow: var(--shadow-lg); padding: 12px 16px 28px; display: none; z-index: 6; max-height: 92%; overflow-y: auto; }
   .sheet.on { display: block; animation: fade .2s ease; }
   .sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--color-line); margin: 0 auto 12px; }
   .sheet button { width: 100%; margin-top: 8px; }
@@ -363,10 +363,16 @@
     <div id="comtext" style="display:none">
       <div class="tpreview" id="tpreview" style="background:linear-gradient(135deg,#C24E22,#F2703C)">Your text here</div>
       <textarea id="comta" rows="2" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…" oninput="document.getElementById('tpreview').textContent=this.value||'Your text here'"></textarea>
-      <div style="display:flex;gap:8px;margin:8px 0">
+      <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
         <span class="cdot on" data-bg="linear-gradient(135deg,#C24E22,#F2703C)" style="background:linear-gradient(135deg,#C24E22,#F2703C)" onclick="compColor(this)"></span>
         <span class="cdot" data-bg="linear-gradient(135deg,#0A6B62,#2C3E7A)" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)" onclick="compColor(this)"></span>
         <span class="cdot" data-bg="linear-gradient(135deg,#2C3E7A,#1F2C59)" style="background:linear-gradient(135deg,#2C3E7A,#1F2C59)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#101014,#3A3A42)" style="background:linear-gradient(135deg,#101014,#3A3A42)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#8B8F9B,#5B5F6B)" style="background:linear-gradient(135deg,#8B8F9B,#5B5F6B)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#0A6B62,#0E9488)" style="background:linear-gradient(135deg,#0A6B62,#0E9488)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#D63384,#8E2A5E)" style="background:linear-gradient(135deg,#D63384,#8E2A5E)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#B0362C,#7A231D)" style="background:linear-gradient(135deg,#B0362C,#7A231D)" onclick="compColor(this)"></span>
+        <span class="cdot" data-bg="linear-gradient(135deg,#B97A1B,#8A5A12)" style="background:linear-gradient(135deg,#B97A1B,#8A5A12)" onclick="compColor(this)"></span>
       </div>
       <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="postText()">Post</button>
     </div>
