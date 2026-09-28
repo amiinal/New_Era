@@ -159,12 +159,25 @@
   .qmenu.on { display: block; }
   .qmenu button { display: block; width: 100%; background: none; border: 0; padding: 12px 20px;
     font-size: 14px; color: var(--color-error); cursor: pointer; white-space: nowrap; }
-  .statstrip { display: flex; gap: 8px; overflow-x: auto; margin-top: 12px; scrollbar-width: none; }
+  .statstrip { display: flex; gap: 12px; overflow-x: auto; margin-top: 12px; scrollbar-width: none; }
   .statstrip::-webkit-scrollbar { display: none; }
-  .stat { min-width: 104px; background: var(--color-background); border-radius: 12px; overflow: hidden; cursor: pointer; }
-  .stat .sth { height: 64px; display: flex; align-items: center; justify-content: center; color: #fff;
-    font-weight: 700; font-size: 13px; }
-  .stat .sl { font-size: 11px; color: var(--color-body-text); padding: 6px 8px; }
+  .stat { min-width: 68px; text-align: center; cursor: pointer; }
+  .stat .ring { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto; display: flex;
+    align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 20px;
+    border: 3px solid var(--color-background); box-shadow: 0 0 0 2px var(--color-cta); }
+  .stat .sl { font-size: 11px; color: var(--color-body-text); margin-top: 4px; }
+  .avatar.ring { cursor: pointer; box-shadow: var(--shadow-md), 0 0 0 3px var(--color-background), 0 0 0 6px var(--color-cta); }
+  .viewer { position: absolute; inset: 0; background: #000; display: none; flex-direction: column; z-index: 20; }
+  .viewer.on { display: flex; }
+  .viewer img#vimg { flex: 1; width: 100%; object-fit: cover; min-height: 0; }
+  .vprog { display: flex; gap: 4px; padding: 40px 12px 8px; }
+  .vprog span { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.35); overflow: hidden; }
+  .vprog span i { display: block; height: 100%; width: 0; background: #fff; }
+  .vhead { display: flex; align-items: center; gap: 8px; padding: 4px 12px 8px; }
+  .vx { background: none; border: 0; color: #fff; font-size: 20px; cursor: pointer; padding: 4px; }
+  .vtap { position: absolute; inset: 0; display: flex; }
+  .vtap div { flex: 1; }
+  #vmsg { margin: 12px 16px 28px; }
   @media (hover: hover) {
     .btn-primary:hover { background: #D15E2F; box-shadow: 0 6px 16px rgba(194,78,34,.45); }
     .btn-secondary:hover { background: rgba(44,62,122,.06); }
@@ -199,7 +212,7 @@
     <div class="biz">
       <button class="kebab" onclick="event.stopPropagation();document.getElementById('qmenu').classList.toggle('on')">···</button>
       <div class="qmenu" id="qmenu"><button onclick="document.getElementById('qmenu').classList.remove('on');toast('Thanks — our team will review this storefront')">Report storefront</button></div>
-      <div class="bizrow"><div class="avatar">M</div>
+      <div class="bizrow"><div class="avatar ring" onclick="openViewer(0)">M</div>
         <div><h1>Mama's Kitchen</h1>
         <div class="meta">Food service · Ikeja, Lagos · Delivery available</div></div>
       </div>
@@ -208,8 +221,8 @@
         <button class="btn btn-secondary" onclick="sheet(true)">Share</button>
       </div>
       <div class="statstrip">
-        <div class="stat" onclick="tab('s-updates')"><div class="sth" style="background:linear-gradient(135deg,#C24E22,#2C3E7A)">New arrival</div><div class="sl">5h left</div></div>
-        <div class="stat" onclick="tab('s-updates')"><div class="sth" style="background:linear-gradient(135deg,#0A6B62,#1F2C59)">Weekend deal</div><div class="sl">11h left</div></div>
+        <div class="stat" onclick="openViewer(0)"><div class="ring" style="background:linear-gradient(135deg,#C24E22,#F2703C)">J</div><div class="sl">5h left</div></div>
+        <div class="stat" onclick="openViewer(1)"><div class="ring" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)">M</div><div class="sl">11h left</div></div>
       </div>
     </div>
     <div class="sec">Listings</div>
@@ -282,12 +295,12 @@
   <div class="screen" id="s-updates">
     <div class="topbar">Updates</div>
     <div class="pad"></div>
-    <div class="statuscard"><div class="micro">MAMA'S KITCHEN · 5h left</div>
+    <div class="statuscard" onclick="openViewer(0)"><div class="micro">MAMA'S KITCHEN · 5h left</div>
       <div style="font-size:16px;margin:8px 0">Back in stock — party jollof pans</div>
-      <button class="btn btn-primary" onclick="msg('Jollof Rice — Large', '₦5,000')">Message</button></div>
-    <div class="statuscard"><div class="micro">MAMA'S KITCHEN · 11h left</div>
+      <button class="btn btn-primary" onclick="event.stopPropagation();msg('Jollof Rice — Large', '₦5,000')">Message</button></div>
+    <div class="statuscard" onclick="openViewer(1)"><div class="micro">MAMA'S KITCHEN · 11h left</div>
       <div style="font-size:16px;margin:8px 0">Weekend Moi Moi — limited wraps</div>
-      <button class="btn btn-primary" onclick="msg('Moi Moi (4 wraps)', '₦2,000')">Message</button></div>
+      <button class="btn btn-primary" onclick="event.stopPropagation();msg('Moi Moi (4 wraps)', '₦2,000')">Message</button></div>
     <div class="spacer"></div>
     <div class="bottomnav"><span class="ind" style="left:33.33%"></span>
       <div class="tab" onclick="tab('s-chat')"><i data-lucide="message-circle"></i><br>Chats</div>
@@ -310,6 +323,15 @@
       <div class="tab" onclick="tab('s-store')"><i data-lucide="compass"></i><br>Discover</div></div>
   </div>
 
+  <div class="viewer" id="viewer">
+    <div class="vprog" id="vprog"><span></span><span></span></div>
+    <div class="vhead"><div class="avatar" style="width:36px;height:36px;font-size:15px;margin:0;border:0">M</div>
+      <div><div style="color:#fff;font-size:14px;font-weight:600">Mama's Kitchen</div><div class="micro" id="vtime" style="color:rgba(255,255,255,.7)">5h ago</div></div>
+      <span style="flex:1"></span><button class="vx" onclick="closeViewer()">✕</button></div>
+    <img id="vimg" alt="status" />
+    <div class="vtap"><div onclick="vNav(-1)"></div><div onclick="vNav(1)"></div></div>
+    <button class="btn btn-primary" id="vmsg">Message</button>
+  </div>
   <div class="sheet" id="sheet"><div class="grab"></div>
     <button class="btn btn-primary" onclick="copy()">Copy link</button>
     <button class="btn btn-secondary" onclick="sheet(false)">Close</button>
@@ -342,10 +364,36 @@
   }
   function tab(id) { go(id); moveInd(id); }
   function msg(dish, price) {
+    closeViewer();
     document.getElementById('ctxtext').textContent =
       dish ? ('About: ' + dish + ' · ' + price) : "Say hello to Mama's Kitchen";
     tab('s-chat');
   }
+  const VDATA = [
+    { dish: 'Jollof Rice — Large', price: '₦5,000', time: '5h ago', img: 0 },
+    { dish: 'Moi Moi (4 wraps)', price: '₦2,000', time: '11h ago', img: 2 }
+  ];
+  let vi = 0, vt = null;
+  function openViewer(i) { vi = i; document.getElementById('viewer').classList.add('on'); drawV(); }
+  function closeViewer() {
+    const v = document.getElementById('viewer');
+    if (v) v.classList.remove('on');
+    clearTimeout(vt);
+  }
+  function drawV() {
+    const s = VDATA[vi];
+    document.getElementById('vimg').src = document.querySelectorAll('#s-store .listcard img')[s.img].src;
+    document.getElementById('vtime').textContent = s.time;
+    document.getElementById('vmsg').onclick = () => msg(s.dish, s.price);
+    document.querySelectorAll('#vprog span').forEach((g, j) => {
+      g.innerHTML = '<i></i>';
+      const f = g.firstChild;
+      f.style.transition = 'none'; f.style.width = j < vi ? '100%' : '0';
+      if (j === vi) requestAnimationFrame(() => { f.style.transition = 'width 5s linear'; f.style.width = '100%'; });
+    });
+    clearTimeout(vt); vt = setTimeout(() => vNav(1), 5000);
+  }
+  function vNav(d) { vi += d; if (vi > 1) { closeViewer(); return; } if (vi < 0) vi = 0; drawV(); }
   function moveInd(id) {
     const map = { 's-chat': '0', 's-updates': '33.33%', 's-store': '66.66%', 's-d-jollof': '66.66%', 's-d-fried': '66.66%', 's-d-moi': '66.66%' };
     document.querySelectorAll('.bottomnav').forEach(nav => {
