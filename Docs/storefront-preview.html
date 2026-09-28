@@ -357,12 +357,12 @@
     </div>
     <div id="comgal" style="display:none">
       <img id="comprev" style="width:100%;height:180px;object-fit:cover;border-radius:12px" alt="preview" />
-      <input id="comcap" style="width:100%;height:48px;border-radius:8px;border:1px solid var(--color-line-strong);padding:0 12px;font-size:16px;margin-top:8px" placeholder="Add a caption…" />
+      <input id="comcap" style="width:100%;height:48px;border-radius:8px;border:1px solid var(--color-line-strong);padding:0 12px;font-size:16px;margin-top:8px" placeholder="Add a caption…" readonly onclick="kbTarget=document.getElementById('comcap');kbd(true)" />
       <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="postGal()">Post</button>
     </div>
     <div id="comtext" style="display:none">
       <div class="tpreview" id="tpreview" style="background:linear-gradient(135deg,#C24E22,#F2703C)">Your text here</div>
-      <textarea id="comta" rows="2" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…" oninput="document.getElementById('tpreview').textContent=this.value||'Your text here'"></textarea>
+      <textarea id="comta" rows="2" style="width:100%;border-radius:8px;border:1px solid var(--color-line-strong);padding:12px;font-size:16px;font-family:inherit" placeholder="Type your update…" readonly onclick="kbTarget=document.getElementById('comta');kbd(true)" oninput="document.getElementById('tpreview').textContent=this.value||'Your text here'"></textarea>
       <div style="display:flex;gap:8px;margin:8px 0;flex-wrap:wrap">
         <span class="cdot on" data-bg="linear-gradient(135deg,#C24E22,#F2703C)" style="background:linear-gradient(135deg,#C24E22,#F2703C)" onclick="compColor(this)"></span>
         <span class="cdot" data-bg="linear-gradient(135deg,#0A6B62,#2C3E7A)" style="background:linear-gradient(135deg,#0A6B62,#2C3E7A)" onclick="compColor(this)"></span>
@@ -524,21 +524,25 @@
     document.getElementById('kbwrap').classList.toggle('on', open);
     if (open) document.getElementById('accinput').value = document.getElementById('chatinput').value;
   }
+  let kbTarget = null;
   function kbdtoggle() {
+    kbTarget = null;
     const w = document.getElementById('kbwrap');
     const open = !w.classList.contains('on');
     kbd(open);
   }
   function AI() { return document.getElementById('accinput'); }
   function key(c) {
-    const i = AI();
+    const i = kbTarget || AI();
     i.value += (caps && /[a-z]/.test(c)) ? c.toUpperCase() : c;
     if (caps) { caps = false; drawKb(); }
+    if (i.id === 'comta') document.getElementById('tpreview').textContent = i.value || 'Your text here';
     syncSend();
   }
   function back() {
-    const i = AI();
+    const i = kbTarget || AI();
     i.value = i.value.slice(0, -1);
+    if (i.id === 'comta') document.getElementById('tpreview').textContent = i.value || 'Your text here';
     syncSend();
   }
   function svg(paths) {
@@ -601,7 +605,7 @@
     r4.appendChild(kbBtn(sym ? 'ABC' : '123', 'kfn', () => { sym = !sym; caps = false; drawKb(); }));
     r4.appendChild(kbBtn(I_MIC, 'kfn', () => toast('Voice input is phase 2')));
     r4.appendChild(kbBtn('', 'ksp', () => key(' ')));
-    r4.appendChild(kbBtn('return', 'kret', () => { send(); kbd(false); }));
+    r4.appendChild(kbBtn('return', 'kret', () => { if (kbTarget) kbd(false); else { send(); kbd(false); } }));
   }
   drawKb();
   function copy() {
