@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { BottomNav, Tab } from './src/components/BottomNav';
 import { C } from './src/theme';
@@ -55,7 +56,13 @@ function Shell() {
 }
 
 export default function App() {
-  return <AuthProvider><Shell /></AuthProvider>;
+  return (
+    <SafeAreaProvider>
+      <AuthProvider>
+        <Shell />
+      </AuthProvider>
+    </SafeAreaProvider>
+  );
 }
 
 const styles = StyleSheet.create({ root: { flex: 1, backgroundColor: C.background } });
