@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { BottomNav, Tab } from './src/components/BottomNav';
@@ -25,8 +25,12 @@ function Shell() {
   const [route, setRoute] = useState<Route>({ name: 'discover' });
 
   const openChat = async (businessId: string, listingId?: string) => {
-    const t = await api.openThread(businessId, listingId);
-    setRoute({ name: 'chat', threadId: t.id });
+    try {
+      const t = await api.openThread(businessId, listingId);
+      setRoute({ name: 'chat', threadId: t.id });
+    } catch (e) {
+      Alert.alert('Could not open chat', 'Check the API is running, then retry.');
+    }
   };
   if (!account) return <AuthScreen />;
   const tab: Tab = route.name === 'chats' || route.name === 'chat' ? 'chats'
