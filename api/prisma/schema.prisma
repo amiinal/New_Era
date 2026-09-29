@@ -42,6 +42,7 @@ model Business {
   createdAt     DateTime @default(now())
   listings      Listing[]
   collections   Collection[]
+  certificates  Certificate[]
   statuses      Status[]
   threads       Thread[]
 
