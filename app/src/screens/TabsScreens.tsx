@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { C, space, type } from '../theme';
-import { Button } from './components/Button';
+import { Button } from '../components/Button';
 
 // Step 7/8 shell: one card per business (tap plays its statuses in build
 // step 2) + add-status tile. Chats tab shows threads in step 2.

@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Storefront } from '../api';
 import { C, radius, space, type } from '../theme';
-import { Avatar } from './components/Avatar';
-import { Button } from './components/Button';
-import { ListingCard } from './components/ListingCard';
+import { Avatar } from '../components/Avatar';
+import { Button } from '../components/Button';
+import { ListingCard } from '../components/ListingCard';
 
 // Step 3/4/9: header + listings grid + certificates + report. No login needed.
 export function StorefrontScreen({

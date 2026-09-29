@@ -3,7 +3,7 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
-import { Button } from './components/Button';
+import { Button } from '../components/Button';
 
 // Step 2: email-first OTP (phone kept), explicit country, mode remembered.
 const COUNTRIES = ['NG', 'GH', 'KE'];

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Listing } from '../api';
 import { C, space, type } from '../theme';
-import { Button } from './components/Button';
+import { Button } from '../components/Button';
 
 // Listing detail (LST): photo, price, availability, inquiry brief for services.
 export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId: string, listingId: string) => void }) {
