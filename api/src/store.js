@@ -52,7 +52,8 @@ export function storeRoutes(app, prisma) {
       },
     });
     if (!b) return reply.code(404).send({ error: 'unknown storefront' });
-    return b;
+    const { listings, collections, certificates, statuses, ...business } = b;
+    return { business, listings, collections, certificates, statuses };
   });
 
   app.get('/listings/:id', async (req, reply) => {

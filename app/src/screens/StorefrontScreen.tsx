@@ -13,12 +13,12 @@ export function StorefrontScreen({
   slug: string; onListing: (id: string) => void;
   onChat: (businessId: string, listingId?: string) => void; onBack: () => void;
 }) {
-  const [sf, setSf] = useState<Storefront | null>(null);
+  const [sf, setSf] = useState<Storefront | null | undefined>(undefined);
   const [reported, setReported] = useState(false);
 
   useEffect(() => { api.storefront(slug).then(setSf).catch(() => setSf(null)); }, [slug]);
-  if (sf === null) return <ActivityIndicator style={styles.center} />;
-  if (!sf) return <Text style={styles.center}>Couldn't load this shop.</Text>;
+  if (sf === undefined) return <ActivityIndicator style={styles.center} />;
+  if (sf === null) return <Text style={styles.center}>Couldn't load this shop.</Text>;
   const { business: b, listings } = sf;
 
   return (
