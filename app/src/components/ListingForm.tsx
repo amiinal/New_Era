@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { api, Listing } from '../api';
+import { api, img, Listing } from '../api';
 import { C, radius, space, type } from '../theme';
 import { Button } from './Button';
 
@@ -30,7 +30,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const ref = useRef<CameraView>(null);
 
   const addUri = (uri: string) => {
-    if (photos.length >= 5) { Alert.alert('Photo limit', 'Up to 5 photos per listing.'); return; }
+    if (photos.length >= 3) { Alert.alert('Photo limit', 'Up to 3 photos per listing.'); return; }
     setPhotos([...photos, uri]);
   };
   const gallery = async () => {
@@ -61,7 +61,9 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
     try {
       const keys: string[] = [];
       for (const uri of photos) {
-        if (uri.startsWith('http') || !uri.startsWith('file')) { keys.push(uri); continue; }
+        // Already stored (server key or http)? keep. Anything else is a
+        // device URI (file:// or content://) and must be uploaded.
+        if (/^https?:\/\//.test(uri) || !/:\/\//.test(uri)) { keys.push(uri); continue; }
         keys.push(await api.uploadPhoto(uri, `business/${businessId}/listing/${Date.now()}-${keys.length}.jpg`));
       }
       const body = {
@@ -90,11 +92,11 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
         <ScrollView style={styles.root}>
           <Text style={styles.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
           <ScrollView horizontal style={styles.strip}>
-            {photos.map((u, j) => <Image key={j} source={{ uri: u.startsWith('http') ? u : u }} style={styles.thumb} />)}
-            {photos.length < 5 && (
+            {photos.map((u, j) => <Image key={j} source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={styles.thumb} />)}
+            {photos.length < 3 && (
               <Pressable onPress={openCam} style={styles.addBtn}><Text style={styles.addT}>Capture</Text></Pressable>
             )}
-            {photos.length < 5 && (
+            {photos.length < 3 && (
               <Pressable onPress={gallery} style={styles.addBtn}><Text style={styles.addT}>Gallery</Text></Pressable>
             )}
           </ScrollView>

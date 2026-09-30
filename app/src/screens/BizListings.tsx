@@ -11,6 +11,7 @@ export function BizListings() {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [items, setItems] = useState<Listing[] | null>(null);
   const [form, setForm] = useState<'add' | Listing | null>(null);
+  const [avFor, setAvFor] = useState<Listing | null>(null);
 
   const load = async () => {
     try {
@@ -23,12 +24,11 @@ export function BizListings() {
   useEffect(() => { load(); }, [businessId]);
   if (items === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
 
-  const cycle = async (l: Listing) => {
-    const order: Listing['availability'][] = ['in_stock', 'limited', 'sold_out', 'made_to_order'];
-    const next = order[(order.indexOf(l.availability) + 1) % order.length];
+  const setAv = async (l: Listing, next: Listing['availability']) => {
+    setAvFor(null);
     try {
       await api.patchListing(l.id, { availability: next });
-      setItems(items.map(x => (x.id === l.id ? { ...x, availability: next } : x)));
+      setItems((items ?? []).map(x => (x.id === l.id ? { ...x, availability: next } : x)));
     } catch { Alert.alert('Could not update', 'Check connection, then retry.'); }
   };
   const remove = (l: Listing) => {
@@ -54,7 +54,7 @@ export function BizListings() {
             <ListingCard item={l} onPress={() => setForm(l)} />
           </View>
           <View style={styles.side}>
-            <Pressable onPress={() => cycle(l)} style={styles.av}>
+            <Pressable onPress={() => setAvFor(l)} style={styles.av}>
               <Text style={styles.avT}>{
                 { in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[l.availability]
               } ›</Text>
@@ -68,6 +68,21 @@ export function BizListings() {
           initial={form === 'add' ? null : form}
           onClose={() => setForm(null)}
           onSaved={() => { setForm(null); load(); }} />
+      )}
+      {!!avFor && (
+        <View style={styles.sheetWrap}>
+          <View style={styles.sheet}>
+            <Text style={styles.t}>Availability</Text>
+            {(['in_stock', 'limited', 'sold_out', 'made_to_order'] as const).map(a => (
+              <Text key={a} onPress={() => avFor && setAv(avFor, a)}
+                style={[styles.opt, avFor.availability === a && styles.optOn]}>
+                {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
+                {avFor.availability === a ? ' ✓' : ''}
+              </Text>
+            ))}
+            <Text onPress={() => setAvFor(null)} style={[styles.opt, { textAlign: 'center' }]}>Cancel</Text>
+          </View>
+        </View>
       )}
     </View>
   );
@@ -83,4 +98,12 @@ const styles = StyleSheet.create({
   av: { backgroundColor: C.surface, borderRadius: 8, padding: space.s3 },
   avT: { ...type.bodySm, color: C.primary, fontWeight: '600' },
   del: { ...type.bodySm, color: C.error, padding: space.s2 },
+  sheetWrap: {
+    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+    backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end',
+  },
+  sheet: { backgroundColor: C.surface, borderRadius: 16, padding: space.s4 },
+  t: { ...type.h3, color: C.ink },
+  opt: { ...type.body, color: C.ink, paddingVertical: space.s3 },
+  optOn: { color: C.primary, fontWeight: '700' },
 });
