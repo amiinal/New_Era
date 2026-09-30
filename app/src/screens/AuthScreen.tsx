@@ -8,8 +8,8 @@ import { Button } from '../components/Button';
 // Step 2: email-first OTP (phone kept), explicit country, mode remembered.
 const COUNTRIES = ['NG', 'GH', 'KE'];
 export function AuthScreen() {
-  const { signIn } = useAuth();
-  const [to, setTo] = useState('');
+  const { signIn, pendingTo } = useAuth();
+  const [to, setTo] = useState(pendingTo);
   const [code, setCode] = useState('');
   const [country, setCountry] = useState('NG');
   const [sent, setSent] = useState(false);

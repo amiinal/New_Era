@@ -5,7 +5,7 @@ import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { ListingCard } from '../components/ListingCard';
-import { StatusViewer } from '../components/StatusViewer';
+import { StatusViewer, statusLabel } from '../components/StatusViewer';
 
 // Step 3/4/9: header + listings grid + certificates + report. No login needed.
 export function StorefrontScreen({
@@ -83,7 +83,7 @@ export function StorefrontScreen({
       <Pressable onPress={onBack}><Text style={styles.link}>Discover more businesses</Text></Pressable>
       {view && (
         <StatusViewer
-          items={sf.statuses.map(s => ({ ...s, label: `Say hello to ${b.name}` }))}
+          items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, b.name) }))}
           businessName={b.name} businessId={b.id}
           onClose={() => setView(false)}
           onMessage={(bid, label) => onChat(bid, undefined, label)} />

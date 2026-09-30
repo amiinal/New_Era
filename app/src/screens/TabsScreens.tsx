@@ -7,7 +7,7 @@ import { C, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
-import { StatusViewer } from '../components/StatusViewer';
+import { StatusViewer, statusLabel } from '../components/StatusViewer';
 
 // Updates (Step 7/8): add-story tile first, then one card per business
 // with the avatar ring. Card opens the portrait viewer (rest of statuses
@@ -21,7 +21,8 @@ export function UpdatesScreen({
   const [sf, setSf] = useState<Storefront | null>(null);
   const [compose, setCompose] = useState(false);
   const [view, setView] = useState(false);
-  const { signOut } = useAuth();
+  const [sw, setSw] = useState(false);
+  const { requestSwitch } = useAuth();
 
   const load = async () => {
     try { setSf(await api.storefront('mamas-kitchen')); } catch { setSf(null); }
@@ -64,13 +65,26 @@ export function UpdatesScreen({
       )}
       {view && sf && (
         <StatusViewer
-          items={sf.statuses.map(s => ({ ...s, label: `Say hello to ${sf.business.name}` }))}
+          items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, sf.business.name) }))}
           businessName={sf.business.name} businessId={sf.business.id}
           onClose={() => setView(false)} onMessage={onMessage} />
       )}
-      <Pressable onPress={signOut}>
-        <Text style={[styles.micro, { textAlign: 'center', marginTop: space.s5 }]}>Switch account (sign out)</Text>
+      <Pressable onPress={() => setSw(true)}>
+        <Text style={[styles.micro, { textAlign: 'center', marginTop: space.s5 }]}>Switch account</Text>
       </Pressable>
+      {sw && (
+        <View style={styles.sheet}>
+          <Text style={styles.t}>Switch account</Text>
+          <Text style={styles.micro}>Posting needs the business account. Nothing is lost — cancel anytime.</Text>
+          <View style={{ height: space.s3 }} />
+          <Button title="Business account" onPress={() => { setSw(false); requestSwitch('owner@example.com'); }} />
+          <View style={{ height: space.s2 }} />
+          <Button title="Customer account" variant="secondary"
+            onPress={() => { setSw(false); requestSwitch(''); }} />
+          <View style={{ height: space.s2 }} />
+          <Button title="Close" variant="tertiary" onPress={() => setSw(false)} />
+        </View>
+      )}
     </View>
   );
 }
@@ -113,5 +127,8 @@ const styles = StyleSheet.create({
   plus: {
     width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(194,78,34,.12)',
+  },
+  sheet: {
+    backgroundColor: C.surface, borderRadius: 16, padding: space.s4, marginTop: space.s3,
   },
 });

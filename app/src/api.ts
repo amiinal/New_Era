@@ -81,6 +81,10 @@ export const api = {
     req<{ uploadUrl: string; publicUrl: string }>('/uploads/presign', {
       method: 'POST', body: JSON.stringify({ key, contentType: 'image/jpeg' }),
     }),
+  inlineUpload: (name: string, base64: string) =>
+    req<{ key: string }>('/uploads/inline', {
+      method: 'POST', body: JSON.stringify({ name, data: base64 }),
+    }),
   postStatus: (businessId: string, body: { kind: 'photo' | 'text'; imageKey?: string; text?: string; bg?: string; caption?: string }) =>
     req<Status>(`/businesses/${businessId}/statuses`, { method: 'POST', body: JSON.stringify(body) }),
 };

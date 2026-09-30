@@ -5,6 +5,15 @@ import { C, space } from '../theme';
 import { Button } from './Button';
 
 export type VStatus = Status & { label: string };
+
+// Chat tag for a status: quotes the story so the business can identify
+// exactly what the customer is asking about.
+export function statusLabel(s: Status, businessName: string) {
+  const snip = (t: string) => (t.length > 42 ? t.slice(0, 42) + '…' : t);
+  if (s.kind === 'text' && s.text) return `About update: "${snip(s.text)}"`;
+  if (s.caption) return `About photo: "${snip(s.caption)}"`;
+  return `About ${businessName} photo update`;
+}
 // Portrait story viewer: progress segments, tap edges, caption overlay,
 // Message button tags the conversation. 5s per story, loops closed at end.
 export function StatusViewer({

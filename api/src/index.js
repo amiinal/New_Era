@@ -14,9 +14,12 @@ authRoutes(app, prisma);
 storeRoutes(app, prisma);
 
 // Step 4 stub: presigned upload to R2 (app uploads direct)
-app.post('/uploads/presign', async (req) => {
+app.post('/uploads/presign', async (req, reply) => {
   const { key, contentType } = req.body || {};
   if (!key) return { error: 'key required, e.g. business/123/listing/456/feed.jpg' };
+  if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID) {
+    return reply.code(400).send({ error: 'R2 not configured — use /uploads/inline' });
+  }
   const url = await getPresignedPut(key, contentType || 'image/jpeg');
   return { uploadUrl: url, publicUrl: publicUrlFor(key) };
 });

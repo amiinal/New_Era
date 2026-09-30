@@ -1,8 +1,8 @@
 // Step 3–6 + 9: discovery, storefront, listings, threads/messages,
 // reports, and local image serving (/img) for seed photos when R2
 // isn't configured. All list/detail reads are public (CUS-9).
-import { createReadStream } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { createReadStream, createWriteStream } from 'node:fs';
+import { mkdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const IMG_DIR = join(process.cwd(), '..', 'Docs', 'images');
@@ -129,6 +129,26 @@ export function storeRoutes(app, prisma) {
     const { targetType, targetId, reason } = req.body || {};
     if (!targetType || !targetId || !reason) return reply.code(400).send({ error: 'targetType, targetId, reason required' });
     return prisma.report.create({ data: { reporterId: acc.id, targetType, targetId, reason } });
+  });
+
+  // Local-dev fallback when R2 keys are absent: accept base64 inline and
+  // store under Docs/images/uploads (served by /img). No new dependencies.
+  app.post('/uploads/inline', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const { name, data } = req.body || {};
+    if (!name || !data) return reply.code(400).send({ error: 'name and base64 data required' });
+    const safe = String(name).replace(/[^a-zA-Z0-9.-]/g, '').slice(-60) || 'photo.jpg';
+    const key = `uploads/${Date.now()}-${safe}`;
+    await mkdir(join(IMG_DIR, 'uploads'), { recursive: true });
+    await new Promise((resolve, reject) => {
+      const ws = createWriteStream(join(IMG_DIR, key));
+      ws.on('finish', resolve);
+      ws.on('error', reject);
+      ws.write(Buffer.from(String(data), 'base64'));
+      ws.end();
+    });
+    return { key };
   });
 
   // Local dev only: serve Docs/images seed photos as /img/:name.
