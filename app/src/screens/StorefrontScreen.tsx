@@ -11,10 +11,19 @@ export function StorefrontScreen({
   slug, onListing, onChat, onBack,
 }: {
   slug: string; onListing: (id: string) => void;
-  onChat: (businessId: string, listingId?: string) => void; onBack: () => void;
+  onChat: (businessId: string, listingId?: string, label?: string) => void; onBack: () => void;
 }) {
   const [sf, setSf] = useState<Storefront | null | undefined>(undefined);
-  const [reported, setReported] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const report = async (id: string) => {
+    setMenu(false);
+    try {
+      await api.report({ targetType: 'profile', targetId: id, reason: 'Reported from storefront' });
+      setSent(true);
+    } catch { setSent(false); }
+  };
 
   useEffect(() => { api.storefront(slug).then(setSf).catch(() => setSf(null)); }, [slug]);
   if (sf === undefined) return <ActivityIndicator style={styles.center} />;
@@ -31,11 +40,16 @@ export function StorefrontScreen({
             <Text style={styles.h1}>{b.name}</Text>
             <Text style={styles.meta}>{b.category} · {b.area ? `${b.area}, ` : ''}{b.city}</Text>
           </View>
-          <Text onPress={() => setReported(true)} style={styles.kebab}>···</Text>
+          <Text onPress={() => setMenu(m => !m)} style={styles.kebab}>···</Text>
         </View>
-        {reported && <Text style={styles.note}>Thanks — our team will review this storefront.</Text>}
+        {menu && (
+          <View style={styles.menu}>
+            <Text onPress={() => report(b.id)} style={styles.menuItem}>Report storefront</Text>
+          </View>
+        )}
+        {sent && <Text style={styles.note}>Thanks — our team will review this storefront.</Text>}
         <View style={styles.actions}>
-          <View style={{ flex: 2 }}><Button title="Message" onPress={() => onChat(b.id)} /></View>
+          <View style={{ flex: 2 }}><Button title="Message" onPress={() => onChat(b.id, undefined, `Say hello to ${b.name}`)} /></View>
           <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
         </View>
       </View>
@@ -78,6 +92,8 @@ const styles = StyleSheet.create({
   h1: { ...type.h1, fontSize: 22, color: C.ink },
   meta: { ...type.micro, color: C.bodyText, marginTop: 4 },
   kebab: { fontSize: 20, color: C.bodyText, padding: space.s2, letterSpacing: 2 },
+  menu: { backgroundColor: C.surface, borderRadius: 8, marginTop: space.s2, overflow: 'hidden' },
+  menuItem: { padding: space.s4, fontSize: 14, color: C.error },
   note: { ...type.micro, color: C.success, marginTop: space.s2 },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   sec: { ...type.h3, color: C.ink, margin: space.s5, marginBottom: space.s2, marginHorizontal: space.s4 },

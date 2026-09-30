@@ -8,7 +8,7 @@ import { useAuth } from '../auth';
 import { C, space, type } from '../theme';
 
 // Step 6: thread with listing context (CHT-3). Native keyboard via TextInput.
-export function ChatScreen({ threadId }: { threadId: string }) {
+export function ChatScreen({ threadId, context }: { threadId: string; context?: string }) {
   const { account } = useAuth();
   const [msgs, setMsgs] = useState<Message[] | null>(null);
   const [draft, setDraft] = useState('');
@@ -27,7 +27,10 @@ export function ChatScreen({ threadId }: { threadId: string }) {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      {!!context && (
+        <View style={styles.ctx}><Text style={styles.ctxT} numberOfLines={1}>{context}</Text></View>
+      )}
       {msgs === null ? <ActivityIndicator style={{ marginTop: space.s8 }} /> : (
         <FlatList data={msgs} keyExtractor={m => m.id} contentContainerStyle={styles.list}
           renderItem={({ item }) => (
@@ -48,6 +51,8 @@ export function ChatScreen({ threadId }: { threadId: string }) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background },
+  ctx: { backgroundColor: C.surface, borderBottomWidth: 1, borderBottomColor: C.line, padding: 8 },
+  ctxT: { fontSize: 14, color: C.bodyText },
   list: { padding: space.s4 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, marginBottom: 8 },
   them: { backgroundColor: C.surface, alignSelf: 'flex-start' },

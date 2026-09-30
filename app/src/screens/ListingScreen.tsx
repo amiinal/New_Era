@@ -5,7 +5,7 @@ import { C, space, type } from '../theme';
 import { Button } from '../components/Button';
 
 // Listing detail (LST): photo, price, availability, inquiry brief for services.
-export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId: string, listingId: string) => void }) {
+export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId: string, listingId: string, label: string) => void }) {
   const [item, setItem] = useState<Listing | null | undefined>(undefined);
   useEffect(() => { api.listing(id).then(setItem).catch(() => setItem(null)); }, [id]);
   if (item === undefined || item === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
@@ -20,7 +20,7 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
           <Text style={styles.micro}>Inquiry only — date, area and budget are confirmed in chat.</Text>
         )}
         <View style={{ marginTop: space.s4 }}>
-          <Button title="Message about this" onPress={() => onChat(item.businessId, item.id)} />
+          <Button title="Message about this" onPress={() => onChat(item.businessId, item.id, `About: ${item.title} · ${item.price ?? 'Price on request'}`)} />
         </View>
       </View>
     </ScrollView>

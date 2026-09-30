@@ -17,17 +17,17 @@ type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
   | { name: 'store'; slug: string }
   | { name: 'listing'; id: string }
-  | { name: 'chat'; threadId: string };
+  | { name: 'chat'; threadId: string; context: string };
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
   const { account } = useAuth();
   const [route, setRoute] = useState<Route>({ name: 'discover' });
 
-  const openChat = async (businessId: string, listingId?: string) => {
+  const openChat = async (businessId: string, listingId?: string, label?: string) => {
     try {
       const t = await api.openThread(businessId, listingId);
-      setRoute({ name: 'chat', threadId: t.id });
+      setRoute({ name: 'chat', threadId: t.id, context: label ?? 'New conversation' });
     } catch (e) {
       Alert.alert('Could not open chat', 'Check the API is running, then retry.');
     }
@@ -46,13 +46,13 @@ function Shell() {
       {route.name === 'store' && (
         <StorefrontScreen slug={route.slug}
           onListing={id => setRoute({ name: 'listing', id })}
-          onChat={(bid, lid) => openChat(bid, lid)}
+          onChat={(bid, lid, label) => openChat(bid, lid, label)}
           onBack={() => setRoute({ name: 'discover' })} />
       )}
       {route.name === 'listing' && (
-        <ListingScreen id={route.id} onChat={(bid, lid) => openChat(bid, lid)} />
+        <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
       )}
-      {route.name === 'chat' && <ChatScreen threadId={route.threadId} />}
+      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} />}
       <BottomNav active={tab} onTab={t => setRoute({ name: t })} />
       <StatusBar style="auto" />
     </SafeAreaView>
