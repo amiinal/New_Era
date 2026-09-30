@@ -67,7 +67,21 @@ export function BizListings() {
         <ListingForm businessId={businessId}
           initial={form === 'add' ? null : form}
           onClose={() => setForm(null)}
-          onSaved={() => { setForm(null); load(); }} />
+          onSaved={saved => {
+            setForm(null); load();
+            // STA-5: product-linked status nudge on new/restocked listings.
+            Alert.alert('Share as status?', `"${saved.title}" is live. Post it as a 24h update?`, [
+              { text: 'Skip' },
+              { text: 'Share', onPress: async () => {
+                try {
+                  await api.postStatus(businessId, {
+                    kind: 'photo', imageKey: saved.photos[0], caption: saved.title,
+                  });
+                  Alert.alert('Posted', 'Status live for 24 hours.');
+                } catch { Alert.alert('Could not post', 'Check connection and daily limit (5/day).'); }
+              } },
+            ]);
+          }} />
       )}
       {!!avFor && (
         <Modal transparent animationType="fade" onRequestClose={() => setAvFor(null)}>

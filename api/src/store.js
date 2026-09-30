@@ -259,16 +259,17 @@ export function storeRoutes(app, prisma) {
     return { key };
   });
 
-  // Local dev only: serve Docs/images seed photos as /img/:name.
-  app.get('/img/:name', async (req, reply) => {
-    const p = join(IMG_DIR, req.params.name);
-    if (p !== join(IMG_DIR, req.params.name) || req.params.name.includes('..')) {
+  // Local dev only: serve Docs/images (including uploads/) as /img/<path>.
+  app.get('/img/*', async (req, reply) => {
+    const rel = (req.params['*'] || '').replace(/\\/g, '/');
+    if (!rel || rel.includes('..')) {
       return reply.code(400).send({ error: 'bad name' });
     }
     try {
+      const p = join(IMG_DIR, rel);
       const st = await stat(p);
       if (!st.isFile()) throw 0;
-      const ext = '.' + (req.params.name.split('.').pop() || '').toLowerCase();
+      const ext = '.' + (rel.split('.').pop() || '').toLowerCase();
       reply.header('content-type', MIME[ext] || 'application/octet-stream');
       reply.header('cache-control', 'public, max-age=86400');
       return reply.send(createReadStream(p));

@@ -17,7 +17,7 @@ const AVAIL_LABEL: Record<Listing['availability'], string> = {
 // collapsed. Product/Service toggle; variations are separate listings.
 export function ListingForm({ businessId, initial, onClose, onSaved }: {
   businessId: string; initial?: Listing | null;
-  onClose: () => void; onSaved: () => void;
+  onClose: () => void; onSaved: (saved: Listing) => void;
 }) {
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
   const [title, setTitle] = useState(initial?.title ?? '');
@@ -70,9 +70,10 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
         type: kind, title: title.trim(), price: price.trim() || undefined,
         availability: avail, photos: keys,
       };
-      if (initial) await api.patchListing(initial.id, body);
-      else await api.createListing(businessId, body);
-      onSaved();
+      let saved: Listing;
+      if (initial) saved = await api.patchListing(initial.id, body);
+      else saved = await api.createListing(businessId, body);
+      onSaved(saved);
     } catch (e) {
       Alert.alert('Could not save', String((e as Error).message || 'Check connection, then retry.'));
     } finally { setBusy(false); }
