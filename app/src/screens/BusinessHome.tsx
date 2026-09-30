@@ -52,7 +52,7 @@ export function BusinessHome({ onOpenStore }: { onOpenStore: (slug: string) => v
 
       <View style={styles.actions}>
         <View style={{ flex: 2 }}><Button title="+ Add listing" onPress={() => {}} /></View>
-        <View style={{ flex: 1 }}><Button title="Post status" variant="secondary" onPress={() => setCompose(true)} /></View>
+        <View style={{ flex: 1.4 }}><Button title="Post status" variant="secondary" onPress={() => setCompose(true)} /></View>
       </View>
 
       <View style={styles.card}>
@@ -71,12 +71,12 @@ export function BusinessHome({ onOpenStore }: { onOpenStore: (slug: string) => v
           </View>
         </View>
         {ins ? (
-          <>
-            <Metric n={ins.storefrontViews} label="Storefront views" />
-            <Metric n={ins.listings} label="Live listings" />
-            <Metric n={ins.chatsStarted} label="Chats started" />
-            <Metric n={ins.activeStatuses} label="Active statuses" />
-          </>
+          <View style={styles.grid}>
+            <View style={styles.metric}><Text style={styles.mn}>{ins.storefrontViews}</Text><Text style={styles.micro}>Storefront views</Text></View>
+            <View style={styles.metric}><Text style={styles.mn}>{ins.listings}</Text><Text style={styles.micro}>Live listings</Text></View>
+            <View style={styles.metric}><Text style={styles.mn}>{ins.chatsStarted}</Text><Text style={styles.micro}>Chats started</Text></View>
+            <View style={styles.metric}><Text style={styles.mn}>{ins.activeStatuses}</Text><Text style={styles.micro}>Active statuses</Text></View>
+          </View>
         ) : <Text style={styles.micro}>Loading…</Text>}
         <Text style={styles.micro}>Private to you · deeper trends arrive with premium.</Text>
       </View>
@@ -94,15 +94,6 @@ export function BusinessHome({ onOpenStore }: { onOpenStore: (slug: string) => v
   );
 }
 
-function Metric({ n, label }: { n: number; label: string }) {
-  return (
-    <View style={styles.mrow}>
-      <Text style={styles.mn}>{n}</Text>
-      <Text style={styles.micro}>{label}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background, padding: space.s4 },
   head: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
@@ -117,5 +108,10 @@ const styles = StyleSheet.create({
   rangeOn: { color: C.primary, fontWeight: '700' },
   mrow: { flexDirection: 'row', alignItems: 'baseline', gap: space.s3, marginTop: space.s2 },
   mn: { ...type.h2, color: C.ink, fontVariant: ['tabular-nums'] },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, marginTop: space.s2 },
+  metric: {
+    flexBasis: '47%', flexGrow: 1, backgroundColor: C.background,
+    borderRadius: radius.md, padding: space.s3,
+  },
   link: { ...type.body, color: C.primary, textAlign: 'center', marginVertical: space.s5 },
 });

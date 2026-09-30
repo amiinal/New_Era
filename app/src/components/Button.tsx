@@ -23,6 +23,7 @@ export function Button({ title, onPress, variant = 'primary', disabled }: Props)
         (disabled || pressed) && styles.dim,
       ]}>
       <Text
+        numberOfLines={1}
         style={[
           styles.label,
           variant === 'primary' && { color: '#fff' },

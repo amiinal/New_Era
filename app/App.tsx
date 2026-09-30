@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
-import { BottomNav, Tab } from './src/components/BottomNav';
+import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
 import { C } from './src/theme';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { BusinessHome } from './src/screens/BusinessHome';
@@ -15,7 +15,7 @@ import { ChatsScreen, UpdatesScreen } from './src/screens/TabsScreens';
 import { api } from './src/api';
 
 type Route =
-  | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
+  | { name: 'discover' } | { name: 'updates' } | { name: 'chats' } | { name: 'bizhome' }
   | { name: 'store'; slug: string }
   | { name: 'listing'; id: string }
   | { name: 'chat'; threadId: string; context: string };
@@ -43,14 +43,21 @@ function Shell() {
   };
 
   if (mode === 'business') {
+    const bizTab: BizTab = route.name === 'store' ? 'storefront' : 'mybiz';
     return (
       <SafeAreaView style={styles.root}>
         {route.name === 'store'
           ? <StorefrontScreen slug={route.slug}
               onListing={id => setRoute({ name: 'listing', id })}
               onChat={(bid, lid, label) => openChat(bid, lid, label)}
-              onBack={() => setRoute({ name: 'discover' })} />
+              onBack={() => setRoute({ name: 'bizhome' })} />
+          : route.name === 'listing'
+          ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
+          : route.name === 'chat'
+          ? <ChatScreen threadId={route.threadId} context={route.context} />
           : <BusinessHome onOpenStore={openStore} />}
+        <BizNav active={bizTab}
+          onTab={t => setRoute(t === 'storefront' && route.name === 'store' ? route : { name: 'bizhome' })} />
         <StatusBar style="auto" />
       </SafeAreaView>
     );

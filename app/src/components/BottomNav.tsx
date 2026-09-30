@@ -1,9 +1,30 @@
-import { Compass, MessageCircle, Newspaper } from 'lucide-react-native';
+import { Compass, Eye, MessageCircle, Newspaper, Store } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C } from '../theme';
 
 export type Tab = 'chats' | 'updates' | 'discover';
+export type BizTab = 'mybiz' | 'storefront';
+const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
+  { key: 'mybiz', label: 'My Business', Icon: Store },
+  { key: 'storefront', label: 'Storefront', Icon: Eye },
+];
+// Business bottom nav: never the customer tabs (ACC-3 modes stay distinct).
+export function BizNav({ active, onTab }: { active: BizTab; onTab: (t: BizTab) => void }) {
+  return (
+    <View style={styles.bar}>
+      {BIZ_TABS.map(({ key, label, Icon }) => {
+        const on = key === active;
+        return (
+          <Pressable key={key} onPress={() => onTab(key)} style={styles.tab}>
+            <Icon size={24} color={on ? C.primary : C.bodyText} />
+            <Text style={[styles.label, on && styles.on]}>{label}</Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 const TABS: { key: Tab; label: string; Icon: typeof Compass }[] = [
   { key: 'chats', label: 'Chats', Icon: MessageCircle },
   { key: 'updates', label: 'Updates', Icon: Newspaper },
