@@ -30,24 +30,7 @@ export function Composer({ businessId, onClose, onPosted }: {
     }
   };
 
-  const upload = async (localUri: string, key: string) => {
-    // Prefer R2 direct upload; fall back to inline local storage (dev).
-    try {
-      const { uploadUrl } = await api.presign(key);
-      const blob = await (await fetch(localUri)).blob();
-      const put = await fetch(uploadUrl, { method: 'PUT', body: blob, headers: { 'Content-Type': 'image/jpeg' } });
-      if (!put.ok) throw new Error('r2 put failed');
-      return key;
-    } catch {
-      const blob = await (await fetch(localUri)).blob();
-      const buf = await blob.arrayBuffer();
-      let bin = '';
-      const bytes = new Uint8Array(buf);
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      const saved = await api.inlineUpload(key.split('/').pop() || 'photo.jpg', btoa(bin));
-      return saved.key;
-    }
-  };
+  const upload = (localUri: string, key: string) => api.uploadPhoto(localUri, key);
 
   const post = async () => {
     if (busy) return;

@@ -10,7 +10,9 @@ import { Composer } from '../components/Composer';
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
 // preview, recent chats. Listings/inbox management are later slices.
-export function BusinessHome({ onOpenStore }: { onOpenStore: (slug: string) => void }) {
+export function BusinessHome({ onOpenStore, onManage }: {
+  onOpenStore: (slug: string) => void; onManage: () => void;
+}) {
   const { account, mode, setAppMode } = useAuth();
   const [biz, setBiz] = useState<Business | null>(null);
   const [range, setRange] = useState<7 | 30>(7);
@@ -51,7 +53,7 @@ export function BusinessHome({ onOpenStore }: { onOpenStore: (slug: string) => v
       </View>
 
       <View style={styles.actions}>
-        <View style={{ flex: 2 }}><Button title="+ Add listing" onPress={() => {}} /></View>
+        <View style={{ flex: 2 }}><Button title="+ Add listing" onPress={onManage} /></View>
         <View style={{ flex: 1.4 }}><Button title="Post status" variant="secondary" onPress={() => setCompose(true)} /></View>
       </View>
 

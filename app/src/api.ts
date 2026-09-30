@@ -85,6 +85,33 @@ export const api = {
     req<{ key: string }>('/uploads/inline', {
       method: 'POST', body: JSON.stringify({ name, data: base64 }),
     }),
+  // Photo bytes → stored key. Prefers R2 direct PUT, falls back to local
+  // inline storage (dev without R2 keys). Shared by statuses + listings.
+  uploadPhoto: async (localUri: string, key: string): Promise<string> => {
+    try {
+      const { uploadUrl } = await api.presign(key);
+      const blob = await (await fetch(localUri)).blob();
+      const put = await fetch(uploadUrl, { method: 'PUT', body: blob, headers: { 'Content-Type': 'image/jpeg' } });
+      if (!put.ok) throw new Error('r2 put failed');
+      return key;
+    } catch {
+      const blob = await (await fetch(localUri)).blob();
+      const buf = await blob.arrayBuffer();
+      const bytes = new Uint8Array(buf);
+      let bin = '';
+      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+      return (await api.inlineUpload(key.split('/').pop() || 'photo.jpg', btoa(bin))).key;
+    }
+  },
+  bizListings: (businessId: string) => req<Listing[]>(`/businesses/${businessId}/listings`),
+  createListing: (businessId: string, body: {
+    type: 'product' | 'service'; title: string; price?: string;
+    availability?: Listing['availability']; photos: string[];
+  }) => req<Listing>(`/businesses/${businessId}/listings`, { method: 'POST', body: JSON.stringify(body) }),
+  patchListing: (id: string, body: Partial<Pick<Listing, 'title' | 'price' | 'availability' | 'photos'>>) =>
+    req<Listing>(`/listings/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deleteListing: (id: string) =>
+    req<{ deleted: boolean }>(`/listings/${id}`, { method: 'DELETE' }),
   myBusinesses: () => req<Business[]>('/me/businesses'),
   recordEvent: (name: string, props?: Record<string, string>) =>
     req<{ id: string }>('/events', { method: 'POST', body: JSON.stringify({ name, props: props || {} }) }),

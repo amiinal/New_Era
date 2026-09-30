@@ -1,12 +1,13 @@
-import { Compass, MessageCircle, Newspaper, Store } from 'lucide-react-native';
+import { Compass, MessageCircle, Newspaper, Package, Store } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C } from '../theme';
 
 export type Tab = 'chats' | 'updates' | 'discover';
-export type BizTab = 'mybiz' | 'bchats' | 'bupdates';
+export type BizTab = 'mybiz' | 'blistings' | 'bchats' | 'bupdates';
 const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
   { key: 'mybiz', label: 'My Business', Icon: Store },
+  { key: 'blistings', label: 'Listings', Icon: Package },
   { key: 'bchats', label: 'Chats', Icon: MessageCircle },
   { key: 'bupdates', label: 'Updates', Icon: Newspaper },
 ];

@@ -13,11 +13,12 @@ import { ListingScreen } from './src/screens/ListingScreen';
 import { StorefrontScreen } from './src/screens/StorefrontScreen';
 import { ChatsScreen, UpdatesScreen } from './src/screens/TabsScreens';
 import { BizInbox, BizUpdates } from './src/screens/BizTabs';
+import { BizListings } from './src/screens/BizListings';
 import { api } from './src/api';
 
 type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
-  | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' }
+  | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' } | { name: 'blistings' }
   | { name: 'store'; slug: string }
   | { name: 'listing'; id: string }
   | { name: 'chat'; threadId: string; context: string };
@@ -47,7 +48,8 @@ function Shell() {
   if (mode === 'business') {
     const bizTab: BizTab =
       route.name === 'bchats' || (route.name === 'chat') ? 'bchats'
-      : route.name === 'bupdates' ? 'bupdates' : 'mybiz';
+      : route.name === 'bupdates' ? 'bupdates'
+      : route.name === 'blistings' ? 'blistings' : 'mybiz';
     return (
       <SafeAreaView style={styles.root}>
         {route.name === 'store'
@@ -63,9 +65,11 @@ function Shell() {
           ? <BizUpdates onStore={openStore} />
           : route.name === 'bchats'
           ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label })} />
-          : <BusinessHome onOpenStore={openStore} />}
+          : route.name === 'blistings'
+          ? <BizListings />
+          : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })} />}
         <BizNav active={bizTab}
-          onTab={t => setRoute(t === 'mybiz' ? { name: 'bizhome' } : { name: t } as Route)} />
+          onTab={t => setRoute(t === 'mybiz' ? { name: 'bizhome' } : t === 'blistings' ? { name: 'blistings' } : { name: t } as Route)} />
         <StatusBar style="auto" />
       </SafeAreaView>
     );
