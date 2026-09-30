@@ -41,8 +41,14 @@ function Shell() {
       {route.name === 'discover' && (
         <DiscoverScreen onOpen={slug => setRoute({ name: 'store', slug })} />
       )}
-      {route.name === 'updates' && <UpdatesScreen />}
-      {route.name === 'chats' && <ChatsScreen onOpen={() => {}} />}
+      {route.name === 'updates' && (
+        <UpdatesScreen
+          onMessage={(bid, label) => openChat(bid, undefined, label)}
+          onOpen={slug => setRoute({ name: 'store', slug })} />
+      )}
+      {route.name === 'chats' && (
+        <ChatsScreen onOpenThread={(bid, label) => openChat(bid, undefined, label)} />
+      )}
       {route.name === 'store' && (
         <StorefrontScreen slug={route.slug}
           onListing={id => setRoute({ name: 'listing', id })}

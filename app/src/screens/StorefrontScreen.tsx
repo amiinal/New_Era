@@ -92,7 +92,10 @@ const styles = StyleSheet.create({
   h1: { ...type.h1, fontSize: 22, color: C.ink },
   meta: { ...type.micro, color: C.bodyText, marginTop: 4 },
   kebab: { fontSize: 20, color: C.bodyText, padding: space.s2, letterSpacing: 2 },
-  menu: { backgroundColor: C.surface, borderRadius: 8, marginTop: space.s2, overflow: 'hidden' },
+  menu: {
+    position: 'absolute', top: 44, right: 12, backgroundColor: C.surface,
+    borderRadius: 8, elevation: 4, zIndex: 10, minWidth: 180,
+  },
   menuItem: { padding: space.s4, fontSize: 14, color: C.error },
   note: { ...type.micro, color: C.success, marginTop: space.s2 },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
