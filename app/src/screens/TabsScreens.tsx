@@ -1,17 +1,13 @@
-import { Plus } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Storefront } from '../api';
-import { useAuth } from '../auth';
 import { C, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
-import { Composer } from '../components/Composer';
 import { StatusViewer, statusLabel } from '../components/StatusViewer';
 
-// Updates (Step 7/8): add-story tile first, then one card per business
-// with the avatar ring. Card opens the portrait viewer (rest of statuses
-// play inside); composer posts gallery + text with a live preview.
+// Customer Updates: one card per business, avatar ring plays its stories.
+// Posting lives in business mode only — no add tile, no account switcher.
 export function UpdatesScreen({
   onMessage, onOpen,
 }: {
@@ -19,10 +15,7 @@ export function UpdatesScreen({
   onOpen: (slug: string) => void;
 }) {
   const [sf, setSf] = useState<Storefront | null>(null);
-  const [compose, setCompose] = useState(false);
   const [view, setView] = useState(false);
-  const [sw, setSw] = useState(false);
-  const { requestSwitch } = useAuth();
 
   const load = async () => {
     try { setSf(await api.storefront('mamas-kitchen')); } catch { setSf(null); }
@@ -32,21 +25,10 @@ export function UpdatesScreen({
   return (
     <View style={styles.root}>
       <Text style={styles.h1}>Updates</Text>
-      <Pressable onPress={() => setCompose(true)} style={styles.card}>
-        <View style={styles.row}>
-          <View style={styles.plus}>
-            <Plus size={24} color={C.cta} />
-          </View>
-          <View>
-            <Text style={styles.t}>Add to your story</Text>
-            <Text style={styles.micro}>Share a photo or text update</Text>
-          </View>
-        </View>
-      </Pressable>
       {sf && (
         <Pressable onPress={() => setView(true)} style={styles.card}>
           <View style={styles.row}>
-            <Avatar name={sf.business.name} size={48} ring />
+            <Avatar name={sf.business.name} size={48} ring={sf.statuses.length > 0} />
             <View style={{ flex: 1 }}>
               <Text style={styles.t}>{sf.business.name}</Text>
               <Text style={styles.micro}>{sf.statuses.length} updates · latest 5h ago</Text>
@@ -58,32 +40,11 @@ export function UpdatesScreen({
           </View>
         </Pressable>
       )}
-      {compose && sf && (
-        <Composer businessId={sf.business.id}
-          onClose={() => setCompose(false)}
-          onPosted={() => { setCompose(false); load(); Alert.alert('Posted', 'Status live for 24 hours.'); }} />
-      )}
       {view && sf && (
         <StatusViewer
           items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, sf.business.name) }))}
           businessName={sf.business.name} businessId={sf.business.id}
-          onClose={() => setView(false)} onMessage={onMessage} />
-      )}
-      <Pressable onPress={() => setSw(true)}>
-        <Text style={[styles.micro, { textAlign: 'center', marginTop: space.s5 }]}>Switch account</Text>
-      </Pressable>
-      {sw && (
-        <View style={styles.sheet}>
-          <Text style={styles.t}>Switch account</Text>
-          <Text style={styles.micro}>Posting needs the business account. Nothing is lost — cancel anytime.</Text>
-          <View style={{ height: space.s3 }} />
-          <Button title="Business account" onPress={() => { setSw(false); requestSwitch('owner@example.com'); }} />
-          <View style={{ height: space.s2 }} />
-          <Button title="Customer account" variant="secondary"
-            onPress={() => { setSw(false); requestSwitch(''); }} />
-          <View style={{ height: space.s2 }} />
-          <Button title="Close" variant="tertiary" onPress={() => setSw(false)} />
-        </View>
+          onClose={() => { setView(false); load(); }} onMessage={onMessage} />
       )}
     </View>
   );
@@ -98,21 +59,20 @@ export function ChatsScreen({ onOpenThread }: { onOpenThread: (businessId: strin
       .then(sf => setBiz({ id: sf.business.id, name: sf.business.name }))
       .catch(() => setBiz(null));
   }, []);
+  if (!biz) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
 
   return (
     <View style={styles.root}>
       <Text style={styles.h1}>Chats</Text>
-      {biz && (
-        <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={styles.card}>
-          <View style={styles.row}>
-            <Avatar name={biz.name} size={48} />
-            <View>
-              <Text style={styles.t}>{biz.name}</Text>
-              <Text style={styles.micro}>Tap to open demo thread</Text>
-            </View>
+      <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={styles.card}>
+        <View style={styles.row}>
+          <Avatar name={biz.name} size={48} />
+          <View>
+            <Text style={styles.t}>{biz.name}</Text>
+            <Text style={styles.micro}>Tap to open demo thread</Text>
           </View>
-        </Pressable>
-      )}
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -124,11 +84,4 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: C.ink },
   micro: { ...type.micro, color: C.bodyText, marginTop: 4 },
-  plus: {
-    width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(194,78,34,.12)',
-  },
-  sheet: {
-    backgroundColor: C.surface, borderRadius: 16, padding: space.s4, marginTop: space.s3,
-  },
 });

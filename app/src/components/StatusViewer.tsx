@@ -17,11 +17,11 @@ export function statusLabel(s: Status, businessName: string) {
 // Portrait story viewer: progress segments, tap edges, caption overlay,
 // Message button tags the conversation. 5s per story, loops closed at end.
 export function StatusViewer({
-  items, businessName, businessId, start = 0, onClose, onMessage,
+  items, businessName, businessId, start = 0, onClose, onMessage, messaging = true,
 }: {
   items: VStatus[]; businessName: string; businessId: string;
   start?: number; onClose: () => void;
-  onMessage: (businessId: string, label: string) => void;
+  onMessage: (businessId: string, label: string) => void; messaging?: boolean;
 }) {
   const [i, setI] = useState(start);
   const [fill, setFill] = useState(0);
@@ -76,7 +76,7 @@ export function StatusViewer({
           <Pressable style={{ flex: 1 }} onPress={() => nav(1)} />
         </View>
         <View style={styles.msg}>
-          <Button title="Message" onPress={() => { onClose(); onMessage(businessId, s.label); }} />
+          {messaging && <Button title="Message" onPress={() => { onClose(); onMessage(businessId, s.label); }} />}
         </View>
       </View>
     </Modal>
