@@ -62,6 +62,70 @@ export function storeRoutes(app, prisma) {
     return l;
   });
 
+  const ownListing = async (req, reply, prisma, acc) => {
+    const l = await prisma.listing.findUnique({
+      where: { id: req.params.id }, include: { business: true },
+    });
+    if (!l) { reply.code(404).send({ error: 'unknown listing' }); return null; }
+    if (l.business.ownerId !== acc.id) { reply.code(403).send({ error: 'not your listing' }); return null; }
+    return l;
+  };
+
+  // B2 listings management (LST): create/edit/delete + availability.
+  // Limits exist as server_config (LST-11) but are not enforced at launch.
+  app.post('/businesses/:id/listings', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    const { type, title, price, currency, availability, photos } = req.body || {};
+    if (!title || !photos || photos.length < 1 || photos.length > 5) {
+      return reply.code(400).send({ error: 'title + 1..5 photos required (LST-1)' });
+    }
+    return prisma.listing.create({
+      data: {
+        businessId: biz.id, type: type === 'service' ? 'service' : 'product',
+        title, price: price || null,
+        currency: currency || (biz.country === 'GH' ? 'GHS' : biz.country === 'KE' ? 'KES' : 'NGN'),
+        availability: availability || 'in_stock', photos,
+      },
+    });
+  });
+
+  app.get('/businesses/:id/listings', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    return prisma.listing.findMany({ where: { businessId: biz.id }, orderBy: { createdAt: 'desc' } });
+  });
+
+  app.patch('/listings/:id', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const l = await ownListing(req, reply, prisma, acc);
+    if (!l) return;
+    const { title, price, availability, photos } = req.body || {};
+    return prisma.listing.update({
+      where: { id: l.id },
+      data: {
+        ...(title !== undefined ? { title } : {}),
+        ...(price !== undefined ? { price } : {}),
+        ...(availability ? { availability } : {}),
+        ...(photos ? { photos } : {}),
+      },
+    });
+  });
+
+  app.delete('/listings/:id', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const l = await ownListing(req, reply, prisma, acc);
+    if (!l) return;
+    await prisma.listing.delete({ where: { id: l.id } });
+    return { deleted: true };
+  });
+
   // CHT: open (or reuse) a thread; ACC-7 blocks chatting with own store.
   app.post('/threads', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
