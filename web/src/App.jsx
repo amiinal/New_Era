@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Link, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useParams } from 'react-router-dom';
 import './tokens.css';
 import Auth from './Auth.jsx';
 
