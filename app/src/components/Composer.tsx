@@ -45,10 +45,7 @@ export function Composer({ businessId, onClose, onPosted }: {
       } else return;
       onPosted();
     } catch (e) {
-      const m = String((e as Error).message || '');
-      Alert.alert('Could not post', m.startsWith('429')
-        ? 'Daily status limit reached (5/day). Try again tomorrow.'
-        : 'Check connection, then retry.');
+      Alert.alert('Could not post', String((e as Error).message || 'Check connection, then retry.'));
     } finally { setBusy(false); }
   };
 

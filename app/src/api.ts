@@ -53,7 +53,11 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
       ...init?.headers,
     },
   });
-  if (!res.ok) throw new Error(`${res.status} ${path}`);
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json() as { error?: string }).error ?? ''; } catch { /* non-JSON */ }
+    throw new Error(`${res.status}${detail ? ' ' + detail : ''} ${path}`);
+  }
   return res.json() as Promise<T>;
 }
 
@@ -97,6 +101,7 @@ export const api = {
     } catch {
       // RN's Blob has no arrayBuffer(): go through FileReader instead.
       const blob = await (await fetch(localUri)).blob();
+      if (!blob.size || blob.size < 1024) throw new Error('empty photo — retry capture');
       const dataUrl: string = await new Promise((res, rej) => {
         const fr = new FileReader();
         fr.onload = () => res(String(fr.result));

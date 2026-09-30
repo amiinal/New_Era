@@ -246,14 +246,21 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const { name, data } = req.body || {};
     if (!name || !data) return reply.code(400).send({ error: 'name and base64 data required' });
+    const buf = Buffer.from(String(data), 'base64');
+    const isJpeg = buf[0] === 0xff && buf[1] === 0xd8;
+    const isPng = buf[0] === 0x89 && buf[1] === 0x50;
+    if (buf.length < 1024 || (!isJpeg && !isPng)) {
+      return reply.code(400).send({ error: 'not an image file — retry the photo' });
+    }
     const safe = String(name).replace(/[^a-zA-Z0-9.-]/g, '').slice(-60) || 'photo.jpg';
     const key = `uploads/${Date.now()}-${safe}`;
     await mkdir(join(IMG_DIR, 'uploads'), { recursive: true });
+    console.log(`[upload] ${key} bytes=${buf.length}`);
     await new Promise((resolve, reject) => {
       const ws = createWriteStream(join(IMG_DIR, key));
       ws.on('finish', resolve);
       ws.on('error', reject);
-      ws.write(Buffer.from(String(data), 'base64'));
+      ws.write(buf);
       ws.end();
     });
     return { key };
