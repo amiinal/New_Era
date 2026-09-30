@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './src/auth';
 import { BottomNav, Tab } from './src/components/BottomNav';
 import { C } from './src/theme';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { BusinessHome } from './src/screens/BusinessHome';
 import { ChatScreen } from './src/screens/ChatScreen';
 import { DiscoverScreen } from './src/screens/DiscoverScreen';
 import { ListingScreen } from './src/screens/ListingScreen';
@@ -21,7 +22,7 @@ type Route =
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
-  const { account } = useAuth();
+  const { account, mode } = useAuth();
   const [route, setRoute] = useState<Route>({ name: 'discover' });
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
@@ -33,13 +34,34 @@ function Shell() {
     }
   };
   if (!account) return <AuthScreen />;
+
+  const openStore = (slug: string) => {
+    api.storefront(slug).then(sf =>
+      api.recordEvent('storefront_view', { businessId: sf.business.id }).catch(() => {}),
+    ).catch(() => {});
+    setRoute({ name: 'store', slug });
+  };
+
+  if (mode === 'business') {
+    return (
+      <SafeAreaView style={styles.root}>
+        {route.name === 'store'
+          ? <StorefrontScreen slug={route.slug}
+              onListing={id => setRoute({ name: 'listing', id })}
+              onChat={(bid, lid, label) => openChat(bid, lid, label)}
+              onBack={() => setRoute({ name: 'discover' })} />
+          : <BusinessHome onOpenStore={openStore} />}
+        <StatusBar style="auto" />
+      </SafeAreaView>
+    );
+  }
   const tab: Tab = route.name === 'chats' || route.name === 'chat' ? 'chats'
     : route.name === 'updates' ? 'updates' : 'discover';
 
   return (
     <SafeAreaView style={styles.root}>
       {route.name === 'discover' && (
-        <DiscoverScreen onOpen={slug => setRoute({ name: 'store', slug })} />
+        <DiscoverScreen onOpen={openStore} />
       )}
       {route.name === 'updates' && (
         <UpdatesScreen

@@ -85,6 +85,16 @@ export const api = {
     req<{ key: string }>('/uploads/inline', {
       method: 'POST', body: JSON.stringify({ name, data: base64 }),
     }),
+  myBusinesses: () => req<Business[]>('/me/businesses'),
+  recordEvent: (name: string, props?: Record<string, string>) =>
+    req<{ id: string }>('/events', { method: 'POST', body: JSON.stringify({ name, props: props || {} }) }),
+  insights: (businessId: string, range: 7 | 30) =>
+    req<{ range: number; storefrontViews: number; chatsStarted: number; listings: number; activeStatuses: number }>(
+      `/businesses/${businessId}/insights?range=${range}`),
+  bizThreads: (businessId: string) =>
+    req<(Thread & { messages: Message[] })[]>(`/businesses/${businessId}/threads`),
+  setMode: (mode: 'customer' | 'business') =>
+    req<Account>('/me/mode', { method: 'PATCH', body: JSON.stringify({ mode }) }),
   postStatus: (businessId: string, body: { kind: 'photo' | 'text'; imageKey?: string; text?: string; bg?: string; caption?: string }) =>
     req<Status>(`/businesses/${businessId}/statuses`, { method: 'POST', body: JSON.stringify(body) }),
 };

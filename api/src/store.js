@@ -131,6 +131,50 @@ export function storeRoutes(app, prisma) {
     return prisma.report.create({ data: { reporterId: acc.id, targetType, targetId, reason } });
   });
 
+  // Business home (Step 10): owned businesses for the mode switch.
+  app.get('/me/businesses', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    return prisma.business.findMany({ where: { ownerId: acc.id } });
+  });
+
+  // ANA-1: append-only events. ANA-3: free 7/30d insights (real counts;
+  // view metrics accumulate from first use — no backfilled guesses).
+  app.post('/events', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const { name, props } = req.body || {};
+    if (!name) return reply.code(400).send({ error: 'name required' });
+    return prisma.event.create({ data: { accountId: acc.id, name, props: props || {} } });
+  });
+
+  app.get('/businesses/:id/insights', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    const days = req.query.range === '30' ? 30 : 7;
+    const since = new Date(Date.now() - days * 24 * 3600 * 1000);
+    const [views, chats, listings, statuses] = await Promise.all([
+      prisma.event.count({ where: { name: 'storefront_view', props: { path: ['businessId'], equals: biz.id }, createdAt: { gt: since } } }),
+      prisma.thread.count({ where: { businessId: biz.id, createdAt: { gt: since } } }),
+      prisma.listing.count({ where: { businessId: biz.id } }),
+      prisma.status.count({ where: { businessId: biz.id, expiresAt: { gt: new Date() } } }),
+    ]);
+    return { range: days, storefrontViews: views, chatsStarted: chats, listings, activeStatuses: statuses };
+  });
+
+  app.get('/businesses/:id/threads', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    return prisma.thread.findMany({
+      where: { businessId: biz.id }, orderBy: { createdAt: 'desc' }, take: 20,
+      include: { messages: { orderBy: { createdAt: 'desc' }, take: 1 } },
+    });
+  });
+
   // Local-dev fallback when R2 keys are absent: accept base64 inline and
   // store under Docs/images/uploads (served by /img). No new dependencies.
   app.post('/uploads/inline', async (req, reply) => {

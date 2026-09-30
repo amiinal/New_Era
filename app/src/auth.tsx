@@ -13,9 +13,11 @@ const store = {
 type Ctx = {
   account: Account | null;
   pendingTo: string;
+  mode: 'customer' | 'business';
   signIn: (to: string, code: string, country: string) => Promise<void>;
   signOut: () => Promise<void>;
   requestSwitch: (email: string) => Promise<void>;
+  setAppMode: (mode: 'customer' | 'business') => Promise<void>;
 };
 const AuthCtx = createContext<Ctx>({} as Ctx);
 export const useAuth = () => useContext(AuthCtx);
@@ -37,6 +39,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await store.del('token');
     setAccountId(null);
     setAccount(null);
+    setPendingTo('');
+  };
+  // ACC-3: mode switch remembered server-side.
+  const setAppMode = async (mode: 'customer' | 'business') => {
+    const updated = await api.setMode(mode).catch(() => null);
+    if (updated) setAccount(updated);
   };
   // Switch accounts: sign out and prefill the sign-in form. Close-able
   // by simply navigating back — nothing is lost.
@@ -44,5 +52,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut();
     setPendingTo(email);
   };
-  return <AuthCtx.Provider value={{ account, pendingTo, signIn, signOut, requestSwitch }}>{children}</AuthCtx.Provider>;
+  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, signOut, requestSwitch, setAppMode }}>{children}</AuthCtx.Provider>;
 }
