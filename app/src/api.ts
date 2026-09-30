@@ -95,12 +95,16 @@ export const api = {
       if (!put.ok) throw new Error('r2 put failed');
       return key;
     } catch {
+      // RN's Blob has no arrayBuffer(): go through FileReader instead.
       const blob = await (await fetch(localUri)).blob();
-      const buf = await blob.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let bin = '';
-      for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-      return (await api.inlineUpload(key.split('/').pop() || 'photo.jpg', btoa(bin))).key;
+      const dataUrl: string = await new Promise((res, rej) => {
+        const fr = new FileReader();
+        fr.onload = () => res(String(fr.result));
+        fr.onerror = () => rej(new Error('read failed'));
+        fr.readAsDataURL(blob);
+      });
+      const base64 = (dataUrl.split(',')[1] || '');
+      return (await api.inlineUpload(key.split('/').pop() || 'photo.jpg', base64)).key;
     }
   },
   bizListings: (businessId: string) => req<Listing[]>(`/businesses/${businessId}/listings`),

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Listing } from '../api';
 import { C, space, type } from '../theme';
 import { Button } from '../components/Button';
@@ -70,19 +70,21 @@ export function BizListings() {
           onSaved={() => { setForm(null); load(); }} />
       )}
       {!!avFor && (
-        <View style={styles.sheetWrap}>
-          <View style={styles.sheet}>
-            <Text style={styles.t}>Availability</Text>
-            {(['in_stock', 'limited', 'sold_out', 'made_to_order'] as const).map(a => (
-              <Text key={a} onPress={() => avFor && setAv(avFor, a)}
-                style={[styles.opt, avFor.availability === a && styles.optOn]}>
-                {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
-                {avFor.availability === a ? ' ✓' : ''}
-              </Text>
-            ))}
-            <Text onPress={() => setAvFor(null)} style={[styles.opt, { textAlign: 'center' }]}>Cancel</Text>
+        <Modal transparent animationType="fade" onRequestClose={() => setAvFor(null)}>
+          <View style={styles.sheetWrap}>
+            <View style={styles.sheet}>
+              <Text style={styles.t}>Availability</Text>
+              {(['in_stock', 'limited', 'sold_out', 'made_to_order'] as const).map(a => (
+                <Text key={a} onPress={() => avFor && setAv(avFor, a)}
+                  style={[styles.opt, avFor.availability === a && styles.optOn]}>
+                  {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
+                  {avFor.availability === a ? ' ✓' : ''}
+                </Text>
+              ))}
+              <Text onPress={() => setAvFor(null)} style={[styles.opt, { textAlign: 'center' }]}>Cancel</Text>
+            </View>
           </View>
-        </View>
+        </Modal>
       )}
     </View>
   );
