@@ -97,6 +97,30 @@ export function storeRoutes(app, prisma) {
     return prisma.message.create({ data: { threadId: t.id, senderId: acc.id, body: body || null, imageKey: imageKey || null } });
   });
 
+  // STA-1..3: post photo/text status, 5/day from server_config, 24h expiry.
+  app.post('/businesses/:id/statuses', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    const cfg = await prisma.serverConfig.findUnique({ where: { key: 'status_per_day' } });
+    const limit = Number(cfg?.value ?? 5);
+    const since = new Date(Date.now() - 24 * 3600 * 1000);
+    const count = await prisma.status.count({ where: { businessId: biz.id, createdAt: { gt: since } } });
+    if (count >= limit) return reply.code(429).send({ error: 'daily status limit reached' });
+    const { kind, imageKey, text, bg } = req.body || {};
+    if (kind !== 'photo' && kind !== 'text') return reply.code(400).send({ error: 'kind must be photo|text' });
+    if (kind === 'photo' && !imageKey) return reply.code(400).send({ error: 'imageKey required' });
+    if (kind === 'text' && !text) return reply.code(400).send({ error: 'text required' });
+    return prisma.status.create({
+      data: {
+        businessId: biz.id, kind,
+        imageKey: imageKey || null, text: text || null, bg: bg || null,
+        expiresAt: new Date(Date.now() + 24 * 3600 * 1000),
+      },
+    });
+  });
+
   // TRU-1: report anything; triage happens in /admin (Step 9).
   app.post('/reports', async (req, reply) => {
     const acc = await authed(req, reply, prisma);

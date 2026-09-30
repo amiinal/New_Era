@@ -57,7 +57,7 @@ export function StorefrontScreen({
       <Text style={styles.sec}>Listings</Text>
       <FlatList data={listings} numColumns={2} scrollEnabled={false}
         columnWrapperStyle={{ gap: space.s3 }}
-        contentContainerStyle={{ gap: space.s3 }}
+        contentContainerStyle={{ gap: space.s3, paddingHorizontal: space.s4 }}
         keyExtractor={l => l.id}
         renderItem={({ item }) => <ListingCard item={item} onPress={() => onListing(item.id)} />} />
 
