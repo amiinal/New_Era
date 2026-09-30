@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Storefront } from '../api';
 import { C, space, type } from '../theme';
-import { Avatar } from './components/Avatar';
-import { Button } from './components/Button';
+import { Avatar } from '../components/Avatar';
+import { Button } from '../components/Button';
 
 // Updates (Step 7/8 shell): add-story tile first, then one card per
 // business with the avatar ring. Matches Docs/storefront-preview.html.

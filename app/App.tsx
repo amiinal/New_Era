@@ -59,7 +59,7 @@ function Shell() {
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
       )}
       {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} />}
-      <BottomNav active={tab} onTab={t => setRoute({ name: t })} />
+      <BottomNav active={tab} onTab={t => setRoute({ name: t } as Route)} />
       <StatusBar style="auto" />
     </SafeAreaView>
   );

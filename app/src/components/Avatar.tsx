@@ -9,7 +9,7 @@ export function Avatar({ name, size = 64, ring = false }: { name: string; size?:
     <View
       style={[
         styles.base,
-        { width: size, height: size, borderRadius: size / 2, fontSize: size * 0.4 },
+        { width: size, height: size, borderRadius: size / 2 },
         ring && styles.ring,
       ]}>
       <Text style={[styles.letter, { fontSize: size * 0.4 }]}>{name.slice(0, 1).toUpperCase()}</Text>
