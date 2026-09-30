@@ -2,6 +2,7 @@ import { Plus } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Storefront } from '../api';
+import { useAuth } from '../auth';
 import { C, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -20,6 +21,7 @@ export function UpdatesScreen({
   const [sf, setSf] = useState<Storefront | null>(null);
   const [compose, setCompose] = useState(false);
   const [view, setView] = useState(false);
+  const { signOut } = useAuth();
 
   const load = async () => {
     try { setSf(await api.storefront('mamas-kitchen')); } catch { setSf(null); }
@@ -66,6 +68,9 @@ export function UpdatesScreen({
           businessName={sf.business.name} businessId={sf.business.id}
           onClose={() => setView(false)} onMessage={onMessage} />
       )}
+      <Pressable onPress={signOut}>
+        <Text style={[styles.micro, { textAlign: 'center', marginTop: space.s5 }]}>Switch account (sign out)</Text>
+      </Pressable>
     </View>
   );
 }
