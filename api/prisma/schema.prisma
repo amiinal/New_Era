@@ -95,6 +95,7 @@ model Status {
   imageKey   String?
   text       String?
   bg         String?
+  caption    String?  // photo overlay line
   expiresAt  DateTime
   createdAt  DateTime @default(now())
 

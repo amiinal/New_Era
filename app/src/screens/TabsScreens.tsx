@@ -5,9 +5,12 @@ import { api, Storefront } from '../api';
 import { C, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
+import { Composer } from '../components/Composer';
+import { StatusViewer } from '../components/StatusViewer';
 
-// Updates (Step 7/8 shell): add-story tile first, then one card per
-// business with the avatar ring. Matches Docs/storefront-preview.html.
+// Updates (Step 7/8): add-story tile first, then one card per business
+// with the avatar ring. Card opens the portrait viewer (rest of statuses
+// play inside); composer posts gallery + text with a live preview.
 export function UpdatesScreen({
   onMessage, onOpen,
 }: {
@@ -15,13 +18,18 @@ export function UpdatesScreen({
   onOpen: (slug: string) => void;
 }) {
   const [sf, setSf] = useState<Storefront | null>(null);
-  useEffect(() => { api.storefront('mamas-kitchen').then(setSf).catch(() => setSf(null)); }, []);
+  const [compose, setCompose] = useState(false);
+  const [view, setView] = useState(false);
+
+  const load = async () => {
+    try { setSf(await api.storefront('mamas-kitchen')); } catch { setSf(null); }
+  };
+  useEffect(() => { load(); }, []);
 
   return (
     <View style={styles.root}>
       <Text style={styles.h1}>Updates</Text>
-      <Pressable onPress={() => Alert.alert('Add to story', 'Photo + text composer lands in the next build step.')}
-        style={styles.card}>
+      <Pressable onPress={() => setCompose(true)} style={styles.card}>
         <View style={styles.row}>
           <View style={styles.plus}>
             <Plus size={24} color={C.cta} />
@@ -33,7 +41,7 @@ export function UpdatesScreen({
         </View>
       </Pressable>
       {sf && (
-        <Pressable onPress={() => onOpen('mamas-kitchen')} style={styles.card}>
+        <Pressable onPress={() => setView(true)} style={styles.card}>
           <View style={styles.row}>
             <Avatar name={sf.business.name} size={48} ring />
             <View style={{ flex: 1 }}>
@@ -46,6 +54,17 @@ export function UpdatesScreen({
               onPress={() => onMessage(sf.business.id, `Say hello to ${sf.business.name}`)} />
           </View>
         </Pressable>
+      )}
+      {compose && sf && (
+        <Composer businessId={sf.business.id}
+          onClose={() => setCompose(false)}
+          onPosted={() => { setCompose(false); load(); Alert.alert('Posted', 'Status live for 24 hours.'); }} />
+      )}
+      {view && sf && (
+        <StatusViewer
+          items={sf.statuses.map(s => ({ ...s, label: `Say hello to ${sf.business.name}` }))}
+          businessName={sf.business.name} businessId={sf.business.id}
+          onClose={() => setView(false)} onMessage={onMessage} />
       )}
     </View>
   );

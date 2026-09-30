@@ -5,6 +5,7 @@ import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { ListingCard } from '../components/ListingCard';
+import { StatusViewer } from '../components/StatusViewer';
 
 // Step 3/4/9: header + listings grid + certificates + report. No login needed.
 export function StorefrontScreen({
@@ -16,6 +17,7 @@ export function StorefrontScreen({
   const [sf, setSf] = useState<Storefront | null | undefined>(undefined);
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
+  const [view, setView] = useState(false);
 
   const report = async (id: string) => {
     setMenu(false);
@@ -35,7 +37,7 @@ export function StorefrontScreen({
       {listings[0]?.photos[0] && <Image source={{ uri: img(listings[0].photos[0]) }} style={styles.cover} />}
       <View style={styles.card}>
         <View style={styles.row}>
-          <Avatar name={b.name} />
+          <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
           <View style={{ flex: 1 }}>
             <Text style={styles.h1}>{b.name}</Text>
             <Text style={styles.meta}>{b.category} · {b.area ? `${b.area}, ` : ''}{b.city}</Text>
@@ -79,6 +81,13 @@ export function StorefrontScreen({
         </>
       )}
       <Pressable onPress={onBack}><Text style={styles.link}>Discover more businesses</Text></Pressable>
+      {view && (
+        <StatusViewer
+          items={sf.statuses.map(s => ({ ...s, label: `Say hello to ${b.name}` }))}
+          businessName={b.name} businessId={b.id}
+          onClose={() => setView(false)}
+          onMessage={(bid, label) => onChat(bid, undefined, label)} />
+      )}
     </ScrollView>
   );
 }

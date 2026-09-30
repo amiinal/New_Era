@@ -108,7 +108,7 @@ export function storeRoutes(app, prisma) {
     const since = new Date(Date.now() - 24 * 3600 * 1000);
     const count = await prisma.status.count({ where: { businessId: biz.id, createdAt: { gt: since } } });
     if (count >= limit) return reply.code(429).send({ error: 'daily status limit reached' });
-    const { kind, imageKey, text, bg } = req.body || {};
+    const { kind, imageKey, text, bg, caption } = req.body || {};
     if (kind !== 'photo' && kind !== 'text') return reply.code(400).send({ error: 'kind must be photo|text' });
     if (kind === 'photo' && !imageKey) return reply.code(400).send({ error: 'imageKey required' });
     if (kind === 'text' && !text) return reply.code(400).send({ error: 'text required' });
@@ -116,6 +116,7 @@ export function storeRoutes(app, prisma) {
       data: {
         businessId: biz.id, kind,
         imageKey: imageKey || null, text: text || null, bg: bg || null,
+        caption: caption || null,
         expiresAt: new Date(Date.now() + 24 * 3600 * 1000),
       },
     });

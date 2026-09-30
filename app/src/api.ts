@@ -22,7 +22,8 @@ export type Listing = {
 };
 export type Status = {
   id: string; businessId: string; kind: 'photo' | 'text';
-  imageKey: string | null; text: string | null; bg: string | null; expiresAt: string;
+  imageKey: string | null; text: string | null; bg: string | null;
+  caption: string | null; expiresAt: string; createdAt: string;
 };
 export type Certificate = {
   id: string; title: string; issuer: string | null; year: number | null; photo: string;
@@ -76,4 +77,10 @@ export const api = {
     req<Message>(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify(body) }),
   report: (body: { targetType: string; targetId: string; reason: string }) =>
     req<{ id: string }>('/reports', { method: 'POST', body: JSON.stringify(body) }),
+  presign: (key: string) =>
+    req<{ uploadUrl: string; publicUrl: string }>('/uploads/presign', {
+      method: 'POST', body: JSON.stringify({ key, contentType: 'image/jpeg' }),
+    }),
+  postStatus: (businessId: string, body: { kind: 'photo' | 'text'; imageKey?: string; text?: string; bg?: string; caption?: string }) =>
+    req<Status>(`/businesses/${businessId}/statuses`, { method: 'POST', body: JSON.stringify(body) }),
 };
