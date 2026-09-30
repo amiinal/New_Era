@@ -1,6 +1,7 @@
 // Auth state: OTP sign-in (Step 2), token persisted for real sessions.
 // SecureStore is the seam: swap `memory` for expo-secure-store when installed.
 import React, { createContext, useContext, useState } from 'react';
+import { Alert } from 'react-native';
 import { Account, api, setAccountId } from './api';
 
 const memory = new Map<string, string>();
@@ -43,8 +44,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   // ACC-3: mode switch remembered server-side.
   const setAppMode = async (mode: 'customer' | 'business') => {
-    const updated = await api.setMode(mode).catch(() => null);
-    if (updated) setAccount(updated);
+    try {
+      setAccount(await api.setMode(mode));
+    } catch {
+      Alert.alert('Could not switch mode', 'Check the API is running, then retry.');
+    }
   };
   // Switch accounts: sign out and prefill the sign-in form. Close-able
   // by simply navigating back — nothing is lost.
