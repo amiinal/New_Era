@@ -10,6 +10,15 @@ const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 app.get('/health', async () => ({ ok: true, stack: 'fastify+pg+r2' }));
+
+// Browser calls (Vite :5173) need CORS. No plugin — plain headers.
+app.addHook('onRequest', (req, reply, done) => {
+  reply.header('Access-Control-Allow-Origin', '*');
+  reply.header('Access-Control-Allow-Headers', 'content-type, x-account-id');
+  reply.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
+  if (req.method === 'OPTIONS') return reply.code(204).send();
+  done();
+});
 authRoutes(app, prisma);
 storeRoutes(app, prisma);
 
