@@ -13,14 +13,20 @@ function rateLimited(ip, limit = 10, windowMs = 60_000) {
   return arr.length > limit;
 }
 
+function norm(email, phone) {
+  if (email) return String(email).trim().toLowerCase();
+  if (phone) return String(phone).trim().replace(/[\s-]/g, '');
+  return null;
+}
+
 export function authRoutes(app, prisma) {
   app.post('/auth/request-code', async (req, reply) => {
     const ip = req.ip;
     if (rateLimited(ip)) return reply.code(429).send({ error: 'too many requests' });
     const { email, phone } = req.body || {};
-    const to = email || phone;
+    const to = norm(email, phone);
     if (!to) return reply.code(400).send({ error: 'email or phone required' });
-    if (email && /@(mailinator|tempmail|10minutemail)/.test(email)) {
+    if (email && /@(mailinator|tempmail|10minutemail)/.test(to)) {
       return reply.code(400).send({ error: 'disposable email blocked (ACC-6)' });
     }
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -37,17 +43,19 @@ export function authRoutes(app, prisma) {
 
   app.post('/auth/verify', async (req, reply) => {
     const { email, phone, code, country } = req.body || {};
-    const to = email || phone;
-    const rec = codes.get(to);
-    if (!rec || rec.code !== code || Date.now() > rec.expires) {
+    const cleanEmail = email ? String(email).trim().toLowerCase() : undefined;
+    const cleanPhone = phone ? String(phone).trim().replace(/[\s-]/g, '') : undefined;
+    const to = cleanEmail || cleanPhone;
+    const rec = to ? codes.get(to) : undefined;
+    if (!rec || rec.code !== String(code).trim() || Date.now() > rec.expires) {
       return reply.code(400).send({ error: 'invalid or expired code' });
     }
     codes.delete(to);
     // explicit country, never inferred from email (ACC-2)
     const account = await prisma.account.upsert({
-      where: email ? { email } : { phone },
+      where: cleanEmail ? { email: cleanEmail } : { phone: cleanPhone },
       update: {},
-      create: { email, phone, country: country || 'NG' },
+      create: { email: cleanEmail, phone: cleanPhone, country: country || 'NG' },
     });
     const token = Buffer.from(account.id).toString('base64');
     return { token, account };
