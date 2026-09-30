@@ -6,10 +6,11 @@ import { C, radius, space, type } from '../theme';
 
 // Step 5: country + city search, browseable without account (wall at chat).
 export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
-  const { account } = useAuth();
+  const { account, setAppMode } = useAuth();
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
+  const [hasBiz, setHasBiz] = useState(false);
 
   const load = async () => {
     try {
@@ -17,10 +18,14 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
     } catch { setItems([]); }
   };
   useEffect(() => { load(); }, []);
+  useEffect(() => { api.myBusinesses().then(b => setHasBiz(b.length > 0)).catch(() => {}); }, []);
 
   return (
     <View style={styles.root}>
-      <Text style={styles.h1}>Discover</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Text style={styles.h1}>Discover</Text>
+        {hasBiz && <Text onPress={() => setAppMode('business')} style={styles.switch}>Business view</Text>}
+      </View>
       <TextInput style={styles.input} placeholder="Search businesses…" value={q}
         onChangeText={setQ} onSubmitEditing={load} returnKeyType="search" />
       <TextInput style={[styles.input, { marginTop: space.s3 }]} placeholder="City (optional)"
@@ -42,6 +47,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background, padding: space.s4 },
   h1: { ...type.h1, color: C.ink, marginBottom: space.s4 },
+  switch: { ...type.bodySm, color: C.primary, fontWeight: '600', marginBottom: space.s4 },
   input: {
     backgroundColor: C.surface, borderWidth: 1, borderColor: C.lineStrong,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
