@@ -24,7 +24,12 @@ export function AuthScreen() {
   };
   const verify = async () => {
     try { await signIn(to, code, country); }
-    catch { Alert.alert('Error', 'Invalid or expired code.'); }
+    catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Could not sign in', m.startsWith('5')
+        ? 'Server or database error — check the API and database, then retry.'
+        : 'Invalid or expired code — request one code and enter it within 10 minutes.');
+    }
   };
 
   return (
