@@ -21,45 +21,56 @@ function Storefront() {
   if (!sf) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
   const b = sf.business;
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: 16 }}>
-      {sf.listings[0]?.photos[0] && (
-        <img src={img(sf.listings[0].photos[0])} alt="" style={{ width: '100%', height: 220, objectFit: 'cover', borderRadius: 16 }} />
-      )}
-      <div className="card" style={{ marginTop: 16 }}>
-        <h1 style={{ margin: 0 }}>{b.name}</h1>
-        <p style={{ color: 'var(--color-body-text)', fontSize: 12 }}>
-          {b.category} · {b.area ? `${b.area}, ` : ''}{b.city}
-        </p>
-        <div style={{ display: 'flex', gap: 8 }}>
+    <>
+      <div className="topnav">
+        <span className="logo">New Era</span>
+        <span className="links"><span>Discover</span><span>Pricing</span><span>About</span></span>
+        <span className="sp"></span>
+        <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Open app</Link>
+      </div>
+      <div className="page">
+        {sf.listings[0]?.photos[0] && (
+          <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" />
+        )}
+        <div className="card bizcard">
+          <div className="avatar">{b.name.slice(0, 1)}</div>
+          <div>
+            <h1 style={{ margin: 0 }}>{b.name}</h1>
+            <p style={{ color: 'var(--color-body-text)', fontSize: 12, margin: '4px 0 0' }}>
+              {b.category} · {b.area ? `${b.area}, ` : ''}{b.city}
+            </p>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
           <Link to="/auth" className="btn">Message</Link>
           <button className="btn" style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>Share</button>
         </div>
-      </div>
-      <h2>Listings</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 16 }}>
-        {sf.listings.map(l => (
-          <div className="card" key={l.id}>
-            {l.photos[0] && <img src={img(l.photos[0])} alt={l.title} style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: 8 }} />}
-            <h3>{l.title}</h3>
-            <p>{l.price ?? 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
-          </div>
-        ))}
-      </div>
-      {sf.certificates.length > 0 && (
-        <>
-          <h2>Certificates</h2>
-          {sf.certificates.map(c => (
-            <div className="card" key={c.id}>
-              <strong>{c.title}</strong>
-              <p style={{ fontSize: 12, color: 'var(--color-body-text)' }}>
-                {[c.issuer, c.year].filter(Boolean).join(' · ')} · <i>Self-reported — not verified by New Era</i>
-              </p>
+        <h2>Listings</h2>
+        <div className="grid">
+          {sf.listings.map(l => (
+            <div className="card" key={l.id}>
+              {l.photos[0] && <img src={img(l.photos[0])} alt={l.title} />}
+              <h3>{l.title}</h3>
+              <p>{l.price ?? 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
             </div>
           ))}
-        </>
-      )}
-      <p style={{ textAlign: 'center', color: 'var(--color-body-text)', fontSize: 12 }}>Discover more businesses on New Era</p>
-    </div>
+        </div>
+        {sf.certificates.length > 0 && (
+          <>
+            <h2>Certificates</h2>
+            {sf.certificates.map(c => (
+              <div className="card" key={c.id}>
+                <strong>{c.title}</strong>
+                <p style={{ fontSize: 12, color: 'var(--color-body-text)' }}>
+                  {[c.issuer, c.year].filter(Boolean).join(' · ')} · <i>Self-reported — not verified by New Era</i>
+                </p>
+              </div>
+            ))}
+          </>
+        )}
+        <p style={{ textAlign: 'center', color: 'var(--color-body-text)', fontSize: 12 }}>Discover more businesses on New Era</p>
+      </div>
+    </>
   );
 }
 
