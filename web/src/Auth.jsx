@@ -15,7 +15,8 @@ export default function Auth() {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(body),
     });
-    alert(r.ok ? 'Code sent (check console/Mailhog in local)' : 'Rate-limited, wait a minute');
+    const j = await r.json().catch(() => ({}));
+    alert(r.ok ? (j.devCode ? `Your code: ${j.devCode}` : 'Code sent (check the API terminal)') : 'Rate-limited, wait a minute');
   };
 
   const verify = async () => {
