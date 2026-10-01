@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, Platform, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
@@ -116,4 +116,12 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({ root: { flex: 1, backgroundColor: C.background } });
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: C.background,
+    ...(Platform.OS === 'web'
+      ? { maxWidth: 900, width: '100%', alignSelf: 'center', height: '100vh' as unknown as number }
+      : null),
+  },
+});

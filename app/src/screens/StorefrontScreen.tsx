@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Storefront } from '../api';
 import { C, radius, space, type } from '../theme';
+import { useCols } from '../ui';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { ListingCard } from '../components/ListingCard';
@@ -18,6 +19,7 @@ export function StorefrontScreen({
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
   const [view, setView] = useState(false);
+  const cols = useCols();
 
   const report = async (id: string) => {
     setMenu(false);
@@ -57,7 +59,7 @@ export function StorefrontScreen({
       </View>
 
       <Text style={styles.sec}>Listings</Text>
-      <FlatList data={listings} numColumns={2} scrollEnabled={false}
+      <FlatList data={listings} numColumns={cols} key={cols} scrollEnabled={false}
         columnWrapperStyle={{ gap: space.s3 }}
         contentContainerStyle={{ gap: space.s3, paddingHorizontal: space.s4 }}
         keyExtractor={l => l.id}
