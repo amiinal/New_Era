@@ -48,6 +48,7 @@ export function StatusViewer({
   return (
     <Modal visible animationType="fade" onRequestClose={onClose}>
       <View style={styles.root}>
+      <View style={styles.frame}>
         <View style={styles.prog}>
           {items.map((_, j) => (
             <View key={j} style={styles.seg}>
@@ -79,12 +80,14 @@ export function StatusViewer({
           {messaging && <Button title="Message" onPress={() => { onClose(); onMessage(businessId, s.label); }} />}
         </View>
       </View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#000' },
+  root: { flex: 1, backgroundColor: '#000', alignItems: 'center' },
+  frame: { flex: 1, width: '100%', maxWidth: 480 },
   prog: { flexDirection: 'row', gap: 4, paddingTop: 48, paddingHorizontal: 12, paddingBottom: 8 },
   seg: { flex: 1, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,.35)', overflow: 'hidden', flexDirection: 'row' },
   fill: { backgroundColor: '#fff' },
