@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Link, Route, Routes, useParams } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import './tokens.css';
 import Auth from './Auth.jsx';
 
@@ -60,12 +60,16 @@ function Storefront() {
         </div>
         <h2>Listings</h2>
         <div className="grid">
-          {sf.listings.map((l) => (
-            <div className="lcard" key={l.id}>
-              {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} /> : null}
-              <h3>{l.title}</h3>
-              <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
-            </div>
+          {sf.listings.map(l => (
+            <Link to={`/l/${l.id}`} key={l.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="lcard">
+                {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} /> : null}
+                <h3>{l.title}</h3>
+                <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
+              </div>
+            </Link>
+          ))}
+        </div>
           ))}
         </div>
         {sf.certificates.length > 0 ? (
@@ -82,6 +86,31 @@ function Storefront() {
           </div>
         ) : null}
         <p style={{ textAlign: 'center', color: 'var(--color-body-text)', fontSize: 12 }}>Discover more businesses on New Era</p>
+      </div>
+    </div>
+  );
+}
+
+function ListingDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [l, setL] = useState(null);
+  useEffect(() => {
+    fetch(`${API}/listings/${id}`).then((r) => {
+      if (!r.ok) throw new Error('bad status');
+      return r.json();
+    }).then(setL).catch(() => setL(false));
+  }, [id]);
+  if (l === null) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
+  if (l === false) return <div className="card" style={{ margin: 24 }}>Listing not found.</div>;
+  return (
+    <div className="page" style={{ maxWidth: 720 }}>
+      <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
+      {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
+      <h1>{l.title}</h1>
+      <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Link to="/auth" className="btn">Message about this</Link>
       </div>
     </div>
   );
@@ -104,6 +133,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/s/:slug" element={<Storefront />} />
+        <Route path="/l/:id" element={<ListingDetail />} />
         <Route path="/chat" element={<div style={{ margin: 24 }}>Web chat lands in Step 6.</div>} />
       </Routes>
     </BrowserRouter>

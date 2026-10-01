@@ -85,6 +85,7 @@ body { margin: 0; background: var(--color-background); color: var(--color-ink);
 .lcard h3 { font-size: 14px; font-weight: 600; margin: 8px 0 2px; }
 .lcard p { font-size: 13px; margin: 0; }
 .lcard .was { text-decoration: line-through; color: var(--color-body-text); }
+.detail-img { width: 100%; max-height: 60vh; object-fit: cover; border-radius: 16px; margin-top: 16px; }
 @media (max-width: 900px) { .grid { grid-template-columns: repeat(3, 1fr); } .page { padding: 24px; } }
 @media (max-width: 640px) {
   .grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
