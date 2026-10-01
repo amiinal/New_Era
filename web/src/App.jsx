@@ -20,6 +20,7 @@ function Storefront() {
   if (failed) return <div className="card" style={{ margin: 24 }}>Couldn't load this shop.</div>;
   if (!sf) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
   const b = sf.business;
+  const symFor = (c) => ({ NGN: '₦', GHS: 'GH₵', KES: 'KSh' }[c] ?? '');
   return (
     <>
       <div className="topnav">
@@ -48,11 +49,13 @@ function Storefront() {
         <h2>Listings</h2>
         <div className="grid">
           {sf.listings.map(l => (
-            <div className="card" key={l.id}>
+            <div className="lcard" key={l.id}>
               {l.photos[0] && <img src={img(l.photos[0])} alt={l.title} />}
               <h3>{l.title}</h3>
-              <p>{l.price ?? 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
+              <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
             </div>
+          ))}
+        </div>
           ))}
         </div>
         {sf.certificates.length > 0 && (
