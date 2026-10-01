@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Listing } from '../api';
 import { C, space, type } from '../theme';
 import { Button } from '../components/Button';
@@ -42,7 +42,7 @@ export function BizListings() {
   };
 
   return (
-    <View style={styles.root}>
+    <ScrollView style={styles.root}>
       <View style={styles.head}>
         <Text style={styles.h1}>Listings</Text>
         <Button title="+ Add" onPress={() => setForm('add')} />
@@ -104,7 +104,7 @@ export function BizListings() {
           </View>
         </Modal>
       )}
-    </View>
+    </ScrollView>
   );
 }
 
@@ -122,7 +122,10 @@ const styles = StyleSheet.create({
     position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
     backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end',
   },
-  sheet: { backgroundColor: C.surface, borderRadius: 16, padding: space.s4 },
+  sheet: {
+    backgroundColor: C.surface, borderRadius: 16, padding: space.s4,
+    width: '100%', maxWidth: 420, alignSelf: 'center',
+  },
   t: { ...type.h3, color: C.ink },
   opt: { ...type.body, color: C.ink, paddingVertical: space.s3 },
   optOn: { color: C.primary, fontWeight: '700' },

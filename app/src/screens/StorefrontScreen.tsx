@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Storefront } from '../api';
 import { C, radius, space, type } from '../theme';
-import { useCols } from '../ui';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { ListingCard } from '../components/ListingCard';
@@ -19,7 +18,6 @@ export function StorefrontScreen({
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
   const [view, setView] = useState(false);
-  const cols = useCols();
 
   const report = async (id: string) => {
     setMenu(false);
@@ -59,11 +57,13 @@ export function StorefrontScreen({
       </View>
 
       <Text style={styles.sec}>Listings</Text>
-      <FlatList data={listings} numColumns={cols} key={cols} scrollEnabled={false}
-        columnWrapperStyle={{ gap: space.s3 }}
-        contentContainerStyle={{ gap: space.s3, paddingHorizontal: space.s4 }}
-        keyExtractor={l => l.id}
-        renderItem={({ item }) => <ListingCard item={item} onPress={() => onListing(item.id)} />} />
+      <View style={styles.grid}>
+        {listings.map(item => (
+          <View key={item.id} style={styles.cell}>
+            <ListingCard item={item} onPress={() => onListing(item.id)} />
+          </View>
+        ))}
+      </View>
 
       {sf.certificates.length > 0 && (
         <>
@@ -111,6 +111,8 @@ const styles = StyleSheet.create({
   note: { ...type.micro, color: C.success, marginTop: space.s2 },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   sec: { ...type.h3, color: C.ink, margin: space.s5, marginBottom: space.s2, marginHorizontal: space.s4 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, paddingHorizontal: space.s4 },
+  cell: { flexBasis: '47%', flexGrow: 1 },
   cert: { flexDirection: 'row', gap: space.s3, backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center' },
   certImg: { width: 44, height: 44, borderRadius: radius.md },
   certT: { ...type.bodySm, fontWeight: '600', color: C.ink },
