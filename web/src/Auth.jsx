@@ -10,13 +10,17 @@ export default function Auth() {
   const [mode, setMode] = useState(localStorage.getItem('mode') || 'customer');
 
   const request = async () => {
-    const body = to.includes('@') ? { email: to } : { phone: to };
-    const r = await fetch(`${API}/auth/request-code`, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const j = await r.json().catch(() => ({}));
-    alert(r.ok ? (j.devCode ? `Your code: ${j.devCode}` : 'Code sent (check the API terminal)') : 'Rate-limited, wait a minute');
+    try {
+      const body = to.includes('@') ? { email: to } : { phone: to };
+      const r = await fetch(`${API}/auth/request-code`, {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const j = await r.json().catch(() => ({}));
+      alert(r.ok ? (j.devCode ? `Your code: ${j.devCode}` : 'Code sent (check the API terminal)') : 'Rate-limited, wait a minute');
+    } catch {
+      alert('Could not reach the API — is terminal 1 (node src/index.js) still running?');
+    }
   };
 
   const verify = async () => {
