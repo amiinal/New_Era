@@ -29,7 +29,7 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background },
-  photo: { width: '100%', height: 280 },
+  photo: { width: '100%', aspectRatio: 4 / 3 },
   card: { backgroundColor: C.surface, borderRadius: 16, margin: space.s4, padding: space.s4 },
   h1: { ...type.h1, fontSize: 22, color: C.ink },
   price: { fontSize: 16, color: C.ink, fontVariant: ['tabular-nums'], marginTop: space.s2 },
