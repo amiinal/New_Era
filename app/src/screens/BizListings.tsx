@@ -4,6 +4,8 @@ import { api, img, Listing } from '../api';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
+import { TabHead } from '../components/TabHead';
+import { Palette, useTheme } from '../useTheme';
 
 // B2: own listings with one-tap availability (LST-5), edit, delete, add.
 export function BizListings() {
@@ -11,6 +13,9 @@ export function BizListings() {
   const [items, setItems] = useState<Listing[] | null>(null);
   const [form, setForm] = useState<'add' | Listing | null>(null);
   const [avFor, setAvFor] = useState<Listing | null>(null);
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const link = dark ? '#7B90D6' : '#2C3E7A';
 
   const load = async () => {
     try {
@@ -41,31 +46,28 @@ export function BizListings() {
   };
 
   return (
-    <ScrollView style={styles.root}>
-      <View style={styles.head}>
-        <Text style={styles.h1}>Listings</Text>
-        <Button title="+ Add" onPress={() => setForm('add')} />
-      </View>
-      {items.length === 0 && <Text style={styles.micro}>No listings yet — add the first one.</Text>}
+    <ScrollView style={s.root}>
+      <TabHead title="Listings" right={<Button title="+ Add" onPress={() => setForm('add')} />} />
+      {items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
-        <Pressable key={l.id} onPress={() => setForm(l)} style={styles.rowCard}>
+        <Pressable key={l.id} onPress={() => setForm(l)} style={s.rowCard}>
           {l.photos[0] ? (
-            <Image source={{ uri: img(l.photos[0]) }} style={styles.thumb} />
+            <Image source={{ uri: img(l.photos[0]) }} style={s.thumb} />
           ) : (
-            <View style={[styles.thumb, { backgroundColor: C.line }]} />
+            <View style={[s.thumb, { backgroundColor: p.line }]} />
           )}
           <View style={{ flex: 1 }}>
-            <Text style={styles.t} numberOfLines={1}>{l.title}</Text>
-            <Text style={styles.micro}>{l.price ?? 'On request'} · {{
+            <Text style={s.t} numberOfLines={1}>{l.title}</Text>
+            <Text style={s.micro}>{l.price ?? 'On request'} · {{
               in_stock: 'In stock', limited: 'Limited',
               sold_out: 'Sold out', made_to_order: 'Made to order',
             }[l.availability]}</Text>
           </View>
-          <View style={styles.side}>
-            <Pressable onPress={() => setAvFor(l)} style={styles.av}>
-              <Text style={styles.avT}>Set ›</Text>
+          <View style={s.side}>
+            <Pressable onPress={() => setAvFor(l)} style={s.av}>
+              <Text style={[s.avT, { color: link }]}>Set ›</Text>
             </Pressable>
-            <Text onPress={() => remove(l)} style={styles.del}>Delete</Text>
+            <Text onPress={() => remove(l)} style={s.del}>Delete</Text>
           </View>
         </Pressable>
       ))}
@@ -95,17 +97,17 @@ export function BizListings() {
       )}
       {!!avFor && (
         <Modal transparent animationType="fade" onRequestClose={() => setAvFor(null)}>
-          <View style={styles.sheetWrap}>
-            <View style={styles.sheet}>
-              <Text style={styles.t}>Availability</Text>
+          <View style={s.sheetWrap}>
+            <View style={s.sheet}>
+              <Text style={s.t}>Availability</Text>
               {(['in_stock', 'limited', 'sold_out', 'made_to_order'] as const).map(a => (
                 <Text key={a} onPress={() => avFor && setAv(avFor, a)}
-                  style={[styles.opt, avFor.availability === a && styles.optOn]}>
+                  style={[s.opt, avFor.availability === a && s.optOn]}>
                   {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
                   {avFor.availability === a ? ' ✓' : ''}
                 </Text>
               ))}
-              <Text onPress={() => setAvFor(null)} style={[styles.opt, { textAlign: 'center' }]}>Cancel</Text>
+              <Text onPress={() => setAvFor(null)} style={[s.opt, { textAlign: 'center' }]}>Cancel</Text>
             </View>
           </View>
         </Modal>
@@ -114,29 +116,27 @@ export function BizListings() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.background, padding: space.s4 },
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.s4 },
-  h1: { ...type.h1, color: C.ink },
-  micro: { ...type.micro, color: C.bodyText },
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  micro: { ...type.micro, color: p.bodyText },
   rowCard: {
     flexDirection: 'row', gap: space.s3, alignItems: 'center',
-    backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s3, marginBottom: space.s3,
+    backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s3, marginBottom: space.s3,
   },
   thumb: { width: 64, height: 64, borderRadius: radius.md },
   side: { width: 110, gap: space.s2 },
-  av: { backgroundColor: C.surface, borderRadius: 8, padding: space.s3 },
-  avT: { ...type.bodySm, color: C.primary, fontWeight: '600' },
+  av: { backgroundColor: p.surface, borderRadius: 8, padding: space.s3 },
+  avT: { ...type.bodySm, fontWeight: '600' },
   del: { ...type.bodySm, color: C.error, padding: space.s2 },
   sheetWrap: {
     position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
     backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: C.surface, borderRadius: 16, padding: space.s4,
+    backgroundColor: p.surface, borderRadius: 16, padding: space.s4,
     width: '100%', maxWidth: 420, alignSelf: 'center',
   },
-  t: { ...type.h3, color: C.ink },
-  opt: { ...type.body, color: C.ink, paddingVertical: space.s3 },
-  optOn: { color: C.primary, fontWeight: '700' },
+  t: { ...type.h3, color: p.ink },
+  opt: { ...type.body, color: p.ink, paddingVertical: space.s3 },
+  optOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
 });

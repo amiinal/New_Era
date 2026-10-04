@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { C, radius } from '../theme';
+import { Palette, useTheme } from '../useTheme';
 
 type Props = {
   title: string;
@@ -11,28 +12,30 @@ type Props = {
 };
 // One CTA (primary) per screen. 48/40/32 via `size` where needed.
 export function Button({ title, onPress, variant = 'primary', disabled, pill }: Props) {
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const tx = dark ? '#7B90D6' : C.primary;
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
-        styles.base,
+        s.base,
         pill && { borderRadius: 28 },
-        variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
-        variant === 'tertiary' && styles.tertiary,
-        variant === 'destructive' && styles.destructive,
-        (disabled || pressed) && styles.dim,
+        variant === 'primary' && s.primary,
+        variant === 'secondary' && s.secondary,
+        variant === 'tertiary' && s.tertiary,
+        variant === 'destructive' && s.destructive,
+        (disabled || pressed) && s.dim,
       ]}>
       <Text
         numberOfLines={1}
         style={[
-          styles.label,
+          s.label,
           variant === 'primary' && { color: '#fff' },
-          variant === 'secondary' && { color: C.primary },
-          variant === 'tertiary' && { color: C.primary },
+          (variant === 'secondary' || variant === 'tertiary') && { color: tx },
           variant === 'destructive' && { color: C.error },
-          !!disabled && { color: C.bodyText },
+          !!disabled && { color: p.bodyText },
         ]}>
         {title}
       </Text>
@@ -40,12 +43,12 @@ export function Button({ title, onPress, variant = 'primary', disabled, pill }: 
   );
 }
 
-const styles = StyleSheet.create({
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   base: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   label: { fontSize: 14, fontWeight: '600' },
   primary: { backgroundColor: C.cta },
-  secondary: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.primary },
+  secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: dark ? '#7B90D6' : C.primary },
   tertiary: {},
-  destructive: { backgroundColor: C.surface, borderWidth: 1, borderColor: C.error },
+  destructive: { backgroundColor: p.surface, borderWidth: 1, borderColor: C.error },
   dim: { opacity: 0.6 },
 });

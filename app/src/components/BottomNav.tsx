@@ -2,6 +2,7 @@ import { Compass, MessageCircle, Newspaper, Package, Store } from 'lucide-react-
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C } from '../theme';
+import { Palette, useTheme } from '../useTheme';
 
 export type Tab = 'chats' | 'updates' | 'discover';
 export type BizTab = 'mybiz' | 'blistings' | 'bchats' | 'bupdates' | 'bdiscover';
@@ -14,14 +15,17 @@ const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
 ];
 // Business bottom nav: never the customer tabs (ACC-3 modes stay distinct).
 export function BizNav({ active, onTab }: { active: BizTab; onTab: (t: BizTab) => void }) {
+  const { p, dark } = useTheme();
+  const s = themed(p);
+  const activeColor = dark ? '#7B90D6' : C.primary;
   return (
-    <View style={styles.bar}>
+    <View style={s.bar}>
       {BIZ_TABS.map(({ key, label, Icon }) => {
         const on = key === active;
         return (
-          <Pressable key={key} onPress={() => onTab(key)} style={styles.tab}>
-            <Icon size={24} color={on ? C.primary : C.bodyText} />
-            <Text style={[styles.label, on && styles.on]}>{label}</Text>
+          <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
+            <Icon size={24} color={on ? active : p.bodyText} />
+            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
           </Pressable>
         );
       })}
@@ -35,14 +39,17 @@ const TABS: { key: Tab; label: string; Icon: typeof Compass }[] = [
 ];
 // Customer bottom nav (§CUS-1): active tab in primary, unread dot in error.
 export function BottomNav({ active, onTab }: { active: Tab; onTab: (t: Tab) => void }) {
+  const { p, dark } = useTheme();
+  const s = themed(p);
+  const activeColor = dark ? '#7B90D6' : C.primary;
   return (
-    <View style={styles.bar}>
+    <View style={s.bar}>
       {TABS.map(({ key, label, Icon }) => {
         const on = key === active;
         return (
-          <Pressable key={key} onPress={() => onTab(key)} style={styles.tab}>
-            <Icon size={24} color={on ? C.primary : C.bodyText} />
-            <Text style={[styles.label, on && styles.on]}>{label}</Text>
+          <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
+            <Icon size={24} color={on ? active : p.bodyText} />
+            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
           </Pressable>
         );
       })}
@@ -50,9 +57,8 @@ export function BottomNav({ active, onTab }: { active: Tab; onTab: (t: Tab) => v
   );
 }
 
-const styles = StyleSheet.create({
-  bar: { flexDirection: 'row', backgroundColor: C.surface, borderTopWidth: 1, borderTopColor: C.line },
+const themed = (p: Palette) => StyleSheet.create({
+  bar: { flexDirection: 'row', backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
   tab: { flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 18 },
-  label: { fontSize: 12, color: C.bodyText },
-  on: { color: C.primary, fontWeight: '600' },
+  label: { fontSize: 12, color: p.bodyText },
 });

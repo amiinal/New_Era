@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api, Business } from '../api';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { api, Business, img } from '../api';
 import { useAuth } from '../auth';
-import { C, radius, space, type } from '../theme';
+import { radius, space, type } from '../theme';
+import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
 import { Onboarding } from './Onboarding';
+import { ProfileSheet } from '../components/ProfileSheet';
 
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
@@ -21,6 +23,11 @@ export function BusinessHome({ onOpenStore, onManage }: {
   const [compose, setCompose] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [onboard, setOnboard] = useState(false);
+  const [prof, setProf] = useState(false);
+  const { refresh } = useAuth();
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const link = dark ? '#7B90D6' : '#2C3E7A';
 
   const loadBiz = async () => {
     try {
@@ -35,9 +42,9 @@ export function BusinessHome({ onOpenStore, onManage }: {
   if (!loaded) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   if (!biz) {
     return (
-      <View style={styles.root}>
-        <Text style={styles.h1}>Business home</Text>
-        <Text style={styles.micro}>No storefront yet — go live in about 5 minutes.</Text>
+      <View style={s.root}>
+        <Text style={s.h1}>Business home</Text>
+        <Text style={s.micro}>No storefront yet — go live in about 5 minutes.</Text>
         <View style={{ marginTop: space.s4 }}>
           <Button title="Start selling" onPress={() => setOnboard(true)} />
         </View>
@@ -47,80 +54,86 @@ export function BusinessHome({ onOpenStore, onManage }: {
   }
 
   return (
-    <ScrollView style={styles.root}>
-      <View style={styles.head}>
+    <ScrollView style={s.root}>
+      <View style={s.head}>
         <Avatar name={biz.name} size={56} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.h1}>{biz.name}</Text>
-          <Text style={styles.micro}>{biz.category} · {biz.city}</Text>
+          <Text style={s.h1}>{biz.name}</Text>
+          <Text style={s.micro}>{biz.category} · {biz.city}</Text>
         </View>
         <Pressable onPress={() => setAppMode(mode === 'business' ? 'customer' : 'business')}>
-          <Text style={styles.switch}>{mode === 'business' ? 'Customer view' : 'Business view'}</Text>
+          <Text style={[s.switch, { color: link }]}>{mode === 'business' ? 'Customer view' : 'Business view'}</Text>
+        </Pressable>
+        <Pressable onPress={() => setProf(true)}>
+          {account?.avatarKey
+            ? <Image source={{ uri: img(account.avatarKey) }} style={{ width: 36, height: 36, borderRadius: 18 }} />
+            : <Avatar name={account?.email ?? account?.phone ?? '?'} size={36} />}
         </Pressable>
       </View>
 
-      <View style={styles.actions}>
+      <View style={s.actions}>
         <View style={{ flex: 2 }}><Button title="+ Add listing" onPress={onManage} /></View>
         <View style={{ flex: 1.4 }}><Button title="Post status" variant="secondary" onPress={() => setCompose(true)} /></View>
       </View>
 
-      <View style={styles.card}>
-        <Text style={styles.t}>Discovery checklist</Text>
-        <Text style={styles.micro}>3+ photo items + category + location to appear in Discover.</Text>
+      <View style={s.card}>
+        <Text style={s.t}>Discovery checklist</Text>
+        <Text style={s.micro}>3+ photo items + category + location to appear in Discover.</Text>
       </View>
 
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <Text style={styles.t}>Insights</Text>
+      <View style={s.card}>
+        <View style={s.row}>
+          <Text style={s.t}>Insights</Text>
           <View style={{ flexDirection: 'row', gap: space.s2 }}>
             {([7, 30] as const).map(r => (
               <Text key={r} onPress={() => setRange(r)}
-                style={[styles.range, range === r && styles.rangeOn]}>{r}d</Text>
+                style={[s.range, range === r && s.rangeOn]}>{r}d</Text>
             ))}
           </View>
         </View>
         {ins ? (
-          <View style={styles.grid}>
-            <View style={styles.metric}><Text style={styles.mn}>{ins.storefrontViews}</Text><Text style={styles.micro}>Storefront views</Text></View>
-            <View style={styles.metric}><Text style={styles.mn}>{ins.listings}</Text><Text style={styles.micro}>Live listings</Text></View>
-            <View style={styles.metric}><Text style={styles.mn}>{ins.chatsStarted}</Text><Text style={styles.micro}>Chats started</Text></View>
-            <View style={styles.metric}><Text style={styles.mn}>{ins.activeStatuses}</Text><Text style={styles.micro}>Active statuses</Text></View>
+          <View style={s.grid}>
+            <View style={s.metric}><Text style={s.mn}>{ins.storefrontViews}</Text><Text style={s.micro}>Storefront views</Text></View>
+            <View style={s.metric}><Text style={s.mn}>{ins.listings}</Text><Text style={s.micro}>Live listings</Text></View>
+            <View style={s.metric}><Text style={s.mn}>{ins.chatsStarted}</Text><Text style={s.micro}>Chats started</Text></View>
+            <View style={s.metric}><Text style={s.mn}>{ins.activeStatuses}</Text><Text style={s.micro}>Active statuses</Text></View>
           </View>
-        ) : <Text style={styles.micro}>Loading…</Text>}
-        <Text style={styles.micro}>Private to you · deeper trends arrive with premium.</Text>
+        ) : <Text style={s.micro}>Loading…</Text>}
+        <Text style={s.micro}>Private to you · deeper trends arrive with premium.</Text>
       </View>
 
       <Pressable onPress={() => onOpenStore(biz.slug)}>
-        <Text style={styles.link}>View public storefront</Text>
+        <Text style={[s.link, { color: link }]}>View public storefront</Text>
       </Pressable>
-      <Text style={styles.micro}>Signed in as {account?.email ?? account?.phone} · Listings + inbox management next.</Text>
+      <Text style={s.micro}>Signed in as {account?.email ?? account?.phone} · Listings + inbox management next.</Text>
 
       {compose && (
         <Composer businessId={biz.id} onClose={() => setCompose(false)}
           onPosted={() => { setCompose(false); api.insights(biz.id, range).then(setIns).catch(() => {}); }} />
       )}
+      {prof && <ProfileSheet onClose={() => setProf(false)} onSaved={() => { setProf(false); refresh(); }} />}
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.background, padding: space.s4 },
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
   head: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
-  h1: { ...type.h1, fontSize: 22, color: C.ink },
-  micro: { ...type.micro, color: C.bodyText, marginTop: 4 },
-  switch: { ...type.bodySm, color: C.primary, fontWeight: '600' },
+  h1: { ...type.h1, fontSize: 22, color: p.ink },
+  micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
+  switch: { ...type.bodySm, fontWeight: '600' },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
-  card: { backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3 },
-  t: { ...type.h3, color: C.ink },
+  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3 },
+  t: { ...type.h3, color: p.ink },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  range: { ...type.bodySm, color: C.bodyText, padding: space.s2 },
-  rangeOn: { color: C.primary, fontWeight: '700' },
+  range: { ...type.bodySm, color: p.bodyText, padding: space.s2 },
+  rangeOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
   mrow: { flexDirection: 'row', alignItems: 'baseline', gap: space.s3, marginTop: space.s2 },
-  mn: { ...type.h2, color: C.ink, fontVariant: ['tabular-nums'] },
+  mn: { ...type.h2, color: p.ink, fontVariant: ['tabular-nums'] },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, marginTop: space.s2 },
   metric: {
-    flexBasis: '47%', flexGrow: 1, backgroundColor: C.background,
+    flexBasis: '47%', flexGrow: 1, backgroundColor: p.background,
     borderRadius: radius.md, padding: space.s3,
   },
-  link: { ...type.body, color: C.primary, textAlign: 'center', marginVertical: space.s5 },
+  link: { ...type.body, color: dark ? '#7B90D6' : '#2C3E7A', textAlign: 'center', marginVertical: space.s5 },
 });

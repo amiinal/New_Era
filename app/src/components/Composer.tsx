@@ -2,8 +2,9 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import { Alert, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '../api';
-import { C, radius, space, type } from '../theme';
+import { radius, space, type } from '../theme';
 import { Button } from './Button';
+import { Palette, useTheme } from '../useTheme';
 
 export const STORY_BGS = [
   '#C24E22', '#2C3E7A', '#1E1E24', '#8B8F9B',
@@ -21,6 +22,8 @@ export function Composer({ businessId, onClose, onPosted }: {
   const [text, setText] = useState('');
   const [bg, setBg] = useState(STORY_BGS[0]);
   const [busy, setBusy] = useState(false);
+  const { p } = useTheme();
+  const s = themed(p);
 
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
@@ -51,8 +54,8 @@ export function Composer({ businessId, onClose, onPosted }: {
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View style={styles.root}>
-        <Text style={styles.h1}>New status</Text>
+      <View style={s.root}>
+        <Text style={s.h1}>New status</Text>
         {mode === 'pick' && (
           <>
             <Button title="Add from gallery" onPress={pick} />
@@ -62,23 +65,23 @@ export function Composer({ businessId, onClose, onPosted }: {
         )}
         {mode === 'photo' && uri && (
           <>
-            <Image source={{ uri }} style={styles.prev} />
-            <TextInput style={styles.input} placeholder="Add a caption…" value={caption}
+            <Image source={{ uri }} style={s.prev} />
+            <TextInput style={s.input} placeholder="Add a caption…" placeholderTextColor={p.bodyText} value={caption}
               onChangeText={setCaption} />
             <Button title={busy ? 'Posting…' : 'Post'} onPress={post} disabled={busy} />
           </>
         )}
         {mode === 'text' && (
           <>
-            <View style={[styles.portrait, { backgroundColor: bg }]}>
-              <Text style={styles.portraitT}>{text || 'Your text here'}</Text>
+            <View style={[s.portrait, { backgroundColor: bg }]}>
+              <Text style={s.portraitT}>{text || 'Your text here'}</Text>
             </View>
-            <TextInput style={styles.input} placeholder="Type your update…" value={text}
+            <TextInput style={s.input} placeholder="Type your update…" placeholderTextColor={p.bodyText} value={text}
               onChangeText={setText} multiline />
-            <View style={styles.dots}>
+            <View style={s.dots}>
               {STORY_BGS.map(b => (
                 <Pressable key={b} onPress={() => setBg(b)}
-                  style={[styles.dot, { backgroundColor: b }, bg === b && styles.dotOn]} />
+                  style={[s.dot, { backgroundColor: b }, bg === b && s.dotOn]} />
               ))}
             </View>
             <Button title={busy ? 'Posting…' : 'Post'} onPress={post} disabled={busy || !text.trim()} />
@@ -91,11 +94,11 @@ export function Composer({ businessId, onClose, onPosted }: {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.background, padding: space.s5 },
-  h1: { ...type.h1, color: C.ink, marginBottom: space.s4 },
+const themed = (p: Palette) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   input: {
-    backgroundColor: C.surface, borderWidth: 1, borderColor: C.lineStrong,
+    backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, minHeight: 48, paddingHorizontal: space.s4, fontSize: 16, marginVertical: space.s3,
   },
   prev: { width: '100%', height: 180, borderRadius: radius.lg },
@@ -104,5 +107,5 @@ const styles = StyleSheet.create({
   portraitT: { color: '#fff', fontSize: 18, fontWeight: '700', textAlign: 'center' },
   dots: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginVertical: space.s3 },
   dot: { width: 40, height: 40, borderRadius: 20 },
-  dotOn: { borderWidth: 2, borderColor: C.primary },
+  dotOn: { borderWidth: 2, borderColor: p.ink },
 });

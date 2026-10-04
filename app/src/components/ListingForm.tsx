@@ -5,8 +5,9 @@ import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { api, img, Listing } from '../api';
-import { C, radius, space, type } from '../theme';
+import { radius, space, type } from '../theme';
 import { Button } from './Button';
+import { Palette, useTheme } from '../useTheme';
 
 const AVAIL: Listing['availability'][] = ['in_stock', 'limited', 'sold_out', 'made_to_order'];
 const AVAIL_LABEL: Record<Listing['availability'], string> = {
@@ -28,6 +29,9 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const [busy, setBusy] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const link = dark ? '#7B90D6' : '#2C3E7A';
 
   const addUri = (uri: string) => {
     if (photos.length >= 5) { Alert.alert('Photo limit', 'Up to 5 photos per listing.'); return; }
@@ -84,40 +88,40 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
       {cam ? (
         <View style={{ flex: 1, backgroundColor: '#000' }}>
           <CameraView ref={ref} style={{ flex: 1 }} />
-          <View style={styles.camrow}>
+          <View style={s.camrow}>
             <Button title="Close" variant="secondary" onPress={() => setCam(false)} />
             <Button title="Capture" onPress={shoot} />
           </View>
         </View>
       ) : (
-        <ScrollView style={styles.root}>
-          <Text style={styles.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
-          <ScrollView horizontal style={styles.strip}>
-            {photos.map((u, j) => <Image key={j} source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={styles.thumb} />)}
+        <ScrollView style={s.root}>
+          <Text style={s.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
+          <ScrollView horizontal style={s.strip}>
+            {photos.map((u, j) => <Image key={j} source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={s.thumb} />)}
             {photos.length < 5 && (
-              <Pressable onPress={openCam} style={styles.addBtn}><Text style={styles.addT}>Capture</Text></Pressable>
+              <Pressable onPress={openCam} style={s.addBtn}><Text style={[s.addT, { color: link }]}>Capture</Text></Pressable>
             )}
             {photos.length < 5 && (
-              <Pressable onPress={gallery} style={styles.addBtn}><Text style={styles.addT}>Gallery</Text></Pressable>
+              <Pressable onPress={gallery} style={s.addBtn}><Text style={[s.addT, { color: link }]}>Gallery</Text></Pressable>
             )}
           </ScrollView>
-          <View style={styles.toggle}>
+          <View style={s.toggle}>
             {(['product', 'service'] as const).map(t => (
-              <Text key={t} onPress={() => setKind(t)} style={[styles.opt, kind === t && styles.optOn]}>
+              <Text key={t} onPress={() => setKind(t)} style={[s.opt, kind === t && s.optOn]}>
                 {t === 'product' ? 'Product' : 'Service'}
               </Text>
             ))}
           </View>
-          <TextInput style={styles.input} placeholder="Name" value={title} onChangeText={setTitle} />
-          <TextInput style={styles.input} placeholder="Price (or leave blank for on request)"
+          <TextInput style={s.input} placeholder="Name" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
+          <TextInput style={s.input} placeholder="Price (or leave blank for on request)" placeholderTextColor={p.bodyText}
             value={price} onChangeText={setPrice} keyboardType="numbers-and-punctuation" />
           {kind === 'service' && (
-            <Text style={styles.micro}>Services show "starting from" and are inquiry-only (LST-2/3).</Text>
+            <Text style={s.micro}>Services show "starting from" and are inquiry-only (LST-2/3).</Text>
           )}
-          <Text style={styles.sec}>Availability</Text>
-          <View style={styles.toggle}>
+          <Text style={s.sec}>Availability</Text>
+          <View style={s.toggle}>
             {AVAIL.map(a => (
-              <Text key={a} onPress={() => setAvail(a)} style={[styles.opt, avail === a && styles.optOn]}>
+              <Text key={a} onPress={() => setAvail(a)} style={[s.opt, avail === a && s.optOn]}>
                 {AVAIL_LABEL[a]}
               </Text>
             ))}
@@ -131,24 +135,24 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.background, padding: space.s5 },
-  h1: { ...type.h1, color: C.ink, marginBottom: space.s4 },
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   strip: { flexDirection: 'row', marginBottom: space.s4 },
   thumb: { width: 96, height: 96, borderRadius: radius.md, marginRight: space.s2 },
   addBtn: {
-    width: 96, height: 96, borderRadius: radius.md, borderWidth: 1, borderColor: C.lineStrong,
+    width: 96, height: 96, borderRadius: radius.md, borderWidth: 1, borderColor: p.lineStrong,
     alignItems: 'center', justifyContent: 'center', marginRight: space.s2,
   },
-  addT: { color: C.primary, fontWeight: '600' },
+  addT: { fontWeight: '600' },
   toggle: { flexDirection: 'row', gap: space.s2, marginBottom: space.s4, flexWrap: 'wrap' },
-  opt: { padding: space.s3, borderWidth: 1, borderColor: C.lineStrong, borderRadius: radius.md, color: C.bodyText },
-  optOn: { borderColor: C.primary, color: C.primary, fontWeight: '600' },
+  opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
+  optOn: { borderColor: dark ? '#7B90D6' : '#2C3E7A', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '600' },
   input: {
-    backgroundColor: C.surface, borderWidth: 1, borderColor: C.lineStrong,
+    backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,
   },
-  micro: { ...type.micro, color: C.bodyText, marginBottom: space.s3 },
-  sec: { ...type.h3, color: C.ink, marginBottom: space.s2 },
+  micro: { ...type.micro, color: p.bodyText, marginBottom: space.s3 },
+  sec: { ...type.h3, color: p.ink, marginBottom: space.s2 },
   camrow: { flexDirection: 'row', gap: space.s3, padding: space.s5, backgroundColor: '#000' },
 });

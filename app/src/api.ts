@@ -80,6 +80,8 @@ export const api = {
   listing: (id: string) => req<Listing>(`/listings/${id}`),
   openThread: (businessId: string, listingId?: string) =>
     req<Thread>('/threads', { method: 'POST', body: JSON.stringify({ businessId, listingId }) }),
+  thread: (threadId: string) =>
+    req<{ thread: Thread; peer: { kind: 'business' | 'customer'; name: string } }>(`/threads/${threadId}`),
   messages: (threadId: string) => req<Message[]>(`/threads/${threadId}/messages`),
   sendMessage: (threadId: string, body: { body?: string; imageKey?: string }) =>
     req<Message>(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify(body) }),

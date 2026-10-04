@@ -3,10 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
+import { ThemeProvider } from './src/useTheme';
 import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
 import { C } from './src/theme';
+import { useTheme } from './src/useTheme';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { BusinessHome } from './src/screens/BusinessHome';
 import { ChatScreen } from './src/screens/ChatScreen';
@@ -28,6 +30,8 @@ type Route =
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
   const { account, mode } = useAuth();
+  const { p } = useTheme();
+  const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
@@ -54,7 +58,7 @@ function Shell() {
       : route.name === 'blistings' ? 'blistings'
       : route.name === 'bdiscover' ? 'bdiscover' : 'mybiz';
     return (
-      <SafeAreaView style={styles.root}>
+      <SafeAreaView style={[styles.root, bg]}>
         {route.name === 'store'
           ? <StorefrontScreen slug={route.slug}
               onListing={id => setRoute({ name: 'listing', id })}
@@ -130,9 +134,11 @@ export default function App() {
   }
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <Shell />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <Shell />
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

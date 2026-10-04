@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { img, Listing } from '../api';
 import { C, radius, space } from '../theme';
+import { Palette, useTheme } from '../useTheme';
 
 const AVAIL: Record<Listing['availability'], { color: string; label: string }> = {
   in_stock: { color: C.success, label: 'In stock' },
@@ -15,26 +16,28 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
   item: Listing; onPress: () => void; onPhoto?: () => void; onMessage?: () => void;
 }) {
   const a = AVAIL[item.availability];
+  const { p } = useTheme();
+  const s = themed(p);
   return (
-    <Pressable onPress={onPress} style={styles.card}>
+    <Pressable onPress={onPress} style={s.card}>
       {item.photos[0] ? (
-        <Pressable onPress={onPhoto ?? onPress} style={styles.phWrap}>
-          <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} resizeMode="contain" />
+        <Pressable onPress={onPhoto ?? onPress} style={s.phWrap}>
+          <Image source={{ uri: img(item.photos[0]) }} style={s.photo} resizeMode="contain" />
         </Pressable>
       ) : (
-        <View style={[styles.photo, styles.empty]} />
+        <View style={[s.photo, s.empty]} />
       )}
-      <View style={styles.body}>
-        <Text style={styles.title} numberOfLines={2}>{item.title}</Text>
-        <Text style={styles.price}>
+      <View style={s.body}>
+        <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+        <Text style={s.price}>
           {item.price ?? 'Price on request'}
           {'  '}
-          <View style={[styles.dot, { backgroundColor: a.color }]} />
-          <Text style={styles.avail}> {a.label}</Text>
+          <View style={[s.dot, { backgroundColor: a.color }]} />
+          <Text style={s.avail}> {a.label}</Text>
         </Text>
         {!!onMessage && (
-          <Pressable onPress={onMessage} style={styles.msgBtn}>
-            <Text style={styles.msgT}>Message</Text>
+          <Pressable onPress={onMessage} style={s.msgBtn}>
+            <Text style={s.msgT}>Message</Text>
           </Pressable>
         )}
       </View>
@@ -42,15 +45,15 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
   );
 }
 
-const styles = StyleSheet.create({
-  card: { flex: 1, backgroundColor: C.surface, borderRadius: radius.lg, overflow: 'hidden' },
+const themed = (p: Palette) => StyleSheet.create({
+  card: { flex: 1, backgroundColor: p.surface, borderRadius: radius.lg, overflow: 'hidden' },
   photo: { width: '100%', aspectRatio: 1 },
   phWrap: { backgroundColor: '#ECEEF1' },
-  empty: { backgroundColor: C.line },
+  empty: { backgroundColor: p.line },
   body: { padding: space.s4 - 4 },
-  title: { fontSize: 16, fontWeight: '600', color: C.ink },
-  price: { fontSize: 14, color: C.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
-  avail: { fontSize: 12, color: C.bodyText },
+  title: { fontSize: 16, fontWeight: '600', color: p.ink },
+  price: { fontSize: 14, color: p.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
+  avail: { fontSize: 12, color: p.bodyText },
   dot: { width: 8, height: 8, borderRadius: 4 },
   msgBtn: {
     marginTop: 8, height: 36, borderRadius: 8, backgroundColor: C.cta,

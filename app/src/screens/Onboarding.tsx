@@ -10,6 +10,7 @@ import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
+import { Palette, useTheme } from '../useTheme';
 
 const CATEGORIES = ['Food service', 'Bakery', 'Salon', 'Tailor', 'Catering', 'Fashion', 'Electronics', 'Other'];
 
@@ -27,6 +28,9 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const [cover, setCover] = useState<string | null>(null);
   const [biz, setBiz] = useState<{ id: string; slug: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const link = dark ? '#7B90D6' : '#2C3E7A';
 
   const pickInto = (set: (u: string) => void) => async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
@@ -61,32 +65,40 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
 
   return (
     <Modal visible animationType="slide">
-      <ScrollView style={styles.root}>
+      <ScrollView style={s.root}>
+        <View style={s.prog}>
+          {[0, 1, 2, 3].map(j => (
+            <View key={j} style={[s.seg, j <= step && s.segOn]} />
+          ))}
+        </View>
+        <Text style={s.micro}>Step {step + 1} of 4 · {
+          ['Business details', 'First listing', 'Certificates (optional)', "You're live"][step]
+        }</Text>
         {step === 0 && (
           <>
-            <Text style={styles.h1}>Your business</Text>
-            <TextInput style={styles.input} placeholder="Business name (required)" value={name} onChangeText={setName} />
-            <Text style={styles.sec}>Category</Text>
-            <View style={styles.wrap}>
+            <Text style={s.h1}>Your business</Text>
+            <TextInput style={s.input} placeholder="Business name (required)" placeholderTextColor={p.bodyText} value={name} onChangeText={setName} />
+            <Text style={s.sec}>Category</Text>
+            <View style={s.wrap}>
               {CATEGORIES.map(c => (
-                <Text key={c} onPress={() => setCategory(c)} style={[styles.opt, category === c && styles.optOn]}>{c}</Text>
+                <Text key={c} onPress={() => setCategory(c)} style={[s.opt, category === c && s.optOn]}>{c}</Text>
               ))}
             </View>
-            <TextInput style={styles.input} placeholder="City (required)" value={city} onChangeText={setCity} />
-            <TextInput style={styles.input} placeholder="Area / neighborhood" value={area} onChangeText={setArea} />
-            <Pressable onPress={() => setNationwide(!nationwide)} style={styles.check}>
-              <Text style={styles.box}>{nationwide ? '✓' : ''}</Text>
-              <Text style={styles.checkT}>Serve nationwide (online / delivery)</Text>
+            <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
+            <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
+            <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>
+              <Text style={[s.box, { color: link, borderColor: link }]}>{nationwide ? '✓' : ''}</Text>
+              <Text style={s.checkT}>Serve nationwide (online / delivery)</Text>
             </Pressable>
-            <Pressable onPress={pickLogo} style={styles.logoRow}>
+            <Pressable onPress={pickLogo} style={s.logoRow}>
               {logo
-                ? <Image source={{ uri: logo }} style={styles.logo} />
-                : <View style={[styles.logo, styles.logoEmpty]}><Text style={styles.micro}>Logo (optional)</Text></View>}
+                ? <Image source={{ uri: logo }} style={s.logo} />
+                : <View style={[s.logo, s.logoEmpty]}><Text style={s.micro}>Logo (optional)</Text></View>}
             </Pressable>
-            <Pressable onPress={pickCover} style={styles.logoRow}>
+            <Pressable onPress={pickCover} style={s.logoRow}>
               {cover
-                ? <Image source={{ uri: cover }} style={[styles.logo, { width: 192, borderRadius: 12 }]} />
-                : <View style={[styles.logo, styles.logoEmpty, { width: 192, borderRadius: 12 }]}><Text style={styles.micro}>Header image (optional)</Text></View>}
+                ? <Image source={{ uri: cover }} style={[s.logo, { width: 192, borderRadius: 12 }]} />
+                : <View style={[s.logo, s.logoEmpty, { width: 192, borderRadius: 12 }]}><Text style={s.micro}>Header image (optional)</Text></View>}
             </Pressable>
             <Button title={busy ? 'Creating…' : 'Continue'} onPress={create} disabled={busy} />
           </>
@@ -108,6 +120,8 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
   const [title, setTitle] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
     if (!r.canceled && r.assets[0]) setPhoto(r.assets[0].uri);
@@ -125,13 +139,13 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
   };
   return (
     <>
-      <Text style={styles.h1}>Certificates (optional)</Text>
-      <Text style={styles.micro}>Self-reported — shown with a “not verified” label until Phase 2 review.</Text>
-      <TextInput style={[styles.input, { marginTop: space.s3 }]} placeholder="Certificate title" value={title} onChangeText={setTitle} />
-      <Pressable onPress={pick} style={styles.logoRow}>
+      <Text style={s.h1}>Certificates (optional)</Text>
+      <Text style={s.micro}>Self-reported — shown with a “not verified” label until Phase 2 review.</Text>
+      <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Certificate title" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
+      <Pressable onPress={pick} style={s.logoRow}>
         {photo
-          ? <Image source={{ uri: photo }} style={styles.logo} />
-          : <View style={[styles.logo, styles.logoEmpty]}><Text style={styles.micro}>Certificate photo (required if titled)</Text></View>}
+          ? <Image source={{ uri: photo }} style={s.logo} />
+          : <View style={[s.logo, s.logoEmpty]}><Text style={s.micro}>Certificate photo (required if titled)</Text></View>}
       </Pressable>
       <Button title={busy ? 'Saving…' : 'Continue'} onPress={save} disabled={busy} />
     </>
@@ -139,11 +153,13 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
 }
 
 function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
   const link = `https://newera.shop/s/${slug}`;
   return (
     <>
-      <Text style={styles.h1}>You&apos;re live!</Text>
-      <Text style={styles.micro}>Share the link anywhere — it works without the app.</Text>
+      <Text style={s.h1}>You&apos;re live!</Text>
+      <Text style={s.micro}>Share the link anywhere — it works without the app.</Text>
       <View style={{ alignItems: 'center', marginVertical: space.s5 }}>
         <QRCode value={link} size={180} />
       </View>
@@ -156,25 +172,29 @@ function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.background, padding: space.s5 },
-  h1: { ...type.h1, color: C.ink, marginBottom: space.s4 },
-  sec: { ...type.h3, color: C.ink, marginBottom: space.s2, marginTop: space.s2 },
-  micro: { ...type.micro, color: C.bodyText, marginBottom: space.s2 },
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  prog: { flexDirection: 'row', gap: 4, marginBottom: space.s2 },
+  seg: { flex: 1, height: 4, borderRadius: 2, backgroundColor: p.line },
+  segOn: { backgroundColor: C.cta },
+  h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
+  sec: { ...type.h3, color: p.ink, marginBottom: space.s2, marginTop: space.s2 },
+  micro: { ...type.micro, color: p.bodyText, marginBottom: space.s2 },
   input: {
-    backgroundColor: C.surface, borderWidth: 1, borderColor: C.lineStrong,
+    backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,
   },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginBottom: space.s3 },
-  opt: { padding: space.s3, borderWidth: 1, borderColor: C.lineStrong, borderRadius: radius.md, color: C.bodyText },
-  optOn: { borderColor: C.primary, color: C.primary, fontWeight: '600' },
+  opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
+  optOn: { borderColor: dark ? '#7B90D6' : '#2C3E7A', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '600' },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
   box: {
-    width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: C.primary,
-    textAlign: 'center', color: C.primary, fontWeight: '700',
+    width: 24, height: 24, borderRadius: 4, borderWidth: 1,
+    borderColor: dark ? '#7B90D6' : '#2C3E7A',
+    textAlign: 'center', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700',
   },
-  checkT: { ...type.body, color: C.ink },
+  checkT: { ...type.body, color: p.ink },
   logoRow: { marginBottom: space.s4 },
   logo: { width: 96, height: 96, borderRadius: 48 },
-  logoEmpty: { backgroundColor: C.line, alignItems: 'center', justifyContent: 'center' },
+  logoEmpty: { backgroundColor: p.line, alignItems: 'center', justifyContent: 'center' },
 });
