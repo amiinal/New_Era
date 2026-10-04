@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { api, img, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
@@ -21,6 +21,10 @@ export function StorefrontScreen({
   const [sent, setSent] = useState(false);
   const [view, setView] = useState(false);
   const [full, setFull] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
+  // Uniform grid rule: 2 columns on phones, 3 once the column is wide.
+  // Cells stay equal — no stretched orphans.
+  const wide = width > 700;
   const { account } = useAuth();
 
   const report = async (id: string) => {
@@ -73,7 +77,7 @@ export function StorefrontScreen({
       <Text style={styles.sec}>Listings</Text>
       <View style={styles.grid}>
         {listings.map(item => (
-          <View key={item.id} style={styles.cell}>
+          <View key={item.id} style={[styles.cell, wide && styles.cellWide]}>
             <ListingCard item={item}
               onPress={() => onListing(item.id)}
               onPhoto={() => item.photos[0] && setFull(img(item.photos[0]))} />
@@ -131,6 +135,7 @@ const styles = StyleSheet.create({
   sec: { ...type.h3, color: C.ink, margin: space.s5, marginBottom: space.s2, marginHorizontal: space.s4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, paddingHorizontal: space.s4 },
   cell: { flexBasis: '47%' },
+  cellWide: { flexBasis: '31%' },
   cert: { flexDirection: 'row', gap: space.s3, backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center' },
   certImg: { width: 44, height: 44, borderRadius: radius.md },
   certT: { ...type.bodySm, fontWeight: '600', color: C.ink },
