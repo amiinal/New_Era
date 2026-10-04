@@ -18,7 +18,7 @@ import { api } from './src/api';
 
 type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
-  | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' } | { name: 'blistings' }
+  | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' } | { name: 'blistings' } | { name: 'bdiscover' }
   | { name: 'store'; slug: string }
   | { name: 'listing'; id: string }
   | { name: 'chat'; threadId: string; context: string };
@@ -49,7 +49,8 @@ function Shell() {
     const bizTab: BizTab =
       route.name === 'bchats' || (route.name === 'chat') ? 'bchats'
       : route.name === 'bupdates' ? 'bupdates'
-      : route.name === 'blistings' ? 'blistings' : 'mybiz';
+      : route.name === 'blistings' ? 'blistings'
+      : route.name === 'bdiscover' ? 'bdiscover' : 'mybiz';
     return (
       <SafeAreaView style={styles.root}>
         {route.name === 'store'
@@ -67,9 +68,15 @@ function Shell() {
           ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label })} />
           : route.name === 'blistings'
           ? <BizListings />
+          : route.name === 'bdiscover'
+          ? <DiscoverScreen onOpen={openStore} />
           : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })} />}
         <BizNav active={bizTab}
-          onTab={t => setRoute(t === 'mybiz' ? { name: 'bizhome' } : t === 'blistings' ? { name: 'blistings' } : { name: t } as Route)} />
+          onTab={t => setRoute(
+            t === 'mybiz' ? { name: 'bizhome' }
+            : t === 'blistings' ? { name: 'blistings' }
+            : t === 'bdiscover' ? { name: 'bdiscover' }
+            : { name: t } as Route)} />
         <StatusBar style="auto" />
       </SafeAreaView>
     );

@@ -6,7 +6,7 @@ import { C, radius, space, type } from '../theme';
 
 // Step 5: country + city search, browseable without account (wall at chat).
 export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
-  const { account, setAppMode } = useAuth();
+  const { account, mode, setAppMode } = useAuth();
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
@@ -24,7 +24,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
     <View style={styles.root}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text style={styles.h1}>Discover</Text>
-        {hasBiz && <Text onPress={() => setAppMode('business')} style={styles.switch}>Business view</Text>}
+        {hasBiz && mode === 'customer' && <Text onPress={() => setAppMode('business')} style={styles.switch}>Business view</Text>}
       </View>
       <TextInput style={styles.input} placeholder="Search businesses…" value={q}
         onChangeText={setQ} onSubmitEditing={load} returnKeyType="search" />
