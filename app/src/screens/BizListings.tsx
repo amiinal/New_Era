@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api, Listing } from '../api';
-import { C, space, type } from '../theme';
+import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { api, img, Listing } from '../api';
+import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
-import { ListingCard } from '../components/ListingCard';
 import { ListingForm } from '../components/ListingForm';
 
 // B2: own listings with one-tap availability (LST-5), edit, delete, add.
@@ -49,19 +48,26 @@ export function BizListings() {
       </View>
       {items.length === 0 && <Text style={styles.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
-        <View key={l.id} style={styles.row}>
+        <Pressable key={l.id} onPress={() => setForm(l)} style={styles.rowCard}>
+          {l.photos[0] ? (
+            <Image source={{ uri: img(l.photos[0]) }} style={styles.thumb} />
+          ) : (
+            <View style={[styles.thumb, { backgroundColor: C.line }]} />
+          )}
           <View style={{ flex: 1 }}>
-            <ListingCard item={l} onPress={() => setForm(l)} />
+            <Text style={styles.t} numberOfLines={1}>{l.title}</Text>
+            <Text style={styles.micro}>{l.price ?? 'On request'} · {{
+              in_stock: 'In stock', limited: 'Limited',
+              sold_out: 'Sold out', made_to_order: 'Made to order',
+            }[l.availability]}</Text>
           </View>
           <View style={styles.side}>
             <Pressable onPress={() => setAvFor(l)} style={styles.av}>
-              <Text style={styles.avT}>{
-                { in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[l.availability]
-              } ›</Text>
+              <Text style={styles.avT}>Set ›</Text>
             </Pressable>
             <Text onPress={() => remove(l)} style={styles.del}>Delete</Text>
           </View>
-        </View>
+        </Pressable>
       ))}
       {!!form && !!businessId && (
         <ListingForm businessId={businessId}
@@ -113,7 +119,11 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.s4 },
   h1: { ...type.h1, color: C.ink },
   micro: { ...type.micro, color: C.bodyText },
-  row: { flexDirection: 'row', gap: space.s3, marginBottom: space.s3 },
+  rowCard: {
+    flexDirection: 'row', gap: space.s3, alignItems: 'center',
+    backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s3, marginBottom: space.s3,
+  },
+  thumb: { width: 64, height: 64, borderRadius: radius.md },
   side: { width: 110, gap: space.s2 },
   av: { backgroundColor: C.surface, borderRadius: 8, padding: space.s3 },
   avT: { ...type.bodySm, color: C.primary, fontWeight: '600' },
