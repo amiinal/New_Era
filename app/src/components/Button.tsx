@@ -7,15 +7,17 @@ type Props = {
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'tertiary' | 'destructive';
   disabled?: boolean;
+  pill?: boolean;
 };
 // One CTA (primary) per screen. 48/40/32 via `size` where needed.
-export function Button({ title, onPress, variant = 'primary', disabled }: Props) {
+export function Button({ title, onPress, variant = 'primary', disabled, pill }: Props) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
       style={({ pressed }) => [
         styles.base,
+        pill && { borderRadius: 28 },
         variant === 'primary' && styles.primary,
         variant === 'secondary' && styles.secondary,
         variant === 'tertiary' && styles.tertiary,
