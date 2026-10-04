@@ -78,9 +78,10 @@ export function AuthScreen() {
                 value={to} onChangeText={setTo} autoCapitalize="none"
                 keyboardType="email-address" />
             ) : (
-              <View style={styles.phoneRow}>
+              <View style={styles.phoneBox}>
                 <Text style={styles.prefix}>+{dial}</Text>
-                <TextInput style={[styles.field, { flex: 1, marginBottom: 0 }]}
+                <View style={styles.divider} />
+                <TextInput style={[styles.field, { flex: 1, marginBottom: 0, backgroundColor: 'transparent' }]}
                   placeholder="Phone number"
                   value={to} onChangeText={setTo} keyboardType="phone-pad" />
               </View>
@@ -97,12 +98,17 @@ export function AuthScreen() {
             </Pressable>
             {drop && (
               <ScrollView style={styles.menu} nestedScrollEnabled>
-                {COUNTRIES.map(c => (
-                  <Text key={c.code} onPress={() => { setCountry(c.code); setDrop(false); }}
-                    style={[styles.opt, country === c.code && styles.optOn]}>
-                    {c.name} · +{c.dial}
-                  </Text>
-                ))}
+                {COUNTRIES.map(c => {
+                  const on = country === c.code;
+                  return (
+                    <Pressable key={c.code}
+                      onPress={() => { setCountry(c.code); setDrop(false); }}
+                      style={({ pressed }) => [styles.optRow, pressed && styles.optPressed, on && styles.optSel]}>
+                      <Text style={[styles.opt, on && styles.optOn]}>{c.name} · +{c.dial}</Text>
+                      {on ? <Text style={styles.tick}>✓</Text> : null}
+                    </Pressable>
+                  );
+                })}
               </ScrollView>
             )}
             <Button pill title={fresh ? 'Create Account' : 'Sign in'} onPress={request} />
@@ -147,14 +153,20 @@ const styles = StyleSheet.create({
   },
   fieldT: { ...type.body, color: C.ink },
   menu: { backgroundColor: FIELD_BG, borderRadius: 16, marginBottom: space.s3, maxHeight: 220, overflow: 'hidden' },
-  opt: { ...type.body, color: C.ink, padding: space.s4 },
+  opt: { ...type.body, color: C.ink, padding: space.s4, flex: 1 },
   optOn: { color: C.primary, fontWeight: '700' },
+  optRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  optPressed: { backgroundColor: 'rgba(44,62,122,.06)' },
+  optSel: { backgroundColor: 'rgba(44,62,122,.06)' },
+  tick: { ...type.body, color: C.primary, fontWeight: '700', paddingRight: space.s4 },
   swap: { ...type.bodySm, color: C.primary, marginBottom: space.s3 },
-  phoneRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
-  prefix: {
-    ...type.body, color: C.ink, backgroundColor: FIELD_BG, borderRadius: 24,
-    height: 52, lineHeight: 52, paddingHorizontal: space.s4,
+  phoneBox: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: FIELD_BG, borderRadius: 24, height: 52,
+    paddingLeft: space.s5, marginBottom: space.s3,
   },
+  prefix: { ...type.body, color: C.ink, fontWeight: '600' },
+  divider: { width: 1, height: 24, backgroundColor: C.line, marginHorizontal: space.s2 },
   swapLine: { ...type.bodySm, color: C.bodyText, textAlign: 'center', marginTop: space.s4 },
   link: { color: C.primary, fontWeight: '600' },
 });
