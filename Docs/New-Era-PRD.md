@@ -355,7 +355,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Auth order | Email-first sign-in, phone kept as an option; stub token in dev, JWT before beta (Decided Sept 26, 2026). |
 | Onboarding details | Business name required; online businesses pick a manual service area or nationwide; single-product sellers may list 3 variations to meet the discovery threshold (Decided Sept 26, 2026). |
 | Bulk add | Flexible multi-select: owner picks any 2 or more photos, one draft each (Decided Sept 26, 2026; LST-4). |
-| Listing photos | Max 3 photos per listing (tightened from the 1–5 range for focus; Decided Sept 30, 2026). |
+| Listing photos | Max 5 photos per listing in a swipeable gallery, so variants need no separate listings (Decided Sept 30, 2026; supersedes the max-3 rule). |
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
 | Pick-list (cart-lite) | Multi-item pick attached to the first chat message, no totals or checkout; Phase 2 after chat loop is proven (Decided Sept 27, 2026). |
 | Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |

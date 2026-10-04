@@ -70,7 +70,9 @@ export function StorefrontScreen({
       <View style={styles.grid}>
         {listings.map(item => (
           <View key={item.id} style={styles.cell}>
-            <ListingCard item={item} onPress={() => onListing(item.id)} />
+            <ListingCard item={item}
+              onPress={() => onListing(item.id)}
+              onPhoto={() => onChat(b.id, item.id, `About: ${item.title} · ${item.price ?? 'Price on request'}`)} />
           </View>
         ))}
       </View>
@@ -123,7 +125,7 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   sec: { ...type.h3, color: C.ink, margin: space.s5, marginBottom: space.s2, marginHorizontal: space.s4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, paddingHorizontal: space.s4 },
-  cell: { flexBasis: '47%', flexGrow: 1 },
+  cell: { flexBasis: '47%' },
   cert: { flexDirection: 'row', gap: space.s3, backgroundColor: C.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center' },
   certImg: { width: 44, height: 44, borderRadius: radius.md },
   certT: { ...type.bodySm, fontWeight: '600', color: C.ink },

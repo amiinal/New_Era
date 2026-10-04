@@ -30,7 +30,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const ref = useRef<CameraView>(null);
 
   const addUri = (uri: string) => {
-    if (photos.length >= 3) { Alert.alert('Photo limit', 'Up to 3 photos per listing.'); return; }
+    if (photos.length >= 5) { Alert.alert('Photo limit', 'Up to 5 photos per listing.'); return; }
     setPhotos([...photos, uri]);
   };
   const gallery = async () => {
@@ -94,10 +94,10 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
           <Text style={styles.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
           <ScrollView horizontal style={styles.strip}>
             {photos.map((u, j) => <Image key={j} source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={styles.thumb} />)}
-            {photos.length < 3 && (
+            {photos.length < 5 && (
               <Pressable onPress={openCam} style={styles.addBtn}><Text style={styles.addT}>Capture</Text></Pressable>
             )}
-            {photos.length < 3 && (
+            {photos.length < 5 && (
               <Pressable onPress={gallery} style={styles.addBtn}><Text style={styles.addT}>Gallery</Text></Pressable>
             )}
           </ScrollView>

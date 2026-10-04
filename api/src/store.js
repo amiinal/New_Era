@@ -79,8 +79,8 @@ export function storeRoutes(app, prisma) {
     const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
     if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
     const { type, title, price, currency, availability, photos } = req.body || {};
-    if (!title || !photos || photos.length < 1 || photos.length > 3) {
-      return reply.code(400).send({ error: 'title + 1..3 photos required' });
+    if (!title || !photos || photos.length < 1 || photos.length > 5) {
+      return reply.code(400).send({ error: 'title + 1..5 photos required' });
     }
     return prisma.listing.create({
       data: {
