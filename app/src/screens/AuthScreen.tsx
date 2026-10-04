@@ -111,7 +111,7 @@ export function AuthScreen() {
                 })}
               </ScrollView>
             )}
-            <Button pill title={fresh ? 'Create Account' : 'Sign in'} onPress={request} />
+            <Button pill title="Send code" onPress={request} />
             <Text style={styles.swapLine}>
               {fresh ? 'Already have an account? ' : "Don't have an account? "}
               <Text style={styles.link} onPress={() => { setTab(fresh ? 'signin' : 'signup'); reset(); }}>
@@ -123,7 +123,10 @@ export function AuthScreen() {
           <>
             <TextInput style={styles.field} placeholder="6-digit code" value={code}
               onChangeText={setCode} keyboardType="number-pad" maxLength={6} />
-            <Button pill title="Continue" onPress={verify} />
+            <Button pill title="Verify" onPress={verify} />
+            <Text style={styles.swapLine}>
+              No code yet? <Text style={styles.link} onPress={request}>Resend code</Text>
+            </Text>
             <Text style={styles.swapLine}>
               Wrong address? <Text style={styles.link} onPress={reset}>Start over</Text>
             </Text>
