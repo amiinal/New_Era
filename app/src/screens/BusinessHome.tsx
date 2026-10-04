@@ -29,6 +29,9 @@ export function BusinessHome({ onOpenStore, onManage }: {
     } catch { setBiz(null); }
   };
   useEffect(() => { loadBiz().finally(() => setLoaded(true)); }, []);
+  useEffect(() => {
+    if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
+  }, [biz?.id, range]);
   if (!loaded) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   if (!biz) {
     return (
@@ -42,10 +45,6 @@ export function BusinessHome({ onOpenStore, onManage }: {
       </View>
     );
   }
-
-  useEffect(() => {
-    if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
-  }, [biz?.id, range]);
 
   return (
     <ScrollView style={styles.root}>
