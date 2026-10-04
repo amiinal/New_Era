@@ -10,7 +10,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
-  const [hasBiz, setHasBiz] = useState(false);
+  const [hasBiz, setHasBiz] = useState<boolean | null>(null);
 
   const load = async () => {
     try {
@@ -24,7 +24,11 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
     <View style={styles.root}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text style={styles.h1}>Discover</Text>
-        {hasBiz && mode === 'customer' && <Text onPress={() => setAppMode('business')} style={styles.switch}>Business view</Text>}
+        {hasBiz !== null && mode === 'customer' && (
+          <Text onPress={() => setAppMode('business')} style={styles.switch}>
+            {hasBiz ? 'Business view' : 'Start selling'}
+          </Text>
+        )}
       </View>
       <TextInput style={styles.input} placeholder="Search businesses…" value={q}
         onChangeText={setQ} onSubmitEditing={load} returnKeyType="search" />
