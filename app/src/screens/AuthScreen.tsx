@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
+import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 
 const FIELD_BG = '#F2F3F5'; // soft pill fill (auth only)
-const COUNTRIES = [
-  { code: 'NG', name: 'Nigeria' },
-  { code: 'GH', name: 'Ghana' },
-  { code: 'KE', name: 'Kenya' },
-];
 
 // Sleek card auth, no logo. Fresh installs see Sign up first; returning
 // users see Sign in (remembered on-device). OTP underneath in both.
@@ -36,7 +33,7 @@ export function AuthScreen() {
     if (!to.trim()) { Alert.alert('Enter email or phone', 'We need somewhere to send the code.'); return; }
     try {
       const address = to.trim();
-      const r = await api.requestCode(mode === 'email' ? { email: address } : { phone: address });
+      const r = await api.requestCode(mode === 'email' ? { email: address } : { phone: fullPhone(address) });
       setSent(true);
       if (r.devCode) Alert.alert('Dev code', r.devCode);
     } catch (e) {
@@ -48,7 +45,8 @@ export function AuthScreen() {
   };
   const verify = async () => {
     try {
-      await signIn(to.trim(), code, country);
+      const address = to.trim();
+      await signIn(mode === 'email' ? address : fullPhone(address), code, country);
       await setFlag('returning', '1');
     } catch (e) {
       const m = String((e as Error).message || '');
@@ -59,6 +57,9 @@ export function AuthScreen() {
   };
 
   const fresh = tab === 'signup';
+  const dial = COUNTRIES.find(c => c.code === country)?.dial ?? '';
+  // Full international format: +dial + number without trunk zero.
+  const fullPhone = (raw: string) => `+${dial}${raw.trim().replace(/^0+/, '')}`;
   return (
     <View style={styles.root}>
       <View style={styles.card}>
@@ -71,25 +72,38 @@ export function AuthScreen() {
 
         {!sent ? (
           <>
-            <TextInput style={styles.field}
-              placeholder={mode === 'email' ? 'Email address' : 'Phone number'}
-              value={to} onChangeText={setTo} autoCapitalize="none"
-              keyboardType={mode === 'email' ? 'email-address' : 'phone-pad'} />
+            {mode === 'email' ? (
+              <TextInput style={styles.field}
+                placeholder="Email address"
+                value={to} onChangeText={setTo} autoCapitalize="none"
+                keyboardType="email-address" />
+            ) : (
+              <View style={styles.phoneRow}>
+                <Text style={styles.prefix}>+{dial}</Text>
+                <TextInput style={[styles.field, { flex: 1, marginBottom: 0 }]}
+                  placeholder="Phone number"
+                  value={to} onChangeText={setTo} keyboardType="phone-pad" />
+              </View>
+            )}
             <Text onPress={() => { setMode(mode === 'email' ? 'phone' : 'email'); setTo(''); }}
               style={styles.swap}>
               {mode === 'email' ? 'Use phone number instead' : 'Use email instead'}
             </Text>
             <Pressable onPress={() => setDrop(!drop)} style={styles.fieldRow}>
               <Text style={styles.fieldT}>{COUNTRIES.find(c => c.code === country)?.name}</Text>
-              <Text style={styles.fieldT}>{drop ? '▲' : '▼'}</Text>
+              {drop
+                ? <ChevronUp size={20} color={C.bodyText} />
+                : <ChevronDown size={20} color={C.bodyText} />}
             </Pressable>
             {drop && (
-              <View style={styles.menu}>
+              <ScrollView style={styles.menu} nestedScrollEnabled>
                 {COUNTRIES.map(c => (
                   <Text key={c.code} onPress={() => { setCountry(c.code); setDrop(false); }}
-                    style={[styles.opt, country === c.code && styles.optOn]}>{c.name}</Text>
+                    style={[styles.opt, country === c.code && styles.optOn]}>
+                    {c.name} · +{c.dial}
+                  </Text>
                 ))}
-              </View>
+              </ScrollView>
             )}
             <Button pill title={fresh ? 'Create Account' : 'Sign in'} onPress={request} />
             <Text style={styles.swapLine}>
@@ -132,10 +146,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.s5, marginBottom: space.s4,
   },
   fieldT: { ...type.body, color: C.ink },
-  menu: { backgroundColor: FIELD_BG, borderRadius: 16, marginBottom: space.s3, overflow: 'hidden' },
+  menu: { backgroundColor: FIELD_BG, borderRadius: 16, marginBottom: space.s3, maxHeight: 220, overflow: 'hidden' },
   opt: { ...type.body, color: C.ink, padding: space.s4 },
   optOn: { color: C.primary, fontWeight: '700' },
   swap: { ...type.bodySm, color: C.primary, marginBottom: space.s3 },
+  phoneRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
+  prefix: {
+    ...type.body, color: C.ink, backgroundColor: FIELD_BG, borderRadius: 24,
+    height: 52, lineHeight: 52, paddingHorizontal: space.s4,
+  },
   swapLine: { ...type.bodySm, color: C.bodyText, textAlign: 'center', marginTop: space.s4 },
   link: { color: C.primary, fontWeight: '600' },
 });
