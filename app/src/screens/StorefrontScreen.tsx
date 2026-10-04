@@ -76,13 +76,16 @@ export function StorefrontScreen({
 
       <Text style={styles.sec}>Listings</Text>
       <View style={styles.grid}>
-        {listings.map(item => (
-          <View key={item.id} style={[styles.cell, wide && styles.cellWide]}>
-            <ListingCard item={item}
-              onPress={() => onListing(item.id)}
-              onPhoto={() => item.photos[0] && setFull(img(item.photos[0]))} />
-          </View>
-        ))}
+        {listings.map(item => {
+          const label = `About: ${item.title} · ${item.price ?? 'Price on request'}`;
+          const full = () => item.photos[0] && setFull(img(item.photos[0]));
+          return (
+            <View key={item.id} style={[styles.cell, wide && styles.cellWide]}>
+              <ListingCard item={item} onPress={full} onPhoto={full}
+                onMessage={() => onChat(b.id, item.id, label)} />
+            </View>
+          );
+        })}
       </View>
 
       {sf.certificates.length > 0 && (

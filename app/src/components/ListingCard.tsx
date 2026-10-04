@@ -11,14 +11,14 @@ const AVAIL: Record<Listing['availability'], { color: string; label: string }> =
 };
 // Listing card: uniform square photo, h3 title, tabular price + dot.
 // Photo tap messages about the dish directly; body tap opens detail.
-export function ListingCard({ item, onPress, onPhoto }: {
-  item: Listing; onPress: () => void; onPhoto?: () => void;
+export function ListingCard({ item, onPress, onPhoto, onMessage }: {
+  item: Listing; onPress: () => void; onPhoto?: () => void; onMessage?: () => void;
 }) {
   const a = AVAIL[item.availability];
   return (
     <Pressable onPress={onPress} style={styles.card}>
       {item.photos[0] ? (
-        <Pressable onPress={onPhoto ?? onPress}>
+        <Pressable onPress={onPhoto ?? onPress} style={styles.phWrap}>
           <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} resizeMode="contain" />
         </Pressable>
       ) : (
@@ -32,6 +32,11 @@ export function ListingCard({ item, onPress, onPhoto }: {
           <View style={[styles.dot, { backgroundColor: a.color }]} />
           <Text style={styles.avail}> {a.label}</Text>
         </Text>
+        {!!onMessage && (
+          <Pressable onPress={onMessage} style={styles.msgBtn}>
+            <Text style={styles.msgT}>Message</Text>
+          </Pressable>
+        )}
       </View>
     </Pressable>
   );
@@ -39,11 +44,17 @@ export function ListingCard({ item, onPress, onPhoto }: {
 
 const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: C.surface, borderRadius: radius.lg, overflow: 'hidden' },
-  photo: { width: '100%', aspectRatio: 1, backgroundColor: C.background },
+  photo: { width: '100%', aspectRatio: 1 },
+  phWrap: { backgroundColor: '#ECEEF1' },
   empty: { backgroundColor: C.line },
   body: { padding: space.s4 - 4 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
   price: { fontSize: 14, color: C.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
   avail: { fontSize: 12, color: C.bodyText },
   dot: { width: 8, height: 8, borderRadius: 4 },
+  msgBtn: {
+    marginTop: 8, height: 36, borderRadius: 8, backgroundColor: C.cta,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  msgT: { color: '#fff', fontSize: 13, fontWeight: '600' },
 });
