@@ -195,6 +195,42 @@ export function storeRoutes(app, prisma) {
     return prisma.report.create({ data: { reporterId: acc.id, targetType, targetId, reason } });
   });
 
+  // ONB: create the account's business (one per account in the MVP).
+  app.post('/businesses', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const existing = await prisma.business.findFirst({ where: { ownerId: acc.id } });
+    if (existing) return reply.code(400).send({ error: 'one business per account in v1 (ACC-8)' });
+    const { name, category, country, city, area, deliveryArea, nationwide, logoKey } = req.body || {};
+    if (!name || !category || !country || !city) {
+      return reply.code(400).send({ error: 'name, category, country, city required' });
+    }
+    const slug = `${String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40)}-${Math.random().toString(36).slice(2, 6)}`;
+    return prisma.business.create({
+      data: {
+        ownerId: acc.id, name: name.trim(), category, country, city,
+        area: area || null,
+        deliveryArea: nationwide ? 'Nationwide' : deliveryArea || null,
+        logoKey: logoKey || null, slug,
+      },
+    });
+  });
+
+  // ONB-11: self-reported certificates (max 3 enforced).
+  app.post('/businesses/:id/certificates', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    const n = await prisma.certificate.count({ where: { businessId: biz.id } });
+    if (n >= 3) return reply.code(400).send({ error: 'max 3 certificates (ONB-11)' });
+    const { title, issuer, year, photo } = req.body || {};
+    if (!title || !photo) return reply.code(400).send({ error: 'title + photo required' });
+    return prisma.certificate.create({
+      data: { businessId: biz.id, title, issuer: issuer || null, year: year ? Number(year) : null, photo },
+    });
+  });
+
   // Business home (Step 10): owned businesses for the mode switch.
   app.get('/me/businesses', async (req, reply) => {
     const acc = await authed(req, reply, prisma);

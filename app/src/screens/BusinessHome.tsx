@@ -6,6 +6,7 @@ import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
+import { Onboarding } from './Onboarding';
 
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
@@ -19,25 +20,32 @@ export function BusinessHome({ onOpenStore, onManage }: {
   const [ins, setIns] = useState<{ storefrontViews: number; chatsStarted: number; listings: number; activeStatuses: number } | null>(null);
   const [compose, setCompose] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [onboard, setOnboard] = useState(false);
 
-  useEffect(() => {
-    api.myBusinesses()
-      .then(list => setBiz(list[0] ?? null))
-      .catch(() => setBiz(null))
-      .finally(() => setLoaded(true));
-  }, []);
-  useEffect(() => {
-    if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
-  }, [biz?.id, range]);
+  const loadBiz = async () => {
+    try {
+      const list = await api.myBusinesses();
+      setBiz(list[0] ?? null);
+    } catch { setBiz(null); }
+  };
+  useEffect(() => { loadBiz().finally(() => setLoaded(true)); }, []);
   if (!loaded) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   if (!biz) {
     return (
       <View style={styles.root}>
         <Text style={styles.h1}>Business home</Text>
-        <Text style={styles.micro}>This account has no business yet — onboarding lands in the next slice.</Text>
+        <Text style={styles.micro}>No storefront yet — go live in about 5 minutes.</Text>
+        <View style={{ marginTop: space.s4 }}>
+          <Button title="Start selling" onPress={() => setOnboard(true)} />
+        </View>
+        {onboard && <Onboarding onDone={() => { setOnboard(false); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
       </View>
     );
   }
+
+  useEffect(() => {
+    if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
+  }, [biz?.id, range]);
 
   return (
     <ScrollView style={styles.root}>

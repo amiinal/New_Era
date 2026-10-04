@@ -122,6 +122,12 @@ export const api = {
   deleteListing: (id: string) =>
     req<{ deleted: boolean }>(`/listings/${id}`, { method: 'DELETE' }),
   myBusinesses: () => req<Business[]>('/me/businesses'),
+  createBusiness: (body: {
+    name: string; category: string; country: string; city: string;
+    area?: string; deliveryArea?: string; nationwide?: boolean; logoKey?: string;
+  }) => req<Business>('/businesses', { method: 'POST', body: JSON.stringify(body) }),
+  addCertificate: (businessId: string, body: { title: string; issuer?: string; year?: number; photo: string }) =>
+    req<Certificate>(`/businesses/${businessId}/certificates`, { method: 'POST', body: JSON.stringify(body) }),
   recordEvent: (name: string, props?: Record<string, string>) =>
     req<{ id: string }>('/events', { method: 'POST', body: JSON.stringify({ name, props: props || {} }) }),
   insights: (businessId: string, range: 7 | 30) =>
