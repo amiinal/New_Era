@@ -15,12 +15,19 @@ export function AuthScreen() {
   const [sent, setSent] = useState(false);
 
   const request = async () => {
+    if (!to.trim()) { Alert.alert('Enter email or phone', 'We need somewhere to send the code.'); return; }
     try {
-      const body = to.includes('@') ? { email: to } : { phone: to };
+      const address = to.trim();
+      const body = address.includes('@') ? { email: address } : { phone: address };
       const r = await api.requestCode(body);
       setSent(true);
       if (r.devCode) Alert.alert('Dev code', r.devCode);
-    } catch { Alert.alert('Error', 'Rate-limited or invalid. Wait a minute.'); }
+    } catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Code not sent', m.startsWith('429')
+        ? 'Too many tries — wait a minute, then send once.'
+        : 'Check the API is running and the phone reaches it, then retry.');
+    }
   };
   const verify = async () => {
     try { await signIn(to, code, country); }
