@@ -55,9 +55,10 @@ export function StorefrontScreen({
         )}
         {sent && <Text style={styles.note}>Thanks — our team will review this storefront.</Text>}
       <View style={styles.actions}>
-        {!preview && (
-          <View style={{ flex: 2 }}><Button title="Message" onPress={() => onChat(b.id, undefined, `Say hello to ${b.name}`)} /></View>
-        )}
+        <View style={{ flex: 2 }}>
+          <Button title="Message" disabled={preview}
+            onPress={() => onChat(b.id, undefined, `Say hello to ${b.name}`)} />
+        </View>
         <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
       </View>
       {preview && (

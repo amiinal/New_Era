@@ -12,7 +12,11 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
 
   return (
     <ScrollView style={styles.root}>
-      {item.photos[0] && <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} />}
+      {item.photos[0] && (
+        <View style={styles.phWrap}>
+          <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} />
+        </View>
+      )}
       <View style={styles.card}>
         <Text style={styles.h1}>{item.title}</Text>
         <Text style={styles.price}>{item.price ?? 'Price on request'}</Text>
@@ -29,7 +33,8 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background },
-  photo: { width: '100%', aspectRatio: 4 / 3 },
+  phWrap: { width: '100%', maxWidth: 480, alignSelf: 'center' },
+  photo: { width: '100%', aspectRatio: 1, borderRadius: 16 },
   card: { backgroundColor: C.surface, borderRadius: 16, margin: space.s4, padding: space.s4 },
   h1: { ...type.h1, fontSize: 22, color: C.ink },
   price: { fontSize: 16, color: C.ink, fontVariant: ['tabular-nums'], marginTop: space.s2 },
