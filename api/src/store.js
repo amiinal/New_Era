@@ -141,6 +141,22 @@ export function storeRoutes(app, prisma) {
     return prisma.thread.create({ data: { businessId, customerId: acc.id, listingId: listingId || null } });
   });
 
+  app.get('/threads/:id', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const t = await prisma.thread.findUnique({
+      where: { id: req.params.id },
+      include: { business: { select: { id: true, name: true, ownerId: true } } },
+    });
+    if (!t) return reply.code(404).send({ error: 'unknown thread' });
+    const mine = t.customerId === acc.id || t.business.ownerId === acc.id;
+    if (!mine) return reply.code(404).send({ error: 'unknown thread' });
+    const peer = t.customerId === acc.id
+      ? { kind: 'business', name: t.business.name }
+      : { kind: 'customer', name: 'Customer' };
+    return { thread: t, peer };
+  });
+
   app.get('/threads/:id/messages', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
