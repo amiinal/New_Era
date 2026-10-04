@@ -87,8 +87,10 @@
       <div class="avatar" onclick="go('s-updates')" title="View updates">M</div>
       <div style="flex:1;min-width:200px"><h1>Mama's Kitchen</h1>
         <div class="meta">Food service · Ikeja, Lagos · Delivery available</div></div>
-      <button class="btn" onclick="msg()">Message</button>
-      <button class="btn sec" onclick="toast('Link copied')">Share</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <button class="btn" onclick="msg()">Message</button>
+        <button class="btn sec" onclick="toast('Link copied')">Share</button>
+      </div>
     </div>
     <div class="sec">Listings</div>
     <div class="tabs"><span class="chip on" onclick="filter('all',this)">All</span><span class="chip" onclick="filter('rice',this)">Rice dishes</span><span class="chip" onclick="filter('sides',this)">Sides</span></div>
