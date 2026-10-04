@@ -3,28 +3,47 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>New Era — Preview</title>
+<title>New Era — Design</title>
 <style>
   body { margin: 0; background: #F7F7F9; color: #1E1E24;
-    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-    display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-  .card { background: #fff; border-radius: 16px; padding: 32px; max-width: 420px;
-    margin: 16px; box-shadow: 0 2px 8px rgba(30,30,36,.08); text-align: center; }
-  h1 { color: #2C3E7A; margin: 0 0 4px; }
-  p { color: #5B5F6B; font-size: 14px; }
-  a.btn { display: block; background: #C24E22; color: #fff; text-decoration: none;
-    border-radius: 8px; padding: 14px; margin-top: 12px; font-weight: 600; }
-  a.ghost { display: block; color: #2C3E7A; text-decoration: none;
-    border: 1px solid #2C3E7A; border-radius: 8px; padding: 14px; margin-top: 12px; font-weight: 600; }
+    font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 64px; }
+  h1 { color: #2C3E7A; margin: 0; }
+  .tag { color: #5B5F6B; font-size: 14px; margin: 4px 0 32px; }
+  h2 { font-size: 18px; margin: 32px 0 12px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .sw { background: #fff; border-radius: 12px; overflow: hidden; }
+  .sw div:first-child { height: 56px; }
+  .sw p { margin: 0; padding: 8px 10px; font-size: 12px; color: #5B5F6B; }
+  .type { background: #fff; border-radius: 12px; padding: 16px; }
+  .btn { display: inline-block; background: #C24E22; color: #fff; border-radius: 8px;
+    padding: 14px 28px; font-weight: 600; margin-right: 8px; }
+  .btn2 { display: inline-block; color: #2C3E7A; border: 1px solid #2C3E7A;
+    border-radius: 8px; padding: 14px 28px; font-weight: 600; }
 </style>
 </head>
 <body>
-<div class="card">
+<div class="wrap">
   <h1>New Era</h1>
-  <p>Found. Not just online. — clickable MVP previews (no login needed)</p>
-  <a class="btn" href="storefront-preview.html">Open storefront prototype</a>
-  <a class="ghost" href="design-preview.html">Design system preview</a>
-  <a class="ghost" href="https://github.com/amiinal/New_Era">GitHub repository</a>
+  <p class="tag">Found. Not just online.</p>
+  <h2>Colors</h2>
+  <div class="row">
+    <div class="sw"><div style="background:#2C3E7A"></div><p>Primary #2C3E7A</p></div>
+    <div class="sw"><div style="background:#C24E22"></div><p>CTA #C24E22</p></div>
+    <div class="sw"><div style="background:#0A6B62"></div><p>Success #0A6B62</p></div>
+    <div class="sw"><div style="background:#1E1E24"></div><p>Ink #1E1E24</p></div>
+    <div class="sw"><div style="background:#5B5F6B"></div><p>Body #5B5F6B</p></div>
+    <div class="sw"><div style="background:#F7F7F9;border-bottom:1px solid #E4E6EB"></div><p>Background #F7F7F9</p></div>
+  </div>
+  <h2>Type (Inter)</h2>
+  <div class="type">
+    <div style="font-size:28px;font-weight:700">Screen title</div>
+    <div style="font-size:18px;font-weight:600">Card title</div>
+    <div style="font-size:16px">Body text and chat messages</div>
+    <div style="font-size:12px;color:#5B5F6B">Micro — timestamps and tags</div>
+  </div>
+  <h2>Buttons</h2>
+  <span class="btn">Message</span><span class="btn2">Share storefront</span>
 </div>
 </body>
 </html>
