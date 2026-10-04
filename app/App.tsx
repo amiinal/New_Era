@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import * as SecureStore from 'expo-secure-store';
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
+import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
 import { C } from './src/theme';
@@ -119,12 +119,12 @@ export default function App() {
   // First-run brand moment (§1.7): plays once, then never again.
   const [intro, setIntro] = useState<boolean | null>(null);
   useEffect(() => {
-    SecureStore.getItemAsync('seenIntro').then(v => setIntro(v ? false : true));
+    getFlag('seenIntro').then(v => setIntro(v ? false : true));
   }, []);
   if (intro === null) return null;
   if (intro) {
     return <Intro onDone={() => {
-      SecureStore.setItemAsync('seenIntro', '1').catch(() => {});
+      setFlag('seenIntro', '1');
       setIntro(false);
     }} />;
   }
