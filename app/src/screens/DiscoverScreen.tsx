@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { api, Business } from '../api';
+import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { api, Business, img } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
+import { Avatar } from '../components/Avatar';
+import { ProfileSheet } from '../components/ProfileSheet';
 
 // Step 5: country + city search, browseable without account (wall at chat).
 export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
-  const { account, mode, setAppMode } = useAuth();
+  const { account, mode, setAppMode, refresh } = useAuth();
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
+  const [prof, setProf] = useState(false);
 
   const load = async () => {
     try {
@@ -24,12 +27,20 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
     <View style={styles.root}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <Text style={styles.h1}>Discover</Text>
-        {hasBiz !== null && mode === 'customer' && (
-          <Text onPress={() => setAppMode('business')} style={styles.switch}>
-            {hasBiz ? 'Business view' : 'Start selling'}
-          </Text>
-        )}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          {hasBiz !== null && mode === 'customer' && (
+            <Text onPress={() => setAppMode('business')} style={styles.switch}>
+              {hasBiz ? 'Business view' : 'Start selling'}
+            </Text>
+          )}
+          <Pressable onPress={() => setProf(true)}>
+            {account?.avatarKey
+              ? <Image source={{ uri: img(account.avatarKey) }} style={styles.me} />
+              : <Avatar name={account?.email ?? account?.phone ?? '?'} size={36} />}
+          </Pressable>
+        </View>
       </View>
+      {prof && <ProfileSheet onClose={() => setProf(false)} onSaved={() => { setProf(false); refresh(); }} />}
       <TextInput style={styles.input} placeholder="Search businesses…" value={q}
         onChangeText={setQ} onSubmitEditing={load} returnKeyType="search" />
       <TextInput style={[styles.input, { marginTop: space.s3 }]} placeholder="City (optional)"
@@ -52,6 +63,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: C.background, padding: space.s4 },
   h1: { ...type.h1, color: C.ink, marginBottom: space.s4 },
   switch: { ...type.bodySm, color: C.primary, fontWeight: '600', marginBottom: space.s4 },
+  me: { width: 36, height: 36, borderRadius: 18, marginBottom: space.s4 },
   input: {
     backgroundColor: C.surface, borderWidth: 1, borderColor: C.lineStrong,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,

@@ -5,6 +5,7 @@ import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
+import { FullImage } from '../components/FullImage';
 import { ListingCard } from '../components/ListingCard';
 import { StatusViewer, statusLabel } from '../components/StatusViewer';
 
@@ -19,6 +20,7 @@ export function StorefrontScreen({
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
   const [view, setView] = useState(false);
+  const [full, setFull] = useState<string | null>(null);
   const { account } = useAuth();
 
   const report = async (id: string) => {
@@ -38,7 +40,9 @@ export function StorefrontScreen({
 
   return (
     <ScrollView style={styles.root}>
-      {listings[0]?.photos[0] && <Image source={{ uri: img(listings[0].photos[0]) }} style={styles.cover} />}
+      {(b.coverKey || listings[0]?.photos[0]) && (
+        <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={styles.cover} />
+      )}
       <View style={styles.card}>
         <View style={styles.row}>
           <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
@@ -72,7 +76,7 @@ export function StorefrontScreen({
           <View key={item.id} style={styles.cell}>
             <ListingCard item={item}
               onPress={() => onListing(item.id)}
-              onPhoto={() => onChat(b.id, item.id, `About: ${item.title} · ${item.price ?? 'Price on request'}`)} />
+              onPhoto={() => item.photos[0] && setFull(img(item.photos[0]))} />
           </View>
         ))}
       </View>
@@ -95,6 +99,7 @@ export function StorefrontScreen({
         </>
       )}
       <Pressable onPress={onBack}><Text style={styles.link}>Discover more businesses</Text></Pressable>
+      <FullImage uri={full} onClose={() => setFull(null)} />
       {view && (
         <StatusViewer
           items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, b.name) }))}

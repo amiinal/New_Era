@@ -19,7 +19,7 @@ export function ListingCard({ item, onPress, onPhoto }: {
     <Pressable onPress={onPress} style={styles.card}>
       {item.photos[0] ? (
         <Pressable onPress={onPhoto ?? onPress}>
-          <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} />
+          <Image source={{ uri: img(item.photos[0]) }} style={styles.photo} resizeMode="contain" />
         </Pressable>
       ) : (
         <View style={[styles.photo, styles.empty]} />
@@ -39,7 +39,7 @@ export function ListingCard({ item, onPress, onPhoto }: {
 
 const styles = StyleSheet.create({
   card: { flex: 1, backgroundColor: C.surface, borderRadius: radius.lg, overflow: 'hidden' },
-  photo: { width: '100%', aspectRatio: 1 },
+  photo: { width: '100%', aspectRatio: 1, backgroundColor: C.background },
   empty: { backgroundColor: C.line },
   body: { padding: space.s4 - 4 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },

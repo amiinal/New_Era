@@ -19,6 +19,7 @@ type Ctx = {
   signOut: () => Promise<void>;
   requestSwitch: (email: string) => Promise<void>;
   setAppMode: (mode: 'customer' | 'business') => Promise<void>;
+  refresh: () => Promise<void>;
 };
 const AuthCtx = createContext<Ctx>({} as Ctx);
 export const useAuth = () => useContext(AuthCtx);
@@ -56,5 +57,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signOut();
     setPendingTo(email);
   };
-  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, signOut, requestSwitch, setAppMode }}>{children}</AuthCtx.Provider>;
+  const refresh = async () => {
+    try { setAccount(await api.me()); } catch { /* keep stale */ }
+  };
+  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, signOut, requestSwitch, setAppMode, refresh }}>{children}</AuthCtx.Provider>;
 }

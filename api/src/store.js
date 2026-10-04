@@ -231,6 +231,38 @@ export function storeRoutes(app, prisma) {
     });
   });
 
+  // Owner-controlled storefront dressing: cover + logo + area.
+  app.patch('/businesses/:id', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
+    const { coverKey, logoKey, area, deliveryArea } = req.body || {};
+    return prisma.business.update({
+      where: { id: biz.id },
+      data: {
+        ...(coverKey !== undefined ? { coverKey } : {}),
+        ...(logoKey !== undefined ? { logoKey } : {}),
+        ...(area !== undefined ? { area } : {}),
+        ...(deliveryArea !== undefined ? { deliveryArea } : {}),
+      },
+    });
+  });
+
+  // Customer profile: photo + short tagline (shown on own profile only).
+  app.patch('/me/profile', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const { avatarKey, tagline } = req.body || {};
+    return prisma.account.update({
+      where: { id: acc.id },
+      data: {
+        ...(avatarKey !== undefined ? { avatarKey } : {}),
+        ...(tagline !== undefined ? { tagline: String(tagline).slice(0, 120) } : {}),
+      },
+    });
+  });
+
   // Business home (Step 10): owned businesses for the mode switch.
   app.get('/me/businesses', async (req, reply) => {
     const acc = await authed(req, reply, prisma);

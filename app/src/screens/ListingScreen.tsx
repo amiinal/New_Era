@@ -20,7 +20,8 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
             keyExtractor={(_, j) => String(j)}
             onMomentumScrollEnd={e => setPage(Math.round(e.nativeEvent.contentOffset.x / e.nativeEvent.layoutMeasurement.width))}
             renderItem={({ item: uri }) => (
-              <Image source={{ uri: img(uri) }} style={{ width: width - 32, height: 280, borderRadius: 16 }} />
+              <Image source={{ uri: img(uri) }} resizeMode="contain"
+                style={{ width: width - 32, height: 280, borderRadius: 16, backgroundColor: C.background }} />
             )} />
           {item.photos.length > 1 && (
             <View style={styles.dots}>

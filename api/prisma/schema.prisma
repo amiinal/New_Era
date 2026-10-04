@@ -19,6 +19,8 @@ model Account {
   phone         String?  @unique
   country       String   // ISO2, explicit (ACC-2, DIS-1)
   lastMode      String   @default("customer") // customer|business (ACC-3)
+  avatarKey     String?  // customer profile photo
+  tagline       String?  // short customer bio
   createdAt     DateTime @default(now())
   businesses    Business[]
   threads       Thread[] @relation("CustomerThreads")
@@ -39,6 +41,7 @@ model Business {
   area          String?
   deliveryArea  String?
   logoKey       String?
+  coverKey      String?   // storefront header image, owner-chosen (cover)
   createdAt     DateTime @default(now())
   listings      Listing[]
   collections   Collection[]

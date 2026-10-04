@@ -9,10 +9,12 @@ export const API_URL =
 export type Account = {
   id: string; email: string | null; phone: string | null;
   country: string; lastMode: 'customer' | 'business';
+  avatarKey: string | null; tagline: string | null;
 };
 export type Business = {
   id: string; ownerId: string; name: string; slug: string; category: string;
   country: string; city: string; area: string | null; deliveryArea: string | null;
+  logoKey: string | null; coverKey: string | null;
 };
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';
@@ -70,6 +72,8 @@ export const api = {
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
     req<{ token: string; account: Account }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
+  saveProfile: (body: { avatarKey?: string; tagline?: string }) =>
+    req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
   discover: (q: { country: string; city?: string; q?: string; category?: string }) =>
     req<Business[]>(`/discover?${new URLSearchParams(q as Record<string, string>)}`),
   storefront: (slug: string) => req<Storefront>(`/storefront/${slug}`),
@@ -124,7 +128,7 @@ export const api = {
   myBusinesses: () => req<Business[]>('/me/businesses'),
   createBusiness: (body: {
     name: string; category: string; country: string; city: string;
-    area?: string; deliveryArea?: string; nationwide?: boolean; logoKey?: string;
+    area?: string; deliveryArea?: string; nationwide?: boolean; logoKey?: string; coverKey?: string;
   }) => req<Business>('/businesses', { method: 'POST', body: JSON.stringify(body) }),
   addCertificate: (businessId: string, body: { title: string; issuer?: string; year?: number; photo: string }) =>
     req<Certificate>(`/businesses/${businessId}/certificates`, { method: 'POST', body: JSON.stringify(body) }),

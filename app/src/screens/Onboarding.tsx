@@ -24,13 +24,16 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const [area, setArea] = useState('');
   const [nationwide, setNationwide] = useState(false);
   const [logo, setLogo] = useState<string | null>(null);
+  const [cover, setCover] = useState<string | null>(null);
   const [biz, setBiz] = useState<{ id: string; slug: string } | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const pickLogo = async () => {
+  const pickInto = (set: (u: string) => void) => async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
-    if (!r.canceled && r.assets[0]) setLogo(r.assets[0].uri);
+    if (!r.canceled && r.assets[0]) set(r.assets[0].uri);
   };
+  const pickLogo = pickInto(setLogo);
+  const pickCover = pickInto(setCover);
 
   const create = async () => {
     if (!name.trim() || !city.trim()) {
@@ -41,11 +44,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
     try {
       let logoKey: string | undefined;
       if (logo) logoKey = await api.uploadPhoto(logo, `business/tmp/logo-${Date.now()}.jpg`);
+      let coverKey: string | undefined;
+      if (cover) coverKey = await api.uploadPhoto(cover, `business/tmp/cover-${Date.now()}.jpg`);
       const b = await api.createBusiness({
         name: name.trim(), category, country: account?.country ?? 'NG', city: city.trim(),
         area: area.trim() || undefined,
         deliveryArea: nationwide ? undefined : area.trim() || undefined,
-        nationwide, logoKey,
+        nationwide, logoKey, coverKey,
       });
       setBiz({ id: b.id, slug: b.slug });
       setStep(1);
@@ -77,6 +82,11 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
               {logo
                 ? <Image source={{ uri: logo }} style={styles.logo} />
                 : <View style={[styles.logo, styles.logoEmpty]}><Text style={styles.micro}>Logo (optional)</Text></View>}
+            </Pressable>
+            <Pressable onPress={pickCover} style={styles.logoRow}>
+              {cover
+                ? <Image source={{ uri: cover }} style={[styles.logo, { width: 192, borderRadius: 12 }]} />
+                : <View style={[styles.logo, styles.logoEmpty, { width: 192, borderRadius: 12 }]}><Text style={styles.micro}>Header image (optional)</Text></View>}
             </Pressable>
             <Button title={busy ? 'Creating…' : 'Continue'} onPress={create} disabled={busy} />
           </>
