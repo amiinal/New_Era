@@ -57,7 +57,7 @@ function Shell() {
           ? <StorefrontScreen slug={route.slug}
               onListing={id => setRoute({ name: 'listing', id })}
               onChat={(bid, lid, label) => openChat(bid, lid, label)}
-              onBack={() => setRoute({ name: 'bizhome' })} />
+              onBack={() => setRoute({ name: 'bdiscover' })} />
           : route.name === 'listing'
           ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
           : route.name === 'chat'

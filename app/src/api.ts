@@ -11,7 +11,7 @@ export type Account = {
   country: string; lastMode: 'customer' | 'business';
 };
 export type Business = {
-  id: string; name: string; slug: string; category: string;
+  id: string; ownerId: string; name: string; slug: string; category: string;
   country: string; city: string; area: string | null; deliveryArea: string | null;
 };
 export type Listing = {

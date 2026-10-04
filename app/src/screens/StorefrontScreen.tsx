@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Storefront } from '../api';
+import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -18,6 +19,7 @@ export function StorefrontScreen({
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
   const [view, setView] = useState(false);
+  const { account } = useAuth();
 
   const report = async (id: string) => {
     setMenu(false);
@@ -31,6 +33,8 @@ export function StorefrontScreen({
   if (sf === undefined) return <ActivityIndicator style={styles.center} />;
   if (sf === null) return <Text style={styles.center}>Couldn't load this shop.</Text>;
   const { business: b, listings } = sf;
+  // ACC-7: owners get a customer preview — messaging their own store is off.
+  const preview = !!account && account.id === b.ownerId;
 
   return (
     <ScrollView style={styles.root}>
@@ -50,10 +54,15 @@ export function StorefrontScreen({
           </View>
         )}
         {sent && <Text style={styles.note}>Thanks — our team will review this storefront.</Text>}
-        <View style={styles.actions}>
+      <View style={styles.actions}>
+        {!preview && (
           <View style={{ flex: 2 }}><Button title="Message" onPress={() => onChat(b.id, undefined, `Say hello to ${b.name}`)} /></View>
-          <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
-        </View>
+        )}
+        <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
+      </View>
+      {preview && (
+        <Text style={styles.previewNote}>Customer preview — this is how others see your shop. Messaging is off here.</Text>
+      )}
       </View>
 
       <Text style={styles.sec}>Listings</Text>
@@ -109,6 +118,7 @@ const styles = StyleSheet.create({
   },
   menuItem: { padding: space.s4, fontSize: 14, color: C.error },
   note: { ...type.micro, color: C.success, marginTop: space.s2 },
+  previewNote: { ...type.micro, color: C.bodyText, marginTop: space.s2, fontStyle: 'italic' },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   sec: { ...type.h3, color: C.ink, margin: space.s5, marginBottom: space.s2, marginHorizontal: space.s4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, paddingHorizontal: space.s4 },
