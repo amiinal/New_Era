@@ -1,5 +1,5 @@
 # New Era — Design System
-**Version 1.2 — for engineering and build reference**
+**Version 1.3 — for engineering and build reference**
 
 This document defines the visual foundations for New Era: color, typography, accessibility, dark mode, font-loading strategy, spacing, and grid. It is split into **Foundations** (shared everywhere), **App** (mobile and tablet, Android and iOS), and **Web** (public storefronts, web chat, and the internal admin tool). Follow the token values exactly — do not eyeball colors or spacing.
 
