@@ -130,6 +130,16 @@ One pack everywhere: **Lucide** — outline style only, 2px stroke with round ca
 - **Core set (start here, extend only from Lucide):** MessageCircle, Camera, ImagePlus, Search, Store, Bell, MapPin, Clock, Check, CheckCheck (delivered), Plus, Share2, QrCode, SlidersHorizontal (filters), ChevronRight, X, Trash2, Flag (report), Ban (block), BadgeCheck (verified only — never decorative), Package (listings), Truck (delivery), Globe (nationwide/remote), Award (certificates), CircleHelp (help/FAQ), Settings, LogOut.
 - **Never:** emoji as functional icons; filled icons anywhere except the verified mark; star/ranking metaphors (fairness rule, §1.1).
 
+### 1.7 Launch splash and first-run brand moment
+
+Two separate things — never one long branded animation.
+
+- **Native OS splash (functional, static).** Solid `color-primary` (`#2C3E7A`) background, white mark centered, no wordmark, no animation, dismissed the instant the app is ready. Never held open with an artificial timer — a held splash reads as slowness.
+- **First-run brand moment (once only).** After the native splash hands off, first-time users get one beat: the mark draws itself in (0–700ms, ease-out), settles with a small pulse (700–1000ms, 1 → 1.06 → 1), the "New Era" wordmark fades up beneath it (750–1100ms), holds to ~2200ms, fades out by ~2600ms as Discover loads beneath. Total is a ceiling — dismiss early if initial data is ready sooner. Never replayed on later launches.
+- **Dark mode:** unchanged — white-on-indigo works as-is; the splash is the one surface that stays brand indigo in both themes.
+- **Reduced motion:** skip the draw — complete mark + wordmark with a simple 200ms fade. Never remove the moment, only the movement.
+- **Assets:** PNG splash/adaptive icons are exported from `Docs/App-logos/` at store-build time. If a Lottie/Rive export of this exact motion exists later, it replaces the hand-built animation with identical timing.
+
 ---
 
 ## 2. App (Android and iOS — mobile only)
