@@ -15,9 +15,10 @@ import { Onboarding } from './Onboarding';
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
 // preview, recent chats. Listings/inbox management are later slices.
-export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav }: {
+export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, autoStart, onAutoDone }: {
   onOpenStore: (slug: string) => void; onManage: () => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+  autoStart?: boolean; onAutoDone?: () => void;
 }) {
   const { account, mode, setAppMode } = useAuth();
   const [biz, setBiz] = useState<Business | null>(null);
@@ -39,6 +40,11 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav }
     } catch { setBiz(null); }
   };
   useEffect(() => { loadBiz().finally(() => setLoaded(true)); }, []);
+  // Role entry: business picks open the wizard straight away when empty.
+  useEffect(() => {
+    if (autoStart && loaded && !biz) setOnboard(true);
+    if (autoStart && loaded && biz) onAutoDone?.();
+  }, [autoStart, loaded, biz?.id]);
   useEffect(() => {
     if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
   }, [biz?.id, range]);
@@ -51,7 +57,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav }
         <View style={{ marginTop: space.s4 }}>
           <Button title="Start selling" onPress={() => setOnboard(true)} />
         </View>
-        {onboard && <Onboarding onDone={() => { setOnboard(false); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
+        {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
       </View>
     );
   }

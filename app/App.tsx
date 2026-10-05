@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './src/auth';
 import { ThemeProvider } from './src/useTheme';
 import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
+import { RoleSelect } from './src/screens/RoleSelect';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
 import { DrawerRoute } from './src/components/Drawer';
 import { C } from './src/theme';
@@ -30,10 +31,37 @@ type Route =
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
-  const { account, mode } = useAuth();
+  const { account, mode, setAppMode } = useAuth();
   const { p } = useTheme();
   const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
+  const [roleChecked, setRoleChecked] = useState(false);
+  const [needRole, setNeedRole] = useState(false);
+  const [bizAuto, setBizAuto] = useState(false);
+
+  // Fresh accounts pick customer vs business once — business skips
+  // Discover and lands straight on storefront creation.
+  useEffect(() => {
+    if (!account) {
+      setRoleChecked(false);
+      setNeedRole(false);
+      setBizAuto(false);
+      return;
+    }
+    if (account.lastMode === 'business') {
+      setFlag(`role:${account.id}`, 'business').catch(() => {});
+      setNeedRole(false);
+      setRoleChecked(true);
+      return;
+    }
+    let live = true;
+    getFlag(`role:${account.id}`).then(v => {
+      if (!live) return;
+      setNeedRole(!v);
+      setRoleChecked(true);
+    });
+    return () => { live = false; };
+  }, [account?.id]);
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
     try {
@@ -44,6 +72,22 @@ function Shell() {
     }
   };
   if (!account) return <AuthScreen />;
+  if (!roleChecked) return null;
+  if (needRole) {
+    return (
+      <RoleSelect onPick={async m => {
+        if (m === 'business') {
+          setBizAuto(true);
+          setRoute({ name: 'bizhome' });
+        } else {
+          setRoute({ name: 'discover' });
+        }
+        await setAppMode(m);
+        if (account) await setFlag(`role:${account.id}`, m);
+        setNeedRole(false);
+      }} />
+    );
+  }
 
   const openStore = (slug: string) => {
     api.storefront(slug).then(sf =>
@@ -88,7 +132,8 @@ function Shell() {
           : route.name === 'bdiscover'
           ? <DiscoverScreen onOpen={openStore} dRoutes={BIZ} dActive="bdiscover" onDNav={goDrawer} />
           : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })}
-              dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer} />}
+              dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer}
+              autoStart={bizAuto} onAutoDone={() => setBizAuto(false)} />}
         <BizNav active={bizTab}
           onTab={t => setRoute(
             t === 'mybiz' ? { name: 'bizhome' }
