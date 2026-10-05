@@ -6,6 +6,7 @@ import { useAuth } from '../auth';
 import { radius, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
+import { BizProfile } from '../components/BizProfile';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
 import { Drawer } from '../components/Drawer';
@@ -25,6 +26,7 @@ export function BusinessHome({ onOpenStore, onManage }: {
   const [loaded, setLoaded] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [edit, setEdit] = useState(false);
   const { p, dark } = useTheme();
   const s = themed(p, dark);
   const link = dark ? '#7B90D6' : '#2C3E7A';
@@ -59,7 +61,9 @@ export function BusinessHome({ onOpenStore, onManage }: {
         <Pressable onPress={() => setMenu(true)}>
           <Menu size={24} color={p.ink} />
         </Pressable>
-        <Avatar name={biz.name} size={56} />
+        <Pressable onPress={() => setEdit(true)}>
+          <Avatar name={biz.name} size={56} />
+        </Pressable>
         <View style={{ flex: 1 }}>
           <Text style={s.h1}>{biz.name}</Text>
           <Text style={s.micro}>{biz.category} · {biz.city}</Text>
@@ -110,6 +114,8 @@ export function BusinessHome({ onOpenStore, onManage }: {
           onPosted={() => { setCompose(false); api.insights(biz.id, range).then(setIns).catch(() => {}); }} />
       )}
       {menu && <Drawer mode="business" onClose={() => setMenu(false)} />}
+      {edit && <BizProfile onClose={() => setEdit(false)}
+        onSaved={() => { setEdit(false); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
     </ScrollView>
   );
 }

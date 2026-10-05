@@ -29,7 +29,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
 
   return (
     <View style={s.root}>
-      <TabHead title="Discover" drawer="customer" right={
+      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} right={
         hasBiz !== null && mode === 'customer' ? (
           <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
             {hasBiz ? 'Business view' : 'Start selling'}
@@ -58,7 +58,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
-  switch: { ...type.bodySm, color: C.primary, fontWeight: '600', marginBottom: space.s4 },
+  switch: { ...type.bodySm, color: C.primary, fontWeight: '600' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,

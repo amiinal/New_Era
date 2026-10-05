@@ -11,8 +11,8 @@ import { Palette, useTheme } from '../useTheme';
 
 // Static top-bar title. `drawer` adds the hamburger (sidebar) — business
 // tabs show hamburger only, customer tabs show hamburger + profile.
-export function TabHead({ title, right, drawer }: {
-  title: string; right?: React.ReactNode; drawer?: 'business' | 'customer';
+export function TabHead({ title, right, drawer, avatar = true }: {
+  title: string; right?: React.ReactNode; drawer?: 'business' | 'customer'; avatar?: boolean;
 }) {
   const { account, refresh } = useAuth();
   const [prof, setProf] = useState(false);
@@ -32,7 +32,7 @@ export function TabHead({ title, right, drawer }: {
         </View>
         <View style={s.right}>
           {right}
-          {drawer !== 'business' && (
+          {avatar && drawer !== 'business' && (
             <Pressable onPress={() => setProf(true)}>
               {account?.avatarKey
                 ? <Image source={{ uri: img(account.avatarKey) }} style={s.me} />
