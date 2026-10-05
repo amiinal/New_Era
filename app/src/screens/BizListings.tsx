@@ -5,10 +5,13 @@ import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
 import { TabHead } from '../components/TabHead';
+import { DrawerRoute } from '../components/Drawer';
 import { Palette, useTheme } from '../useTheme';
 
 // B2: own listings with one-tap availability (LST-5), edit, delete, add.
-export function BizListings() {
+export function BizListings({ dRoutes, dActive, onDNav }: {
+  dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+}) {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [items, setItems] = useState<Listing[] | null>(null);
   const [form, setForm] = useState<'add' | Listing | null>(null);
@@ -47,7 +50,7 @@ export function BizListings() {
 
   return (
     <ScrollView style={s.root}>
-      <TabHead title="Listings" drawer="business" right={<Button title="+ Add" onPress={() => setForm('add')} />} />
+      <TabHead title="Listings" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} right={<Button title="+ Add" onPress={() => setForm('add')} />} />
       {items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
         <Pressable key={l.id} onPress={() => setForm(l)} style={s.rowCard}>

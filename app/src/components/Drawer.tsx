@@ -1,28 +1,77 @@
-import React, { useState } from 'react';
+import {
+  Compass, MessageCircle, Newspaper, Package, Settings as SettingsIcon, Store,
+} from 'lucide-react-native';
+import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { api, Business } from '../api';
 import { radius, space, type } from '../theme';
-import { useTheme } from '../useTheme';
+import { Avatar } from './Avatar';
 import { BizProfile } from './BizProfile';
 import { Help, Settings } from '../screens/Settings';
+import { Palette, useTheme } from '../useTheme';
 
-// Side drawer (hamburger): business gets Business profile + Settings +
-// Help; customers get Settings + Help. Slides in from the right.
-export function Drawer({ mode, onClose }: { mode: 'business' | 'customer'; onClose: () => void }) {
-  const { p } = useTheme();
-  const s = themed(p);
+export type DrawerRoute =
+  | 'mybiz' | 'blistings' | 'bchats' | 'bupdates' | 'bdiscover'
+  | 'chats' | 'updates' | 'discover';
+
+const ICONS = {
+  mybiz: Store, blistings: Package, bchats: MessageCircle, bupdates: Newspaper,
+  bdiscover: Compass, chats: MessageCircle, updates: Newspaper, discover: Compass,
+};
+const LABELS: Record<DrawerRoute, string> = {
+  mybiz: 'My Business', blistings: 'Listings', bchats: 'Chats', bupdates: 'Updates',
+  bdiscover: 'Discover', chats: 'Chats', updates: 'Updates', discover: 'Discover',
+};
+
+// Left slide-in panel: brand, business card (biz mode), icon nav rows
+// with active pill, Settings + Help pinned at the bottom.
+export function Drawer({ mode, routes, active, onNav, onClose }: {
+  mode: 'business' | 'customer';
+  routes: DrawerRoute[];
+  active: DrawerRoute;
+  onNav: (r: DrawerRoute) => void;
+  onClose: () => void;
+}) {
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
+  const activeC = dark ? '#7B90D6' : '#2C3E7A';
   const [page, setPage] = useState<'menu' | 'profile' | 'settings' | 'help'>('menu');
+  const [biz, setBiz] = useState<Business | null>(null);
+  useEffect(() => {
+    if (mode === 'business') api.myBusinesses().then(l => setBiz(l[0] ?? null)).catch(() => {});
+  }, [mode]);
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={s.scrim} onPress={onClose}>
         <Pressable style={s.panel} onPress={() => {}}>
-          <Text style={s.h1}>Menu</Text>
+          <Text style={s.brand}>New Era</Text>
+          {mode === 'business' && biz && (
+            <View style={s.bizcard}>
+              <Avatar name={biz.name} size={40} />
+              <View style={{ flex: 1 }}>
+                <Text style={s.bizN} numberOfLines={1}>{biz.name}</Text>
+                <Text style={s.micro}>{biz.category}</Text>
+              </View>
+            </View>
+          )}
+          {routes.map(r => {
+            const Icon = ICONS[r];
+            const on = r === active;
+            return (
+              <Pressable key={r} onPress={() => { onClose(); onNav(r); }}
+                style={[s.row, on && s.rowOn]}>
+                <Icon size={20} color={on ? activeC : p.bodyText} />
+                <Text style={[s.label, on && { color: activeC, fontWeight: '700' as const }]}>{LABELS[r]}</Text>
+              </Pressable>
+            );
+          })}
+          <View style={{ flex: 1 }} />
           {mode === 'business' && (
             <Text style={s.item} onPress={() => setPage('profile')}>Business profile ›</Text>
           )}
           <Text style={s.item} onPress={() => setPage('settings')}>Settings ›</Text>
           <Text style={s.item} onPress={() => setPage('help')}>Help & FAQ ›</Text>
-          <Text style={[s.item, s.close]} onPress={onClose}>Close</Text>
         </Pressable>
       </Pressable>
       {page === 'profile' && <BizProfile onClose={() => setPage('menu')} onSaved={() => setPage('menu')} />}
@@ -32,13 +81,21 @@ export function Drawer({ mode, onClose }: { mode: 'business' | 'customer'; onClo
   );
 }
 
-const themed = (p: import('../useTheme').Palette) => StyleSheet.create({
-  scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'flex-end' },
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+  scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'flex-start' },
   panel: {
     width: '82%', maxWidth: 340, height: '100%', backgroundColor: p.surface,
-    padding: space.s5, borderTopLeftRadius: radius.lg, borderBottomLeftRadius: radius.lg,
+    padding: space.s5, borderTopRightRadius: radius.lg, borderBottomRightRadius: radius.lg,
   },
-  h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
-  item: { ...type.body, color: p.ink, paddingVertical: space.s4 },
-  close: { color: p.bodyText, marginTop: space.s4 },
+  brand: { ...type.h1, fontSize: 22, color: dark ? '#7B90D6' : '#2C3E7A', marginBottom: space.s4 },
+  bizcard: {
+    flexDirection: 'row', gap: space.s3, alignItems: 'center',
+    backgroundColor: p.background, borderRadius: radius.md, padding: space.s3, marginBottom: space.s3,
+  },
+  bizN: { ...type.body, color: p.ink, fontWeight: '600' },
+  micro: { ...type.micro, color: p.bodyText },
+  row: { flexDirection: 'row', gap: space.s3, alignItems: 'center', paddingVertical: space.s3, paddingHorizontal: space.s3, borderRadius: radius.md },
+  rowOn: { backgroundColor: dark ? 'rgba(123,144,214,.14)' : 'rgba(44,62,122,.07)' },
+  label: { ...type.body, color: p.bodyText },
+  item: { ...type.body, color: p.ink, paddingVertical: space.s3 },
 });

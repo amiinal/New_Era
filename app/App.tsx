@@ -7,6 +7,7 @@ import { ThemeProvider } from './src/useTheme';
 import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
+import { DrawerRoute } from './src/components/Drawer';
 import { C } from './src/theme';
 import { useTheme } from './src/useTheme';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -50,6 +51,15 @@ function Shell() {
     ).catch(() => {});
     setRoute({ name: 'store', slug });
   };
+  const CUST: DrawerRoute[] = ['chats', 'updates', 'discover'];
+  const BIZ: DrawerRoute[] = ['mybiz', 'blistings', 'bchats', 'bupdates', 'bdiscover'];
+  const goDrawer = (r: DrawerRoute) => setRoute(
+    r === 'mybiz' ? { name: 'bizhome' }
+    : r === 'blistings' ? { name: 'blistings' }
+    : r === 'bdiscover' ? { name: 'bdiscover' }
+    : r === 'bupdates' ? { name: 'bupdates' }
+    : r === 'bchats' ? { name: 'bchats' }
+    : { name: r } as Route);
 
   if (mode === 'business') {
     const bizTab: BizTab =
@@ -69,14 +79,16 @@ function Shell() {
           : route.name === 'chat'
           ? <ChatScreen threadId={route.threadId} context={route.context} />
           : route.name === 'bupdates'
-          ? <BizUpdates onStore={openStore} />
+          ? <BizUpdates onStore={openStore} dRoutes={BIZ} dActive="bupdates" onDNav={goDrawer} />
           : route.name === 'bchats'
-          ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label })} />
+          ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label })}
+              dRoutes={BIZ} dActive="bchats" onDNav={goDrawer} />
           : route.name === 'blistings'
-          ? <BizListings />
+          ? <BizListings dRoutes={BIZ} dActive="blistings" onDNav={goDrawer} />
           : route.name === 'bdiscover'
-          ? <DiscoverScreen onOpen={openStore} />
-          : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })} />}
+          ? <DiscoverScreen onOpen={openStore} dRoutes={BIZ} dActive="bdiscover" onDNav={goDrawer} />
+          : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })}
+              dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer} />}
         <BizNav active={bizTab}
           onTab={t => setRoute(
             t === 'mybiz' ? { name: 'bizhome' }
@@ -93,15 +105,17 @@ function Shell() {
   return (
     <SafeAreaView style={styles.root}>
       {route.name === 'discover' && (
-        <DiscoverScreen onOpen={openStore} />
+        <DiscoverScreen onOpen={openStore} dRoutes={CUST} dActive="discover" onDNav={goDrawer} />
       )}
       {route.name === 'updates' && (
         <UpdatesScreen
           onMessage={(bid, label) => openChat(bid, undefined, label)}
-          onOpen={slug => setRoute({ name: 'store', slug })} />
+          onOpen={slug => setRoute({ name: 'store', slug })}
+          dRoutes={CUST} dActive="updates" onDNav={goDrawer} />
       )}
       {route.name === 'chats' && (
-        <ChatsScreen onOpenThread={(bid, label) => openChat(bid, undefined, label)} />
+        <ChatsScreen onOpenThread={(bid, label) => openChat(bid, undefined, label)}
+          dRoutes={CUST} dActive="chats" onDNav={goDrawer} />
       )}
       {route.name === 'store' && (
         <StorefrontScreen slug={route.slug}

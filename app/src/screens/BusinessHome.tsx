@@ -9,14 +9,15 @@ import { Avatar } from '../components/Avatar';
 import { BizProfile } from '../components/BizProfile';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
-import { Drawer } from '../components/Drawer';
+import { Drawer, DrawerRoute } from '../components/Drawer';
 import { Onboarding } from './Onboarding';
 
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
 // preview, recent chats. Listings/inbox management are later slices.
-export function BusinessHome({ onOpenStore, onManage }: {
+export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav }: {
   onOpenStore: (slug: string) => void; onManage: () => void;
+  dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
   const { account, mode, setAppMode } = useAuth();
   const [biz, setBiz] = useState<Business | null>(null);
@@ -113,7 +114,8 @@ export function BusinessHome({ onOpenStore, onManage }: {
         <Composer businessId={biz.id} onClose={() => setCompose(false)}
           onPosted={() => { setCompose(false); api.insights(biz.id, range).then(setIns).catch(() => {}); }} />
       )}
-      {menu && <Drawer mode="business" onClose={() => setMenu(false)} />}
+      {menu && <Drawer mode="business" routes={dRoutes} active={dActive}
+        onNav={r => { setMenu(false); onDNav(r); }} onClose={() => setMenu(false)} />}
       {edit && <BizProfile onClose={() => setEdit(false)}
         onSaved={() => { setEdit(false); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
     </ScrollView>

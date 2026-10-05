@@ -4,11 +4,15 @@ import { api, Business } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { TabHead } from '../components/TabHead';
+import { DrawerRoute } from '../components/Drawer';
 import { Skeleton } from '../components/Skeleton';
 import { Palette, useTheme } from '../useTheme';
 
 // Step 5: country + city search, browseable without account (wall at chat).
-export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
+export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
+  onOpen: (slug: string) => void;
+  dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+}) {
   const { account, mode, setAppMode, refresh } = useAuth();
   const { p, dark } = useTheme();
   const s = themed(p);
@@ -29,7 +33,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
 
   return (
     <View style={s.root}>
-      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} right={
+      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} routes={dRoutes} active={dActive} onNav={onDNav} right={
         hasBiz !== null && mode === 'customer' ? (
           <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
             {hasBiz ? 'Business view' : 'Start selling'}

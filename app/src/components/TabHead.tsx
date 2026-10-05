@@ -5,14 +5,15 @@ import { img } from '../api';
 import { useAuth } from '../auth';
 import { C, space, type } from '../theme';
 import { Avatar } from './Avatar';
-import { Drawer } from './Drawer';
+import { Drawer, DrawerRoute } from './Drawer';
 import { ProfileSheet } from './ProfileSheet';
 import { Palette, useTheme } from '../useTheme';
 
 // Static top-bar title. `drawer` adds the hamburger (sidebar) — business
 // tabs show hamburger only, customer tabs show hamburger + profile.
-export function TabHead({ title, right, drawer, avatar = true }: {
+export function TabHead({ title, right, drawer, avatar = true, routes, active, onNav }: {
   title: string; right?: React.ReactNode; drawer?: 'business' | 'customer'; avatar?: boolean;
+  routes?: DrawerRoute[]; active?: DrawerRoute; onNav?: (r: DrawerRoute) => void;
 }) {
   const { account, refresh } = useAuth();
   const [prof, setProf] = useState(false);
@@ -42,7 +43,9 @@ export function TabHead({ title, right, drawer, avatar = true }: {
         </View>
       </View>
       {prof && <ProfileSheet onClose={() => setProf(false)} onSaved={() => { setProf(false); refresh(); }} />}
-      {menu && !!drawer && <Drawer mode={drawer} onClose={() => setMenu(false)} />}
+      {menu && !!drawer && !!routes && !!active && !!onNav && (
+        <Drawer mode={drawer} routes={routes} active={active} onNav={r => { setMenu(false); onNav(r); }} onClose={() => setMenu(false)} />
+      )}
     </>
   );
 }

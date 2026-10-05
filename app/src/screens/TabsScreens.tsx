@@ -7,15 +7,17 @@ import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
 import { StatusViewer, statusLabel } from '../components/StatusViewer';
 import { TabHead } from '../components/TabHead';
+import { DrawerRoute } from '../components/Drawer';
 import { Palette, useTheme } from '../useTheme';
 
 // Customer Updates: one card per business, avatar ring plays its stories.
 // Posting lives in business mode only — no add tile, no account switcher.
 export function UpdatesScreen({
-  onMessage, onOpen,
+  onMessage, onOpen, dRoutes, dActive, onDNav,
 }: {
   onMessage: (businessId: string, label: string) => void;
   onOpen: (slug: string) => void;
+  dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
   const [sf, setSf] = useState<Storefront | null>(null);
   const [view, setView] = useState(false);
@@ -29,7 +31,7 @@ export function UpdatesScreen({
 
   return (
     <View style={s.root}>
-      <TabHead title="Updates" drawer="customer" />
+      <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       {!sf && <Skeleton kind="card" />}
       {sf && sf.statuses.length === 0 && (
         <Text style={s.micro}>Nothing posted in the last 24 hours — check back soon.</Text>
@@ -61,7 +63,10 @@ export function UpdatesScreen({
 
 // Chats (Step 8 shell): Mama's Kitchen demo thread first. Tapping opens
 // the real thread — same history in app and web (CHT-4).
-export function ChatsScreen({ onOpenThread }: { onOpenThread: (businessId: string, label: string) => void }) {
+export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
+  onOpenThread: (businessId: string, label: string) => void;
+  dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+}) {
   const [biz, setBiz] = useState<{ id: string; name: string } | null>(null);
   const { p } = useTheme();
   const s = themed(p);
@@ -74,7 +79,7 @@ export function ChatsScreen({ onOpenThread }: { onOpenThread: (businessId: strin
 
   return (
     <View style={s.root}>
-      <TabHead title="Chats" drawer="customer" />
+      <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
         <View style={s.row}>
           <Avatar name={biz.name} size={48} />
