@@ -75,7 +75,7 @@ select.input { background: var(--color-surface); color: var(--color-ink); paddin
 .topnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
   border-bottom: 1px solid var(--color-line); padding: 0 32px; position: sticky; top: 0; z-index: 5; }
 .topnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
-.topnav .links { display: flex; gap: 28px; margin: 0; font-size: 14px;
+.topnav .links { display: flex; gap: 32px; margin: 0; font-size: 14px;
   position: absolute; left: 50%; transform: translateX(-50%); }
 .topnav .sp { flex: 1; }
 .page { max-width: 1200px; margin: 0 auto; padding: 32px; }
