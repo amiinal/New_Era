@@ -4,6 +4,7 @@ import { getPresignedPut, publicUrlFor } from './r2.js';
 import { sendMail } from './mail.js';
 import { authRoutes } from './auth.js';
 import { storeRoutes } from './store.js';
+import { adminRoutes } from './admin.js';
 
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
@@ -21,6 +22,7 @@ app.addHook('onRequest', (req, reply, done) => {
 });
 authRoutes(app, prisma);
 storeRoutes(app, prisma);
+adminRoutes(app, prisma);
 
 // Step 4 stub: presigned upload to R2 (app uploads direct)
 app.post('/uploads/presign', async (req, reply) => {

@@ -21,7 +21,7 @@ export function storeRoutes(app, prisma) {
   app.get('/discover', async req => {
     const { country, city, q, category } = req.query;
     if (!country) return [];
-    const where = { country, ...(city ? { city } : {}), ...(category ? { category } : {}) };
+    const where = { country, hidden: false, ...(city ? { city } : {}), ...(category ? { category } : {}) };
     const all = await prisma.business.findMany({
       where,
       include: { listings: { select: { photos: true } } },
@@ -51,14 +51,14 @@ export function storeRoutes(app, prisma) {
         statuses: { where: { expiresAt: { gt: new Date() } }, orderBy: { createdAt: 'desc' } },
       },
     });
-    if (!b) return reply.code(404).send({ error: 'unknown storefront' });
+    if (!b || b.hidden) return reply.code(404).send({ error: 'unknown storefront' });
     const { listings, collections, certificates, statuses, ...business } = b;
-    return { business, listings, collections, certificates, statuses };
+    return { business, listings: listings.filter(l => !l.hidden), collections, certificates, statuses };
   });
 
   app.get('/listings/:id', async (req, reply) => {
     const l = await prisma.listing.findUnique({ where: { id: req.params.id } });
-    if (!l) return reply.code(404).send({ error: 'unknown listing' });
+    if (!l || l.hidden) return reply.code(404).send({ error: 'unknown listing' });
     return l;
   });
 

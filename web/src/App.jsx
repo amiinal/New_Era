@@ -10,6 +10,7 @@ import Faq from './Faq.jsx';
 import Profile from './Profile.jsx';
 import Settings from './Settings.jsx';
 import Support from './Support.jsx';
+import Admin from './Admin.jsx';
 import Nav from './Nav.jsx';
 import { initTheme, startThread } from './lib.js';
 
@@ -170,6 +171,7 @@ export default function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/support" element={<Support />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="/s/:slug" element={<Storefront />} />
         <Route path="/l/:id" element={<ListingDetail />} />
         <Route path="/chat" element={<Chats />} />

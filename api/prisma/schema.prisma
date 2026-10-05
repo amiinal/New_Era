@@ -45,6 +45,7 @@ model Business {
   logoKey       String?
   coverKey      String?   // storefront header image, owner-chosen (cover)
   bio           String?   // owner-written, max 250 words
+  hidden        Boolean  @default(false) // admin take-down (TRU-1)
   createdAt     DateTime @default(now())
   listings      Listing[]
   collections   Collection[]
@@ -67,6 +68,7 @@ model Listing {
   availability String   @default("in_stock") // in_stock|limited|sold_out|made_to_order (LST-5)
   photos       String[] // R2 keys, 1..5 (LST-1)
   included     String?  // services: what's included (LST-2)
+  hidden       Boolean  @default(false) // admin take-down (TRU-1)
   createdAt    DateTime @default(now())
 
   @@index([businessId])
@@ -140,8 +142,10 @@ model Report {
   reporterId String
   reporter  Account  @relation(fields: [reporterId], references: [id])
   targetType String  // profile|listing|status|chat (TRU-1)
-  targetId  String
-  reason    String
+  targetId   String
+  reason     String
+  resolved   Boolean  @default(false) // triaged in /admin
+  action     String?  // dismiss|hide (+ note), set on resolve
   createdAt DateTime @default(now())
 }
 
