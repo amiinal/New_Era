@@ -29,6 +29,7 @@ model Account {
   messages      Message[]
   reports       Report[]
   events        Event[]
+  support       SupportMessage[]
 }
 
 model Business {
@@ -46,6 +47,7 @@ model Business {
   coverKey      String?   // storefront header image, owner-chosen (cover)
   bio           String?   // owner-written, max 250 words
   hidden        Boolean  @default(false) // admin take-down (TRU-1)
+  suspended     Boolean  @default(false) // admin store suspension (manual)
   createdAt     DateTime @default(now())
   listings      Listing[]
   collections   Collection[]
@@ -159,4 +161,17 @@ model Event {
   createdAt DateTime @default(now())
 
   @@index([name])
+}
+
+// Support inbox (web Support page → /admin): flat per-account thread.
+model SupportMessage {
+  id        String   @id @default(cuid())
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id])
+  body      String
+  fromAdmin Boolean  @default(false)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([accountId])
 }

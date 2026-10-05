@@ -21,7 +21,7 @@ export function storeRoutes(app, prisma) {
   app.get('/discover', async req => {
     const { country, city, q, category } = req.query;
     if (!country) return [];
-    const where = { country, hidden: false, ...(city ? { city } : {}), ...(category ? { category } : {}) };
+    const where = { country, hidden: false, suspended: false, ...(city ? { city } : {}), ...(category ? { category } : {}) };
     const all = await prisma.business.findMany({
       where,
       include: { listings: { select: { photos: true } } },
@@ -51,7 +51,7 @@ export function storeRoutes(app, prisma) {
         statuses: { where: { expiresAt: { gt: new Date() } }, orderBy: { createdAt: 'desc' } },
       },
     });
-    if (!b || b.hidden) return reply.code(404).send({ error: 'unknown storefront' });
+    if (!b || b.hidden || b.suspended) return reply.code(404).send({ error: 'unknown storefront' });
     const { listings, collections, certificates, statuses, ...business } = b;
     return { business, listings: listings.filter(l => !l.hidden), collections, certificates, statuses };
   });
@@ -208,11 +208,44 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const { targetType, targetId, reason, contact } = req.body || {};
     if (!targetType || !targetId || !reason) return reply.code(400).send({ error: 'targetType, targetId, reason required' });
-    return prisma.report.create({
+    const created = await prisma.report.create({
       data: {
         reporterId: acc.id, targetType, targetId, reason,
         contact: contact ? String(contact).slice(0, 120) : null,
       },
+    });
+    // Ping the team — real mail once the domain is verified, console until then.
+    const { adminEmails } = await import('./admin.js');
+    const { sendMail } = await import('./mail.js');
+    for (const to of adminEmails()) {
+      sendMail({ to, subject: `New Era report: ${targetType}`, html: `<p>${reason} — ${targetId}</p>` }).catch(() => {});
+    }
+    return created;
+  });
+
+  // Support inbox: message the team (web Support page), read replies here.
+  app.post('/support/messages', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const { body } = req.body || {};
+    if (!body) return reply.code(400).send({ error: 'body required' });
+    const created = await prisma.supportMessage.create({
+      data: { accountId: acc.id, body: String(body).slice(0, 2000) },
+    });
+    const { adminEmails } = await import('./admin.js');
+    const { sendMail } = await import('./mail.js');
+    for (const to of adminEmails()) {
+      sendMail({ to, subject: 'New Era support message', html: `<p>${acc.email || acc.phone}: ${String(body).slice(0, 500)}</p>` }).catch(() => {});
+    }
+    return created;
+  });
+
+  app.get('/support/mine', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    return prisma.supportMessage.findMany({
+      where: { accountId: acc.id },
+      orderBy: { createdAt: 'asc' },
     });
   });
 

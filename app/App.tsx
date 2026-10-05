@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { ThemeProvider } from './src/useTheme';
@@ -38,6 +38,15 @@ function Shell() {
   const [roleChecked, setRoleChecked] = useState(false);
   const [needRole, setNeedRole] = useState(false);
   const [bizAuto, setBizAuto] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [pausedMessage, setPausedMessage] = useState('');
+
+  // Kill switch: paused app shows the notice (reads stay, writes 503).
+  useEffect(() => {
+    api.status()
+      .then(s => { setPaused(s.maintenance); setPausedMessage(s.message); })
+      .catch(() => {});
+  }, []);
 
   // Fresh accounts pick customer vs business once — business skips
   // Discover and lands straight on storefront creation.
@@ -86,6 +95,17 @@ function Shell() {
         if (account) await setFlag(`role:${account.id}`, m);
         setNeedRole(false);
       }} />
+    );
+  }
+  if (paused) {
+    return (
+      <SafeAreaView style={[styles.root, bg]}>
+        <View style={styles.paused}>
+          <Text style={styles.pausedH}>Paused for maintenance</Text>
+          <Text style={styles.pausedT}>{pausedMessage || 'Back soon — thanks for waiting.'}</Text>
+        </View>
+        <StatusBar style="auto" />
+      </SafeAreaView>
     );
   }
 
@@ -210,4 +230,7 @@ const styles = StyleSheet.create({
       ? { maxWidth: 900, width: '100%', alignSelf: 'center', height: '100vh' as unknown as number }
       : null),
   },
+  paused: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  pausedH: { fontSize: 22, fontWeight: '700', color: C.ink, textAlign: 'center' },
+  pausedT: { fontSize: 14, color: C.bodyText, textAlign: 'center', marginTop: 8 },
 });

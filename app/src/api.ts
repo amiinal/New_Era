@@ -68,6 +68,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 export const img = (key: string) => (/^https?:\/\//.test(key) ? key : `${API_URL}/img/${key}`);
 
 export const api = {
+  status: () => req<{ maintenance: boolean; message: string }>('/status'),
   requestCode: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>

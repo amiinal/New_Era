@@ -1,8 +1,12 @@
 // Step 9 (TRU-1): internal moderation queue. Guarded by ADMIN_EMAILS:
 // only signed-in accounts whose email is listed there may call these.
 // Never linked in the public nav — the team opens /admin directly.
+import { sendMail } from './mail.js';
+
 const admins = () =>
   String(process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+export const adminEmails = () => admins();
 
 async function guard(req, reply, prisma) {
   const id = req.headers['x-account-id'];
@@ -68,17 +72,132 @@ export function adminRoutes(app, prisma) {
     if (!r) return reply.code(404).send({ error: 'unknown report' });
     const { action } = req.body || {};
     if (action === 'hide') {
-      if (r.targetType === 'listing') {
-        await prisma.listing.updateMany({ where: { id: r.targetId }, data: { hidden: true } });
-      } else if (r.targetType === 'business' || r.targetType === 'profile') {
-        await prisma.business.updateMany({ where: { id: r.targetId }, data: { hidden: true } });
-      } else {
-        return reply.code(400).send({ error: 'hide applies to listings + businesses only' });
+      if (r.targetType !== 'listing') {
+        return reply.code(400).send({ error: 'hide applies to listings — suspend the store instead' });
       }
+      await prisma.listing.updateMany({ where: { id: r.targetId }, data: { hidden: true } });
+    } else if (action === 'suspend') {
+      if (r.targetType !== 'business' && r.targetType !== 'profile') {
+        return reply.code(400).send({ error: 'suspend applies to stores — hide the listing instead' });
+      }
+      await prisma.business.updateMany({ where: { id: r.targetId }, data: { suspended: true } });
     } else if (action !== 'dismiss') {
-      return reply.code(400).send({ error: 'action must be dismiss|hide' });
+      return reply.code(400).send({ error: 'action must be dismiss|hide|suspend' });
     }
     return prisma.report.update({ where: { id: r.id }, data: { resolved: true, action } });
+  });
+
+  // Suspend / unsuspend a whole store (manual control, reversible).
+  app.post('/admin/businesses/:id/suspend', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const updated = await prisma.business.update({
+      where: { id: req.params.id },
+      data: { suspended: !!req.body?.suspended },
+    }).catch(() => null);
+    if (!updated) return reply.code(404).send({ error: 'unknown business' });
+    return updated;
+  });
+
+  // Support inbox: one thread per account, admin replies as the team.
+  app.get('/admin/support', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const recent = await prisma.supportMessage.findMany({
+      orderBy: { createdAt: 'desc' }, take: 300,
+    });
+    const byAcc = new Map();
+    for (const m of recent) {
+      if (!byAcc.has(m.accountId)) {
+        const acc = await prisma.account.findUnique({ where: { id: m.accountId } });
+        byAcc.set(m.accountId, {
+          accountId: m.accountId,
+          contact: acc ? (acc.email || acc.phone) : '?',
+          last: m.body, lastAt: m.createdAt, unread: 0,
+        });
+      }
+      if (!m.fromAdmin && !m.read) byAcc.get(m.accountId).unread += 1;
+    }
+    return [...byAcc.values()];
+  });
+
+  app.get('/admin/support/:accountId', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    await prisma.supportMessage.updateMany({
+      where: { accountId: req.params.accountId, fromAdmin: false },
+      data: { read: true },
+    });
+    return prisma.supportMessage.findMany({
+      where: { accountId: req.params.accountId },
+      orderBy: { createdAt: 'asc' },
+    });
+  });
+
+  app.post('/admin/support/:accountId/reply', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const { body } = req.body || {};
+    if (!body) return reply.code(400).send({ error: 'body required' });
+    const msg = await prisma.supportMessage.create({
+      data: { accountId: req.params.accountId, body: String(body).slice(0, 2000), fromAdmin: true, read: true },
+    });
+    const acc = await prisma.account.findUnique({ where: { id: req.params.accountId } });
+    if (acc?.email) {
+      sendMail({ to: acc.email, subject: 'New Era support replied', html: `<p>${String(body).slice(0, 500)}</p>` }).catch(() => {});
+    }
+    return msg;
+  });
+
+  // Analytics: signups + loop health for the beta.
+  app.get('/admin/stats', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const [accounts, businesses, listings, threads, messages, reportsOpen, supportUnread] = await Promise.all([
+      prisma.account.findMany({ select: { createdAt: true }, take: 5000 }),
+      prisma.business.count(),
+      prisma.listing.count(),
+      prisma.thread.count(),
+      prisma.message.count(),
+      prisma.report.count({ where: { resolved: false } }),
+      prisma.supportMessage.count({ where: { fromAdmin: false, read: false } }),
+    ]);
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      const n = accounts.filter(a => a.createdAt.toISOString().slice(0, 10) === key).length;
+      days.push({ day: key.slice(5), n });
+    }
+    return {
+      accounts: accounts.length, businesses, listings, threads, messages,
+      reportsOpen, supportUnread, signupsByDay: days,
+    };
+  });
+
+  // Kill switch: pause writes across app + web; reads stay up.
+  app.get('/admin/maintenance', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const [on, message] = await Promise.all([
+      prisma.serverConfig.findUnique({ where: { key: 'maintenance_on' } }),
+      prisma.serverConfig.findUnique({ where: { key: 'maintenance_message' } }),
+    ]);
+    return { on: on?.value === '1', message: message?.value || '' };
+  });
+
+  app.post('/admin/maintenance', async (req, reply) => {
+    if (!await guard(req, reply, prisma)) return;
+    const { on, message } = req.body || {};
+    await prisma.serverConfig.upsert({
+      where: { key: 'maintenance_on' },
+      update: { value: on ? '1' : '0' },
+      create: { key: 'maintenance_on', value: on ? '1' : '0' },
+    });
+    if (message !== undefined) {
+      await prisma.serverConfig.upsert({
+        where: { key: 'maintenance_message' },
+        update: { value: String(message).slice(0, 200) },
+        create: { key: 'maintenance_message', value: String(message).slice(0, 200) },
+      });
+    }
+    return { on: !!on };
   });
 
   app.get('/admin/accounts', async (req, reply) => {
@@ -91,7 +210,7 @@ export function adminRoutes(app, prisma) {
       if (!((a.email || '').toLowerCase().includes(q) || (a.phone || '').includes(q))) continue;
       const businesses = await prisma.business.findMany({
         where: { ownerId: a.id },
-        select: { id: true, name: true, slug: true, hidden: true },
+        select: { id: true, name: true, slug: true, hidden: true, suspended: true },
       });
       const { passwordHash, ...rest } = a;
       out.push({ ...rest, businesses });

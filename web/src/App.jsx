@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Link, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import './tokens.css';
 import Auth from './Auth.jsx';
 import Discover from './Discover.jsx';
@@ -181,8 +181,31 @@ function Home() {
 
 export default function App() {
   useEffect(() => { initTheme(); }, []);
+  const [paused, setPaused] = useState(null);
+  useEffect(() => {
+    fetch(`${API}/status`).then((r) => r.json()).then(setPaused).catch(() => setPaused({ maintenance: false }));
+  }, []);
   return (
     <BrowserRouter>
+      <Shell paused={paused} />
+    </BrowserRouter>
+  );
+}
+
+function Shell({ paused }) {
+  const { pathname } = useLocation();
+  // Kill-switch gate: paused app + web show the notice (team keeps /admin).
+  if (paused?.maintenance && pathname !== '/admin') {
+    return (
+      <div className="page">
+        <div className="card" style={{ maxWidth: 480, margin: '48px auto', textAlign: 'center' }}>
+          <h2>Paused for maintenance</h2>
+          <p style={{ color: 'var(--color-body-text)' }}>{paused.message || 'Back soon — thanks for waiting.'}</p>
+        </div>
+      </div>
+    );
+  }
+  return (
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
@@ -198,6 +221,5 @@ export default function App() {
         <Route path="/chat" element={<Chats />} />
         <Route path="/chat/:threadId" element={<Thread />} />
       </Routes>
-    </BrowserRouter>
   );
 }

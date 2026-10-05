@@ -24,6 +24,23 @@ authRoutes(app, prisma);
 storeRoutes(app, prisma);
 adminRoutes(app, prisma);
 
+// Kill switch: when maintenance is on, writes pause (reads stay up).
+// /admin/* stays open so the team can switch it back off.
+app.addHook('onRequest', async (req, reply) => {
+  if (req.method === 'GET' || req.url === '/health' || req.url === '/status' || req.url.startsWith('/admin/')) return;
+  const flag = await prisma.serverConfig.findUnique({ where: { key: 'maintenance_on' } }).catch(() => null);
+  if (flag?.value === '1') return reply.code(503).send({ error: 'paused for maintenance — back soon' });
+});
+
+// Public status for the app + web gates.
+app.get('/status', async () => {
+  const [on, message] = await Promise.all([
+    prisma.serverConfig.findUnique({ where: { key: 'maintenance_on' } }).catch(() => null),
+    prisma.serverConfig.findUnique({ where: { key: 'maintenance_message' } }).catch(() => null),
+  ]);
+  return { maintenance: on?.value === '1', message: message?.value || '' };
+});
+
 // Step 4 stub: presigned upload to R2 (app uploads direct)
 app.post('/uploads/presign', async (req, reply) => {
   const { key, contentType } = req.body || {};
