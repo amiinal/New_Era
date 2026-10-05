@@ -29,7 +29,7 @@ export function DiscoverScreen({ onOpen }: { onOpen: (slug: string) => void }) {
 
   return (
     <View style={s.root}>
-      <TabHead title="Discover" right={
+      <TabHead title="Discover" drawer="customer" right={
         hasBiz !== null && mode === 'customer' ? (
           <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
             {hasBiz ? 'Business view' : 'Start selling'}

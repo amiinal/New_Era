@@ -29,7 +29,7 @@ export function UpdatesScreen({
 
   return (
     <View style={s.root}>
-      <TabHead title="Updates" />
+      <TabHead title="Updates" drawer="customer" />
       {!sf && <Skeleton kind="card" />}
       {sf && sf.statuses.length === 0 && (
         <Text style={s.micro}>Nothing posted in the last 24 hours — check back soon.</Text>
@@ -74,7 +74,7 @@ export function ChatsScreen({ onOpenThread }: { onOpenThread: (businessId: strin
 
   return (
     <View style={s.root}>
-      <TabHead title="Chats" />
+      <TabHead title="Chats" drawer="customer" />
       <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
         <View style={s.row}>
           <Avatar name={biz.name} size={48} />

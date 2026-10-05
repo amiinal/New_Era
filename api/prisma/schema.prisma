@@ -21,6 +21,7 @@ model Account {
   lastMode      String   @default("customer") // customer|business (ACC-3)
   avatarKey     String?  // customer profile photo
   tagline       String?  // short customer bio
+  headerKey     String?  // customer profile header background
   createdAt     DateTime @default(now())
   businesses    Business[]
   threads       Thread[] @relation("CustomerThreads")
@@ -42,6 +43,7 @@ model Business {
   deliveryArea  String?
   logoKey       String?
   coverKey      String?   // storefront header image, owner-chosen (cover)
+  bio           String?   // owner-written, max 250 words
   createdAt     DateTime @default(now())
   listings      Listing[]
   collections   Collection[]

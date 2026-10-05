@@ -253,7 +253,7 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
     if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
-    const { coverKey, logoKey, area, deliveryArea } = req.body || {};
+    const { coverKey, logoKey, area, deliveryArea, bio } = req.body || {};
     return prisma.business.update({
       where: { id: biz.id },
       data: {
@@ -261,6 +261,7 @@ export function storeRoutes(app, prisma) {
         ...(logoKey !== undefined ? { logoKey } : {}),
         ...(area !== undefined ? { area } : {}),
         ...(deliveryArea !== undefined ? { deliveryArea } : {}),
+        ...(bio !== undefined ? { bio: String(bio).split(/\s+/).filter(Boolean).slice(0, 250).join(' ') } : {}),
       },
     });
   });
@@ -269,12 +270,13 @@ export function storeRoutes(app, prisma) {
   app.patch('/me/profile', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { avatarKey, tagline } = req.body || {};
+    const { avatarKey, tagline, headerKey } = req.body || {};
     return prisma.account.update({
       where: { id: acc.id },
       data: {
         ...(avatarKey !== undefined ? { avatarKey } : {}),
         ...(tagline !== undefined ? { tagline: String(tagline).slice(0, 120) } : {}),
+        ...(headerKey !== undefined ? { headerKey } : {}),
       },
     });
   });

@@ -1,14 +1,15 @@
+import { Menu } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api, Business, img } from '../api';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { api, Business } from '../api';
 import { useAuth } from '../auth';
 import { radius, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
+import { Drawer } from '../components/Drawer';
 import { Onboarding } from './Onboarding';
-import { ProfileSheet } from '../components/ProfileSheet';
 
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
@@ -23,8 +24,7 @@ export function BusinessHome({ onOpenStore, onManage }: {
   const [compose, setCompose] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [onboard, setOnboard] = useState(false);
-  const [prof, setProf] = useState(false);
-  const { refresh } = useAuth();
+  const [menu, setMenu] = useState(false);
   const { p, dark } = useTheme();
   const s = themed(p, dark);
   const link = dark ? '#7B90D6' : '#2C3E7A';
@@ -56,6 +56,9 @@ export function BusinessHome({ onOpenStore, onManage }: {
   return (
     <ScrollView style={s.root}>
       <View style={s.head}>
+        <Pressable onPress={() => setMenu(true)}>
+          <Menu size={24} color={p.ink} />
+        </Pressable>
         <Avatar name={biz.name} size={56} />
         <View style={{ flex: 1 }}>
           <Text style={s.h1}>{biz.name}</Text>
@@ -63,11 +66,6 @@ export function BusinessHome({ onOpenStore, onManage }: {
         </View>
         <Pressable onPress={() => setAppMode(mode === 'business' ? 'customer' : 'business')}>
           <Text style={[s.switch, { color: link }]}>{mode === 'business' ? 'Customer view' : 'Business view'}</Text>
-        </Pressable>
-        <Pressable onPress={() => setProf(true)}>
-          {account?.avatarKey
-            ? <Image source={{ uri: img(account.avatarKey) }} style={{ width: 36, height: 36, borderRadius: 18 }} />
-            : <Avatar name={account?.email ?? account?.phone ?? '?'} size={36} />}
         </Pressable>
       </View>
 
@@ -111,7 +109,7 @@ export function BusinessHome({ onOpenStore, onManage }: {
         <Composer businessId={biz.id} onClose={() => setCompose(false)}
           onPosted={() => { setCompose(false); api.insights(biz.id, range).then(setIns).catch(() => {}); }} />
       )}
-      {prof && <ProfileSheet onClose={() => setProf(false)} onSaved={() => { setProf(false); refresh(); }} />}
+      {menu && <Drawer mode="business" onClose={() => setMenu(false)} />}
     </ScrollView>
   );
 }

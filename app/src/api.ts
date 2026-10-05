@@ -9,12 +9,12 @@ export const API_URL =
 export type Account = {
   id: string; email: string | null; phone: string | null;
   country: string; lastMode: 'customer' | 'business';
-  avatarKey: string | null; tagline: string | null;
+  avatarKey: string | null; tagline: string | null; headerKey: string | null;
 };
 export type Business = {
   id: string; ownerId: string; name: string; slug: string; category: string;
   country: string; city: string; area: string | null; deliveryArea: string | null;
-  logoKey: string | null; coverKey: string | null;
+  logoKey: string | null; coverKey: string | null; bio: string | null;
 };
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';
@@ -72,8 +72,10 @@ export const api = {
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
     req<{ token: string; account: Account }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
-  saveProfile: (body: { avatarKey?: string; tagline?: string }) =>
+  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string }) =>
     req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
+  patchBusiness: (id: string, body: { coverKey?: string; logoKey?: string; bio?: string; area?: string; deliveryArea?: string }) =>
+    req<Business>(`/businesses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   discover: (q: { country: string; city?: string; q?: string; category?: string }) =>
     req<Business[]>(`/discover?${new URLSearchParams(q as Record<string, string>)}`),
   storefront: (slug: string) => req<Storefront>(`/storefront/${slug}`),

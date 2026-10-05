@@ -32,7 +32,7 @@ export function BizUpdates({ onStore }: { onStore: (slug: string) => void }) {
 
   return (
     <View style={s.root}>
-      <TabHead title="Updates" />
+      <TabHead title="Updates" drawer="business" />
       <Pressable onPress={() => setCompose(true)} style={s.card}>
         <View style={s.row}>
           <View style={s.plus}><Text style={s.plusT}>+</Text></View>
@@ -86,7 +86,7 @@ export function BizInbox({ onThread }: { onThread: (threadId: string, label: str
 
   return (
     <View style={s.root}>
-      <TabHead title="Inbox" />
+      <TabHead title="Inbox" drawer="business" />
       {rows.length === 0 && <Text style={s.micro}>No chats yet — share the storefront link.</Text>}
       {rows.map(r => (
         <Pressable key={r.id} style={s.card}

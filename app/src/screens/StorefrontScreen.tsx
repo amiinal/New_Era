@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { api, img, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
@@ -46,17 +47,41 @@ export function StorefrontScreen({
   // ACC-7: owners get a customer preview — messaging their own store is off.
   const preview = !!account && account.id === b.ownerId;
 
+  const changeImage = (kind: 'coverKey' | 'logoKey') => async () => {
+    const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
+    if (r.canceled || !r.assets[0]) return;
+    try {
+      const key = await api.uploadPhoto(
+        r.assets[0].uri, `business/${b.id}/${kind === 'coverKey' ? 'cover' : 'logo'}-${Date.now()}.jpg`);
+      await api.patchBusiness(b.id, { [kind]: key });
+      api.storefront(slug).then(setSf).catch(() => {});
+    } catch (e) {
+      Alert.alert('Could not save', String((e as Error).message || 'Check connection.'));
+    }
+  };
+
   return (
     <ScrollView style={s.root}>
       {(b.coverKey || listings[0]?.photos[0]) && (
-        <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
+        preview ? (
+          <Pressable onPress={changeImage('coverKey')}>
+            <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
+          </Pressable>
+        ) : (
+          <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
+        )
       )}
       <View style={s.card}>
         <View style={s.row}>
-          <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
+          {preview ? (
+            <Pressable onPress={changeImage('logoKey')}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
+          ) : (
+            <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
+          )}
           <View style={{ flex: 1 }}>
             <Text style={s.h1}>{b.name}</Text>
             <Text style={s.meta}>{b.category} · {b.area ? `${b.area}, ` : ''}{b.city}</Text>
+            {!!b.bio && <Text style={s.micro}>{b.bio}</Text>}
           </View>
           <Text onPress={() => setMenu(m => !m)} style={s.kebab}>···</Text>
         </View>
@@ -74,7 +99,7 @@ export function StorefrontScreen({
         <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
       </View>
       {preview && (
-        <Text style={s.previewNote}>Customer preview — this is how others see your shop. Messaging is off here.</Text>
+        <Text style={s.previewNote}>Customer preview — messaging is off. Tap the header or avatar to change them.</Text>
       )}
       </View>
 

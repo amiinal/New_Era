@@ -47,7 +47,7 @@ export function BizListings() {
 
   return (
     <ScrollView style={s.root}>
-      <TabHead title="Listings" right={<Button title="+ Add" onPress={() => setForm('add')} />} />
+      <TabHead title="Listings" drawer="business" right={<Button title="+ Add" onPress={() => setForm('add')} />} />
       {items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
         <Pressable key={l.id} onPress={() => setForm(l)} style={s.rowCard}>
