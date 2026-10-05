@@ -58,7 +58,7 @@ body { margin: 0; background: var(--color-background); color: var(--color-ink);
   font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
 *, *::before, *::after { box-sizing: border-box; }
 input, select, button { font: inherit; }
-select.input { background: var(--color-surface); color: var(--color-ink); }
+select.input { background: var(--color-surface); color: var(--color-ink); padding-right: 40px; }
 .lbl { display: block; font-size: 13px; color: var(--color-body-text);
   margin: 12px 0 4px; text-align: left; }
 .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
@@ -75,7 +75,7 @@ select.input { background: var(--color-surface); color: var(--color-ink); }
 .topnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
   border-bottom: 1px solid var(--color-line); padding: 0 32px; position: sticky; top: 0; z-index: 5; }
 .topnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
-.topnav .links { display: flex; gap: 40px; margin: 0; font-size: 14px;
+.topnav .links { display: flex; gap: 28px; margin: 0; font-size: 14px;
   position: absolute; left: 50%; transform: translateX(-50%); }
 .topnav .sp { flex: 1; }
 .page { max-width: 1200px; margin: 0 auto; padding: 32px; }
