@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { API } from './lib.js';
 
-// Step 2 UI: code sign-in + explicit country (ACC-1..ACC-2). Password
-// accounts get a 2nd step with forgot/reset, mirroring the app.
+// Code sign-in + explicit country, mirroring the app: fresh visitors see
+// Sign up first, returning visitors see Sign in. Password accounts get a
+// 2nd step with forgot/reset.
 export default function Auth() {
+  const [tab, setTab] = useState(localStorage.getItem('returning') ? 'signin' : 'signup');
   const [to, setTo] = useState('');
   const [code, setCode] = useState('');
   const [country, setCountry] = useState('NG');
@@ -16,12 +18,15 @@ export default function Auth() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const next = params.get('next') || '/discover';
+  const fresh = tab === 'signup';
   const contactBody = () => (to.includes('@') ? { email: to.trim() } : { phone: to.trim() });
 
   const done = (j) => {
     localStorage.setItem('accountId', j.account.id);
+    localStorage.setItem('returning', '1');
     navigate(next, { replace: true });
   };
+  const startOver = () => { setCode(''); setStage('contact'); };
 
   const request = async () => {
     try {
@@ -81,46 +86,67 @@ export default function Auth() {
     else alert('Invalid or expired code — request a fresh one.');
   };
 
+  const title = stage === 'password' ? 'Enter password'
+    : stage === 'reset' ? 'Reset password'
+    : stage === 'code' ? 'Enter code'
+    : fresh ? 'Create Account' : 'Welcome back';
+
   return (
-    <div className="card" style={{ margin: 24, maxWidth: 420 }}>
-      <h2>Sign in</h2>
-      {stage === 'contact' && (
-        <>
-          <input className="input" placeholder="email or phone" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <button className="btn" onClick={request}>Send code</button>
-          </div>
-          <label>Country (explicit, never inferred)</label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%', height: 48 }}>
-            <option value="NG">Nigeria</option>
-            <option value="GH">Ghana</option>
-            <option value="KE">Kenya</option>
-          </select>
-        </>
-      )}
-      {stage === 'code' && (
-        <>
-          <p style={{ color: 'var(--color-body-text)' }}>Code sent to {to.trim()}.</p>
-          <input className="input" placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} style={{ width: '100%' }} />
-          <div style={{ marginTop: 8 }}><button className="btn" onClick={verify}>Verify</button></div>
-        </>
-      )}
-      {stage === 'password' && (
-        <>
-          <p style={{ color: 'var(--color-body-text)' }}>This account has a password.</p>
-          <input className="input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%' }} />
-          <div style={{ marginTop: 8 }}><button className="btn" onClick={submitPassword}>Sign in</button></div>
-          <p><button className="btn btn-secondary" onClick={forgot}>Forgot password? Reset with a code</button></p>
-        </>
-      )}
-      {stage === 'reset' && (
-        <>
-          <input className="input" placeholder="Reset code" value={resetCode} onChange={(e) => setResetCode(e.target.value)} style={{ width: '100%' }} />
-          <input className="input" type="password" placeholder="New password (8+ characters)" value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', marginTop: 8 }} />
-          <div style={{ marginTop: 8 }}><button className="btn" onClick={submitReset}>Reset & sign in</button></div>
-        </>
-      )}
+    <div className="auth-wrap">
+      <div className="card auth-card">
+        <h2 style={{ textAlign: 'center', marginBottom: 4 }}>{title}</h2>
+        <p style={{ color: 'var(--color-body-text)', textAlign: 'center', fontSize: 14 }}>
+          {stage === 'code' ? `We sent a 6-digit code to ${to.trim()}.`
+            : stage === 'password' ? 'This account has a password — enter it to finish signing in.'
+            : stage === 'reset' ? `We sent a reset code to ${to.trim()}.`
+            : fresh ? 'Join New Era to list your business and chat with customers.'
+            : 'Sign in to your New Era account.'}
+        </p>
+        {stage === 'contact' && (
+          <>
+            <input className="input" placeholder="email or phone" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
+            <label>Country (explicit, never inferred)</label>
+            <select value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%', height: 48 }}>
+              <option value="NG">Nigeria</option>
+              <option value="GH">Ghana</option>
+              <option value="KE">Kenya</option>
+            </select>
+            <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={request}>Send code</button></div>
+            <p style={{ textAlign: 'center', fontSize: 14 }}>
+              {fresh ? 'Already have an account? ' : "Don't have an account? "}
+              <button className="linklike" onClick={() => { setTab(fresh ? 'signin' : 'signup'); startOver(); }}>
+                {fresh ? 'Sign in here' : 'Sign up'}
+              </button>
+            </p>
+          </>
+        )}
+        {stage === 'code' && (
+          <>
+            <input className="input" placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} style={{ width: '100%' }} />
+            <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={verify}>Verify</button></div>
+            <p style={{ textAlign: 'center', fontSize: 14 }}>
+              Wrong address? <button className="linklike" onClick={startOver}>Start over</button>
+            </p>
+          </>
+        )}
+        {stage === 'password' && (
+          <>
+            <input className="input" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%' }} />
+            <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={submitPassword}>Sign in</button></div>
+            <p style={{ textAlign: 'center', fontSize: 14 }}>
+              Forgot password? <button className="linklike" onClick={forgot}>Reset with a code</button>
+            </p>
+          </>
+        )}
+        {stage === 'reset' && (
+          <>
+            <input className="input" placeholder="Reset code" value={resetCode} onChange={(e) => setResetCode(e.target.value)} style={{ width: '100%' }} />
+            <input className="input" type="password" placeholder="New password (8+ characters)" value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)} style={{ width: '100%', marginTop: 8 }} />
+            <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={submitReset}>Reset & sign in</button></div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { API, api } from './lib.js';
+import Nav from './Nav.jsx';
+import { api } from './lib.js';
 
 // Public Discover (DIS-1..8, CUS-9): country boundary + city filter,
 // no account needed — the login wall sits at first chat.
@@ -24,12 +25,7 @@ export default function Discover() {
 
   return (
     <div>
-      <div className="topnav">
-        <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
-        <span className="links"><span>Discover</span></span>
-        <span className="sp"></span>
-        <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Sign in</Link>
-      </div>
+      <Nav />
       <div className="page">
         <h1>Discover businesses</h1>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>

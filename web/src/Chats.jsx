@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Nav from './Nav.jsx';
 import { accountId, api } from './lib.js';
 
 // Customer chat list (CHT-4): same threads as the app. A storefront
@@ -37,11 +38,7 @@ export default function Chats() {
   }
   return (
     <div>
-      <div className="topnav">
-        <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
-        <span className="links"><Link to="/discover" style={{ textDecoration: 'none', color: 'inherit' }}>Discover</Link></span>
-        <span className="sp"></span>
-      </div>
+      <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
         <h1>Chats</h1>
         {rows === null ? (

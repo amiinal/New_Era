@@ -2,6 +2,19 @@ export const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export const accountId = () => localStorage.getItem('accountId');
 
+export function signOut(navigate) {
+  localStorage.removeItem('accountId');
+  if (navigate) navigate('/');
+}
+
+// Appearance: system follows the device, otherwise pinned (mirrors the app).
+export function initTheme() {
+  const mode = localStorage.getItem('theme') || 'system';
+  const dark = mode === 'dark' || (mode === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+  else document.documentElement.removeAttribute('data-theme');
+}
+
 export const authHeaders = () => ({
   'content-type': 'application/json',
   ...(accountId() ? { 'x-account-id': accountId() } : {}),

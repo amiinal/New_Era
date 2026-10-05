@@ -5,7 +5,13 @@ import Auth from './Auth.jsx';
 import Discover from './Discover.jsx';
 import Chats from './Chats.jsx';
 import Thread from './Thread.jsx';
-import { startThread } from './lib.js';
+import About from './About.jsx';
+import Faq from './Faq.jsx';
+import Profile from './Profile.jsx';
+import Settings from './Settings.jsx';
+import Support from './Support.jsx';
+import Nav from './Nav.jsx';
+import { initTheme, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const img = (k) => (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`);
@@ -51,15 +57,7 @@ function Storefront() {
   const b = sf.business;
   return (
     <div>
-      <div className="topnav">
-        <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
-        <span className="links">
-          <Link to="/discover" style={{ textDecoration: 'none', color: 'inherit' }}>Discover</Link>
-          <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>Chats</Link>
-        </span>
-        <span className="sp"></span>
-        <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Open app</Link>
-      </div>
+      <Nav />
       <div className="page">
         {sf.listings[0] && sf.listings[0].photos[0] ? (
           <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" />
@@ -121,16 +119,19 @@ function ListingDetail() {
       return r.json();
     }).then(setL).catch(() => setL(false));
   }, [id]);
-  if (l === null) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
-  if (l === false) return <div className="card" style={{ margin: 24 }}>Listing not found.</div>;
+  if (l === null) return (<div><Nav /><div className="card" style={{ margin: 24 }}>Loading…</div></div>);
+  if (l === false) return (<div><Nav /><div className="card" style={{ margin: 24 }}>Listing not found.</div></div>);
   return (
-    <div className="page" style={{ maxWidth: 720 }}>
-      <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
-      {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
-      <h1>{l.title}</h1>
-      <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <MessageButton businessId={l.businessId} listingId={l.id} label="Message about this" />
+    <div>
+      <Nav />
+      <div className="page" style={{ maxWidth: 720 }}>
+        <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
+        {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
+        <h1>{l.title}</h1>
+        <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <MessageButton businessId={l.businessId} listingId={l.id} label="Message about this" />
+        </div>
       </div>
     </div>
   );
@@ -139,15 +140,7 @@ function ListingDetail() {
 function Home() {
   return (
     <div>
-      <div className="topnav">
-        <span className="logo">New Era</span>
-        <span className="links">
-          <Link to="/discover" style={{ textDecoration: 'none', color: 'inherit' }}>Discover</Link>
-          <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>Chats</Link>
-        </span>
-        <span className="sp"></span>
-        <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Sign in</Link>
-      </div>
+      <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
         <div className="card">
           <h1>Find businesses near you</h1>
@@ -165,12 +158,18 @@ function Home() {
 }
 
 export default function App() {
+  useEffect(() => { initTheme(); }, []);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/discover" element={<Discover />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/support" element={<Support />} />
         <Route path="/s/:slug" element={<Storefront />} />
         <Route path="/l/:id" element={<ListingDetail />} />
         <Route path="/chat" element={<Chats />} />
