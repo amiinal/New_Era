@@ -96,3 +96,13 @@ body { margin: 0; background: var(--color-background); color: var(--color-ink);
   .bizcard { margin-top: -32px; }
   .avatar { width: 72px; height: 72px; font-size: 28px; }
 }
+
+/* Web chat (Step 6): thread list rows + conversation bubbles */
+.thread-row { display: block; text-decoration: none; color: inherit; }
+.chat-wrap { max-width: 720px; margin: 0 auto; padding: 16px;
+  display: flex; flex-direction: column; height: calc(100vh - 64px); }
+.chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }
+.msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 15px; overflow-wrap: anywhere; }
+.msg-me { align-self: flex-end; background: var(--color-primary); color: #fff; }
+.msg-them { align-self: flex-start; background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.chat-box { display: flex; gap: 8px; padding: 12px 0; }

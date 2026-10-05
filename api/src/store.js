@@ -290,6 +290,20 @@ export function storeRoutes(app, prisma) {
     return prisma.business.findMany({ where: { ownerId: acc.id } });
   });
 
+  // CHT-4: customer's own threads (web chat list + app Chats).
+  app.get('/me/threads', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    return prisma.thread.findMany({
+      where: { customerId: acc.id },
+      include: {
+        business: { select: { id: true, name: true, slug: true } },
+        messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  });
+
   // ANA-1: append-only events. ANA-3: free 7/30d insights (real counts;
   // view metrics accumulate from first use — no backfilled guesses).
   app.post('/events', async (req, reply) => {
