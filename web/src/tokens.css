@@ -56,6 +56,11 @@
 
 body { margin: 0; background: var(--color-background); color: var(--color-ink);
   font-family: Inter, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+*, *::before, *::after { box-sizing: border-box; }
+input, select, button { font: inherit; }
+select.input { background: var(--color-surface); color: var(--color-ink); }
+.lbl { display: block; font-size: 13px; color: var(--color-body-text);
+  margin: 12px 0 4px; text-align: left; }
 .btn { display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
   background: var(--color-cta); color: #fff; border-radius: var(--radius-md);
   height: 48px; border: 0; padding: 0 20px; box-shadow: var(--shadow-cta); }

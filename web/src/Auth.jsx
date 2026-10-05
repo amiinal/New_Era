@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Nav from './Nav.jsx';
 import { API } from './lib.js';
 
 // Code sign-in + explicit country, mirroring the app: fresh visitors see
@@ -92,7 +93,9 @@ export default function Auth() {
     : fresh ? 'Create Account' : 'Welcome back';
 
   return (
-    <div className="auth-wrap">
+    <div>
+      <Nav />
+      <div className="auth-wrap">
       <div className="card auth-card">
         <h2 style={{ textAlign: 'center', marginBottom: 4 }}>{title}</h2>
         <p style={{ color: 'var(--color-body-text)', textAlign: 'center', fontSize: 14 }}>
@@ -105,8 +108,8 @@ export default function Auth() {
         {stage === 'contact' && (
           <>
             <input className="input" placeholder="email or phone" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
-            <label>Country (explicit, never inferred)</label>
-            <select value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%', height: 48 }}>
+            <label className="lbl">Country (explicit, never inferred)</label>
+            <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%' }}>
               <option value="NG">Nigeria</option>
               <option value="GH">Ghana</option>
               <option value="KE">Kenya</option>
@@ -146,6 +149,7 @@ export default function Auth() {
             <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={submitReset}>Reset & sign in</button></div>
           </>
         )}
+      </div>
       </div>
     </div>
   );
