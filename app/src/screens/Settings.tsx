@@ -1,23 +1,186 @@
 import { ChevronDown, ChevronUp, Headset } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { api } from '../api';
 import { useAuth } from '../auth';
+import { COUNTRIES } from '../countries';
 import { C, radius, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
 
-// Settings (HLP-2 support scope: self-serve first). Appearance, help,
-// support contact for bugs/important issues, sign out, version.
+// Settings (HLP-2 support scope: self-serve first). Account (email, phone,
+// password), appearance, help, support contact for bugs/important issues,
+// sign out, version.
 export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () => void }) {
-  const { signOut } = useAuth();
-  const { p, mode, setMode } = useTheme();
+  const { account, refresh, signOut } = useAuth();
+  const { p, dark, mode, setMode } = useTheme();
   const [sup, setSup] = useState(false);
+  const [panel, setPanel] = useState<'password' | 'email' | 'phone' | null>(null);
+  // password form
+  const [current, setCurrent] = useState('');
+  const [next, setNext] = useState('');
+  const [busy, setBusy] = useState(false);
+  // change-contact forms: code goes to the NEW address, then confirm.
+  const [newEmail, setNewEmail] = useState('');
+  const [emailCode, setEmailCode] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [newPhone, setNewPhone] = useState('');
+  const [phoneCode, setPhoneCode] = useState('');
+  const [phoneSent, setPhoneSent] = useState(false);
   const s = themed(p);
+  const link = dark ? '#7B90D6' : '#2C3E7A';
+  const dial = COUNTRIES.find(c => c.code === (account?.country ?? 'NG'))?.dial ?? '';
+  const toggle = (k: 'password' | 'email' | 'phone') => {
+    setPanel(panel === k ? null : k);
+  };
+
+  const submitPassword = async () => {
+    if (next.length < 8) { Alert.alert('Password too short', 'Use 8 or more characters.'); return; }
+    setBusy(true);
+    try {
+      const r = await api.setPassword({ password: next, ...(account?.hasPassword ? { current } : {}) });
+      await refresh();
+      setCurrent('');
+      setNext('');
+      setPanel(null);
+      Alert.alert('Saved', r.account.hasPassword ? 'Password is on — sign-in will ask for it after the code.' : 'Password saved.');
+    } catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Could not save', m.includes('current') ? 'Current password is wrong.' : 'Check the API is running, then retry.');
+    } finally { setBusy(false); }
+  };
+  const sendEmailCode = async () => {
+    if (!newEmail.trim()) { Alert.alert('Enter email', 'Type the new email address first.'); return; }
+    setBusy(true);
+    try {
+      const r = await api.requestEmailChange(newEmail.trim());
+      setEmailSent(true);
+      if (r.devCode) Alert.alert('Dev code', r.devCode);
+      else Alert.alert('Code sent', 'Enter the code sent to the new address.');
+    } catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Could not send', m.includes('409') ? 'That email is already in use.' : 'Check the address and retry.');
+    } finally { setBusy(false); }
+  };
+  const confirmEmail = async () => {
+    setBusy(true);
+    try {
+      await api.confirmEmailChange({ email: newEmail.trim(), code: emailCode });
+      await refresh();
+      setNewEmail('');
+      setEmailCode('');
+      setEmailSent(false);
+      setPanel(null);
+    } catch {
+      Alert.alert('Could not change', 'Invalid or expired code — send a fresh one.');
+    } finally { setBusy(false); }
+  };
+  const fullPhone = (raw: string) => `+${dial}${raw.trim().replace(/^0+/, '')}`;
+  const sendPhoneCode = async () => {
+    if (!newPhone.trim()) { Alert.alert('Enter phone', 'Type the new phone number first.'); return; }
+    setBusy(true);
+    try {
+      const r = await api.requestPhoneChange(fullPhone(newPhone));
+      setPhoneSent(true);
+      if (r.devCode) Alert.alert('Dev code', r.devCode);
+      else Alert.alert('Code sent', 'Enter the code sent to the new number.');
+    } catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Could not send', m.includes('409') ? 'That number is already in use.' : 'Check the number and retry.');
+    } finally { setBusy(false); }
+  };
+  const confirmPhone = async () => {
+    setBusy(true);
+    try {
+      await api.confirmPhoneChange({ phone: fullPhone(newPhone), code: phoneCode });
+      await refresh();
+      setNewPhone('');
+      setPhoneCode('');
+      setPhoneSent(false);
+      setPanel(null);
+    } catch {
+      Alert.alert('Could not change', 'Invalid or expired code — send a fresh one.');
+    } finally { setBusy(false); }
+  };
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View style={s.root}>
+      <ScrollView style={s.root} contentContainerStyle={s.inner}>
         <Text style={s.h1}>Settings</Text>
+
+        <Text style={s.sec}>Account</Text>
+        <View style={s.card}>
+          <Text style={s.micro}>Signed in as</Text>
+          <Text style={s.itemT}>{account?.email ?? 'No email set'}</Text>
+          {account?.phone ? <Text style={[s.itemT, { marginTop: 2 }]}>{account.phone}</Text> : null}
+          <Text style={[s.micro, { marginTop: space.s2 }]}>
+            Password: {account?.hasPassword ? 'on — sign-in asks for it after the code' : 'off — code only'}
+          </Text>
+        </View>
+        <Pressable onPress={() => toggle('password')} style={s.item}>
+          <Text style={s.itemT}>{account?.hasPassword ? 'Change password' : 'Add a password (2nd step)'}</Text>
+          <Text style={s.chev}>›</Text>
+        </Pressable>
+        {panel === 'password' && (
+          <View style={s.card}>
+            {account?.hasPassword ? (
+              <TextInput style={s.field} placeholder="Current password" placeholderTextColor={p.bodyText}
+                value={current} onChangeText={setCurrent} secureTextEntry autoCapitalize="none" />
+            ) : null}
+            <TextInput style={s.field} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
+              value={next} onChangeText={setNext} secureTextEntry autoCapitalize="none" />
+            <Button title={busy ? 'Saving…' : 'Save password'} onPress={submitPassword} disabled={busy} />
+          </View>
+        )}
+        <Pressable onPress={() => toggle('email')} style={s.item}>
+          <Text style={s.itemT}>Change email</Text>
+          <Text style={s.chev}>›</Text>
+        </Pressable>
+        {panel === 'email' && (
+          <View style={s.card}>
+            {!emailSent ? (
+              <>
+                <TextInput style={s.field} placeholder="New email address" placeholderTextColor={p.bodyText}
+                  value={newEmail} onChangeText={setNewEmail} autoCapitalize="none" keyboardType="email-address" />
+                <Button title={busy ? 'Sending…' : 'Send code'} onPress={sendEmailCode} disabled={busy} />
+              </>
+            ) : (
+              <>
+                <Text style={s.micro}>Code sent to {newEmail.trim()}.</Text>
+                <TextInput style={[s.field, { marginTop: space.s2 }]} placeholder="6-digit code" placeholderTextColor={p.bodyText}
+                  value={emailCode} onChangeText={setEmailCode} keyboardType="number-pad" maxLength={6} />
+                <Button title={busy ? 'Saving…' : 'Confirm new email'} onPress={confirmEmail} disabled={busy} />
+              </>
+            )}
+          </View>
+        )}
+        <Pressable onPress={() => toggle('phone')} style={s.item}>
+          <Text style={s.itemT}>Change phone number</Text>
+          <Text style={s.chev}>›</Text>
+        </Pressable>
+        {panel === 'phone' && (
+          <View style={s.card}>
+            {!phoneSent ? (
+              <>
+                <View style={s.phoneBox}>
+                  <Text style={s.prefix}>+{dial}</Text>
+                  <View style={s.divider} />
+                  <TextInput style={[s.field, { flex: 1, marginBottom: 0, borderWidth: 0 }]}
+                    placeholder="New phone number" placeholderTextColor={p.bodyText}
+                    value={newPhone} onChangeText={setNewPhone} keyboardType="phone-pad" />
+                </View>
+                <Button title={busy ? 'Sending…' : 'Send code'} onPress={sendPhoneCode} disabled={busy} />
+              </>
+            ) : (
+              <>
+                <Text style={s.micro}>Code sent to {fullPhone(newPhone)}.</Text>
+                <TextInput style={[s.field, { marginTop: space.s2 }]} placeholder="6-digit code" placeholderTextColor={p.bodyText}
+                  value={phoneCode} onChangeText={setPhoneCode} keyboardType="number-pad" maxLength={6} />
+                <Button title={busy ? 'Saving…' : 'Confirm new number'} onPress={confirmPhone} disabled={busy} />
+              </>
+            )}
+          </View>
+        )}
 
         <Text style={s.sec}>Appearance</Text>
         <View style={s.row}>
@@ -52,7 +215,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <View style={{ height: space.s2 }} />
         <Button title="Close" variant="tertiary" onPress={onClose} />
         <Text style={[s.micro, { textAlign: 'center', marginTop: space.s4 }]}>New Era · MVP beta · v1.0.0</Text>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }
@@ -94,7 +257,8 @@ export function Help({ onClose }: { onClose: () => void }) {
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  root: { flex: 1, backgroundColor: p.background },
+  inner: { padding: space.s5 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   sec: { ...type.h3, color: p.ink, marginTop: space.s4, marginBottom: space.s2 },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s2 },
@@ -104,6 +268,21 @@ const themed = (p: Palette) => StyleSheet.create({
     borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText, overflow: 'hidden',
   },
   optOn: { borderColor: p.primary, color: p.primary, fontWeight: '700' },
+  card: {
+    backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
+    marginBottom: space.s2,
+  },
+  field: {
+    backgroundColor: p.background, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
+    borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,
+  },
+  phoneBox: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: p.background,
+    borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, height: 48,
+    paddingLeft: space.s4, marginBottom: space.s3,
+  },
+  prefix: { ...type.body, color: p.ink, fontWeight: '600' },
+  divider: { width: 1, height: 24, backgroundColor: p.line, marginHorizontal: space.s2 },
   itemWrap: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
     marginBottom: space.s2,

@@ -22,6 +22,7 @@ model Account {
   avatarKey     String?  // customer profile photo
   tagline       String?  // short customer bio
   headerKey     String?  // customer profile header background
+  passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
   createdAt     DateTime @default(now())
   businesses    Business[]
   threads       Thread[] @relation("CustomerThreads")

@@ -271,7 +271,7 @@ export function storeRoutes(app, prisma) {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const { avatarKey, tagline, headerKey } = req.body || {};
-    return prisma.account.update({
+    const updated = await prisma.account.update({
       where: { id: acc.id },
       data: {
         ...(avatarKey !== undefined ? { avatarKey } : {}),
@@ -279,6 +279,8 @@ export function storeRoutes(app, prisma) {
         ...(headerKey !== undefined ? { headerKey } : {}),
       },
     });
+    const { passwordHash, ...rest } = updated;
+    return { ...rest, hasPassword: !!passwordHash };
   });
 
   // Business home (Step 10): owned businesses for the mode switch.

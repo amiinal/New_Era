@@ -13,15 +13,20 @@ const FIELD_BG = '#F2F3F5'; // soft pill fill (auth only)
 
 // Sleek card auth, no logo. Fresh installs see Sign up first; returning
 // users see Sign in (remembered on-device). OTP underneath in both.
+// Accounts with a password ask for it after the code (2nd step).
 export function AuthScreen() {
-  const { signIn, pendingTo } = useAuth();
+  const { signIn, completePassword, applySession, pendingTo } = useAuth();
   const [tab, setTab] = useState<'signup' | 'signin' | null>(null);
   const [mode, setMode] = useState<'email' | 'phone'>(pendingTo.includes('@') || !pendingTo ? 'email' : 'phone');
   const [to, setTo] = useState(pendingTo);
   const [code, setCode] = useState('');
   const [country, setCountry] = useState('NG');
   const [drop, setDrop] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [stage, setStage] = useState<'contact' | 'code' | 'password' | 'reset'>('contact');
+  const [pendingId, setPendingId] = useState('');
+  const [password, setPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     getFlag('returning').then(v => setTab(v ? 'signin' : 'signup'));
@@ -30,14 +35,14 @@ export function AuthScreen() {
   const { p, dark } = useTheme();
   const s = themed(p, dark);
 
-  const reset = () => { setCode(''); setSent(false); };
+  const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
+  const contactBody = () => mode === 'email' ? { email: to.trim() } : { phone: fullPhone(to.trim()) };
 
   const request = async () => {
     if (!to.trim()) { Alert.alert('Enter email or phone', 'We need somewhere to send the code.'); return; }
     try {
-      const address = to.trim();
-      const r = await api.requestCode(mode === 'email' ? { email: address } : { phone: fullPhone(address) });
-      setSent(true);
+      const r = await api.requestCode(contactBody());
+      setStage('code');
       if (r.devCode) Alert.alert('Dev code', r.devCode);
     } catch (e) {
       const m = String((e as Error).message || '');
@@ -48,14 +53,53 @@ export function AuthScreen() {
   };
   const verify = async () => {
     try {
-      const address = to.trim();
-      await signIn(mode === 'email' ? address : fullPhone(address), code, country);
+      const r = await signIn(mode === 'email' ? to.trim() : fullPhone(to.trim()), code, country);
       await setFlag('returning', '1');
+      if (r.needsPassword && r.accountId) {
+        setPendingId(r.accountId);
+        setPassword('');
+        setStage('password');
+      }
     } catch (e) {
       const m = String((e as Error).message || '');
       Alert.alert('Could not sign in', m.startsWith('5')
         ? 'Server or database error — check the API and database, then retry.'
         : 'Invalid or expired code — request one code and enter it within 10 minutes.');
+    }
+  };
+  const submitPassword = async () => {
+    if (!password) { Alert.alert('Enter password', 'Type the password you set for this account.'); return; }
+    try {
+      await completePassword(pendingId, password);
+      await setFlag('returning', '1');
+    } catch {
+      Alert.alert('Wrong password', 'Try again, or tap Forgot password below to reset it.');
+    }
+  };
+  const forgot = async () => {
+    try {
+      const r = await api.forgotPassword(contactBody());
+      setResetCode('');
+      setNewPassword('');
+      setStage('reset');
+      if (r.devCode) Alert.alert('Dev code', r.devCode);
+      else Alert.alert('Code sent', 'Check your email for the reset code.');
+    } catch {
+      Alert.alert('Could not send', 'Check the API is running, then retry.');
+    }
+  };
+  const submitReset = async () => {
+    if (newPassword.length < 8) { Alert.alert('Password too short', 'Use 8 or more characters.'); return; }
+    try {
+      const body = { ...contactBody(), code: resetCode, password: newPassword };
+      const r = await api.resetPassword(body);
+      await applySession(r.token, r.account);
+      await setFlag('returning', '1');
+    } catch (e) {
+      const m = String((e as Error).message || '');
+      Alert.alert('Could not reset', m.includes('8+')
+        ? 'Use 8 or more characters.'
+        : 'Invalid or expired code — request a fresh one.');
     }
   };
 
@@ -64,17 +108,23 @@ export function AuthScreen() {
   // Full international format: +dial + number without trunk zero.
   const fullPhone = (raw: string) => `+${dial}${raw.trim().replace(/^0+/, '')}`;
   const fieldBg = dark ? p.surface : FIELD_BG;
+  const title = stage === 'password' ? 'Enter password'
+    : stage === 'reset' ? 'Reset password'
+    : stage === 'code' ? 'Enter code'
+    : fresh ? 'Create Account' : 'Welcome back';
   return (
     <View style={s.root}>
       <View style={s.card}>
-        <Text style={s.h1}>{sent ? 'Enter code' : fresh ? 'Create Account' : 'Welcome back'}</Text>
+        <Text style={s.h1}>{title}</Text>
         <Text style={s.sub}>
-          {sent ? `We sent a 6-digit code to ${to.trim()}.`
+          {stage === 'code' ? `We sent a 6-digit code to ${to.trim()}.`
+            : stage === 'password' ? 'This account has a password — enter it to finish signing in.'
+            : stage === 'reset' ? `We sent a reset code to ${to.trim()}.`
             : fresh ? 'Join New Era to list your business and chat with customers.'
             : 'Sign in to your New Era account.'}
         </Text>
 
-        {!sent ? (
+        {stage === 'contact' && (
           <>
             {mode === 'email' ? (
               <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Email address" placeholderTextColor={p.bodyText}
@@ -122,7 +172,8 @@ export function AuthScreen() {
               </Text>
             </Text>
           </>
-        ) : (
+        )}
+        {stage === 'code' && (
           <>
             <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="6-digit code" placeholderTextColor={p.bodyText} value={code}
               onChangeText={setCode} keyboardType="number-pad" maxLength={6} />
@@ -132,6 +183,34 @@ export function AuthScreen() {
             </Text>
             <Text style={s.swapLine}>
               Wrong address? <Text style={s.link} onPress={reset}>Start over</Text>
+            </Text>
+          </>
+        )}
+        {stage === 'password' && (
+          <>
+            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Password" placeholderTextColor={p.bodyText}
+              value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+            <Button pill title="Sign in" onPress={submitPassword} />
+            <Text style={s.swapLine}>
+              Forgot password? <Text style={s.link} onPress={forgot}>Reset with a code</Text>
+            </Text>
+            <Text style={s.swapLine}>
+              Wrong address? <Text style={s.link} onPress={reset}>Start over</Text>
+            </Text>
+          </>
+        )}
+        {stage === 'reset' && (
+          <>
+            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Reset code" placeholderTextColor={p.bodyText}
+              value={resetCode} onChangeText={setResetCode} keyboardType="number-pad" maxLength={6} />
+            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
+              value={newPassword} onChangeText={setNewPassword} secureTextEntry autoCapitalize="none" />
+            <Button pill title="Reset & sign in" onPress={submitReset} />
+            <Text style={s.swapLine}>
+              No code yet? <Text style={s.link} onPress={forgot}>Resend code</Text>
+            </Text>
+            <Text style={s.swapLine}>
+              <Text style={s.link} onPress={() => setStage('password')}>Back to password</Text>
             </Text>
           </>
         )}

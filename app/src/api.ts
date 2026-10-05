@@ -10,6 +10,7 @@ export type Account = {
   id: string; email: string | null; phone: string | null;
   country: string; lastMode: 'customer' | 'business';
   avatarKey: string | null; tagline: string | null; headerKey: string | null;
+  hasPassword: boolean;
 };
 export type Business = {
   id: string; ownerId: string; name: string; slug: string; category: string;
@@ -70,7 +71,23 @@ export const api = {
   requestCode: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
-    req<{ token: string; account: Account }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
+    req<{ token: string; account: Account } | { needsPassword: true; accountId: string }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
+  passwordLogin: (body: { accountId: string; password: string }) =>
+    req<{ token: string; account: Account }>('/auth/password', { method: 'POST', body: JSON.stringify(body) }),
+  forgotPassword: (body: { email?: string; phone?: string }) =>
+    req<{ sent: boolean; devCode?: string }>('/auth/password/forgot', { method: 'POST', body: JSON.stringify(body) }),
+  resetPassword: (body: { email?: string; phone?: string; code: string; password: string }) =>
+    req<{ token: string; account: Account }>('/auth/password/reset', { method: 'POST', body: JSON.stringify(body) }),
+  setPassword: (body: { password: string; current?: string }) =>
+    req<{ ok: boolean; account: Account }>('/me/password', { method: 'POST', body: JSON.stringify(body) }),
+  requestEmailChange: (email: string) =>
+    req<{ sent: boolean; devCode?: string }>('/me/email/request', { method: 'POST', body: JSON.stringify({ email }) }),
+  confirmEmailChange: (body: { email: string; code: string }) =>
+    req<Account>('/me/email/confirm', { method: 'POST', body: JSON.stringify(body) }),
+  requestPhoneChange: (phone: string) =>
+    req<{ sent: boolean; devCode?: string }>('/me/phone/request', { method: 'POST', body: JSON.stringify({ phone }) }),
+  confirmPhoneChange: (body: { phone: string; code: string }) =>
+    req<Account>('/me/phone/confirm', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
   saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string }) =>
     req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
