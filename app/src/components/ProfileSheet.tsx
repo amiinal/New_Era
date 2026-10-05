@@ -13,7 +13,6 @@ import { Help, Settings } from '../screens/Settings';
 export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const { account, refresh } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
-  const [header, setHeader] = useState<string | null>(null);
   const [tagline, setTagline] = useState(account?.tagline ?? '');
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -21,15 +20,10 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   const { p } = useTheme();
   const s = themed(p);
   const shown = uri ?? (account?.avatarKey ? img(account.avatarKey) : null);
-  const shownHeader = header ?? (account?.headerKey ? img(account.headerKey) : null);
 
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
     if (!r.canceled && r.assets[0]) setUri(r.assets[0].uri);
-  };
-  const pickHeader = async () => {
-    const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
-    if (!r.canceled && r.assets[0]) setHeader(r.assets[0].uri);
   };
   const save = async () => {
     if (busy) return;
@@ -37,11 +31,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
     try {
       let avatarKey: string | undefined;
       if (uri) avatarKey = await api.uploadPhoto(uri, `account/${account?.id}/avatar-${Date.now()}.jpg`);
-      let headerKey: string | undefined;
-      if (header) headerKey = await api.uploadPhoto(header, `account/${account?.id}/header-${Date.now()}.jpg`);
       await api.saveProfile({
         ...(avatarKey ? { avatarKey } : {}),
-        ...(headerKey ? { headerKey } : {}),
         tagline: tagline.trim(),
       });
       await refresh();
@@ -56,15 +47,12 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
       <View style={s.root}>
       <ScrollView style={s.card} contentContainerStyle={s.cardInner}>
         <Text style={s.h1}>Your profile</Text>
-        {shownHeader ? <Image source={{ uri: shownHeader }} style={s.header} /> : null}
         {shown
           ? <Image source={{ uri: shown }} style={s.av} />
           : <View style={[s.av, s.empty]} />}
         <View style={{ height: space.s3 }} />
         <Button title="Choose photo" variant="secondary" onPress={pick} />
-        <View style={{ height: space.s2 }} />
-        <Button title="Choose header background" variant="secondary" onPress={pickHeader} />
-        <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
+        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s4 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} />
         <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
         <View style={{ height: space.s3 }} />

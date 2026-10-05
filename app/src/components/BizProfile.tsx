@@ -58,6 +58,7 @@ export function BizProfile({ onClose, onSaved }: { onClose: () => void; onSaved:
           placeholder="Tell customers who you are (max 250 words)…" placeholderTextColor={p.bodyText}
           value={bio} onChangeText={setBio} maxLength={1600} />
         <Text style={s.micro}>{words(bio)}/250 words</Text>
+        <View style={{ height: space.s4 }} />
         <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
         <View style={{ height: space.s3 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
