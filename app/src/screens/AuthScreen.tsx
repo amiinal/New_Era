@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { COUNTRIES } from '../countries';
@@ -108,7 +108,7 @@ export function AuthScreen() {
                       onPress={() => { setCountry(c.code); setDrop(false); }}
                       style={({ pressed }) => [s.optRow, pressed && s.optPressed, on && s.optSel]}>
                       <Text style={[s.opt, on && s.optOn]}>{c.name} · +{c.dial}</Text>
-                      {on ? <Text style={s.tick}>✓</Text> : null}
+                      {on ? <Check size={20} color={s.tick.color as string} /> : null}
                     </Pressable>
                   );
                 })}

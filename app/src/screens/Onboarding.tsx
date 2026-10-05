@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
@@ -87,7 +88,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
             <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
             <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
             <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>
-              <Text style={[s.box, { color: link, borderColor: link }]}>{nationwide ? '✓' : ''}</Text>
+              <View style={s.box}>{nationwide ? <Check size={16} color={link} /> : null}</View>
               <Text style={s.checkT}>Serve nationwide (online / delivery)</Text>
             </Pressable>
             <Pressable onPress={pickLogo} style={s.logoRow}>
@@ -191,7 +192,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   box: {
     width: 24, height: 24, borderRadius: 4, borderWidth: 1,
     borderColor: dark ? '#7B90D6' : '#2C3E7A',
-    textAlign: 'center', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700',
+    alignItems: 'center', justifyContent: 'center',
   },
   checkT: { ...type.body, color: p.ink },
   logoRow: { marginBottom: space.s4 },

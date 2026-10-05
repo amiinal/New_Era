@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Listing } from '../api';
@@ -104,11 +105,13 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
             <View style={s.sheet}>
               <Text style={s.t}>Availability</Text>
               {(['in_stock', 'limited', 'sold_out', 'made_to_order'] as const).map(a => (
-                <Text key={a} onPress={() => avFor && setAv(avFor, a)}
-                  style={[s.opt, avFor.availability === a && s.optOn]}>
-                  {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
-                  {avFor.availability === a ? ' ✓' : ''}
-                </Text>
+                <Pressable key={a} onPress={() => avFor && setAv(avFor, a)}
+                  style={[s.optRow, avFor.availability === a && s.optSel]}>
+                  <Text style={[s.opt, avFor.availability === a && s.optOn]}>
+                    {{ in_stock: 'In stock', limited: 'Limited', sold_out: 'Sold out', made_to_order: 'Made to order' }[a]}
+                  </Text>
+                  {avFor.availability === a ? <Check size={20} color={s.tick.color as string} /> : null}
+                </Pressable>
               ))}
               <Text onPress={() => setAvFor(null)} style={[s.opt, { textAlign: 'center' }]}>Cancel</Text>
             </View>
@@ -140,6 +143,9 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
     width: '100%', maxWidth: 420, alignSelf: 'center',
   },
   t: { ...type.h3, color: p.ink },
-  opt: { ...type.body, color: p.ink, paddingVertical: space.s3 },
+  opt: { ...type.body, color: p.ink, paddingVertical: space.s3, flex: 1 },
+  optRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  optSel: { backgroundColor: dark ? 'rgba(123,144,214,.12)' : 'rgba(44,62,122,.06)', borderRadius: 8 },
+  tick: { color: '#2C3E7A' },
   optOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
 });

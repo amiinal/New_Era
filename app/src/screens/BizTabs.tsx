@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
@@ -39,7 +40,7 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
       <TabHead title="Updates" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
       <Pressable onPress={() => setCompose(true)} style={s.card}>
         <View style={s.row}>
-          <View style={s.plus}><Text style={s.plusT}>+</Text></View>
+          <View style={s.plus}><Plus size={24} color="#C24E22" /></View>
           <View>
             <Text style={s.t}>Add to your story</Text>
             <Text style={s.micro}>Share a photo or text update</Text>

@@ -1,3 +1,4 @@
+import { X } from 'lucide-react-native';
 import React from 'react';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -10,7 +11,10 @@ export function FullImage({ uri, onClose }: { uri: string | null; onClose: () =>
         <View style={styles.card}>
           {uri ? <Image source={{ uri }} style={styles.img} resizeMode="contain" /> : null}
         </View>
-        <Text style={styles.x}>✕ Close</Text>
+        <Pressable onPress={onClose} style={styles.xrow}>
+          <X size={18} color="#fff" />
+          <Text style={styles.x}>Close</Text>
+        </Pressable>
       </Pressable>
     </Modal>
   );
@@ -23,5 +27,6 @@ const styles = StyleSheet.create({
     borderRadius: 16, overflow: 'hidden',
   },
   img: { width: '100%', aspectRatio: 1 },
-  x: { color: '#fff', fontSize: 16, marginTop: 16 },
+  x: { color: '#fff', fontSize: 16 },
+  xrow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 16 },
 });

@@ -1,5 +1,6 @@
 import {
-  Compass, MessageCircle, Newspaper, Package, Settings as SettingsIcon, Store,
+  Compass, CircleHelp, MessageCircle, Newspaper, Package, Settings as SettingsIcon,
+  Store, UserRound, X,
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -8,6 +9,7 @@ import { radius, space, type } from '../theme';
 import { Avatar } from './Avatar';
 import { BizProfile } from './BizProfile';
 import { Help, Settings } from '../screens/Settings';
+import { ProfileSheet } from './ProfileSheet';
 import { Palette, useTheme } from '../useTheme';
 
 export type DrawerRoute =
@@ -35,7 +37,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
   const { p, dark } = useTheme();
   const s = themed(p, dark);
   const activeC = dark ? '#7B90D6' : '#2C3E7A';
-  const [page, setPage] = useState<'menu' | 'profile' | 'settings' | 'help'>('menu');
+  const [page, setPage] = useState<'menu' | 'profile' | 'cprofile' | 'settings' | 'help'>('menu');
   const [biz, setBiz] = useState<Business | null>(null);
   useEffect(() => {
     if (mode === 'business') api.myBusinesses().then(l => setBiz(l[0] ?? null)).catch(() => {});
@@ -67,14 +69,33 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
             );
           })}
           <View style={{ flex: 1 }} />
-          {mode === 'business' && (
-            <Text style={s.item} onPress={() => setPage('profile')}>Business profile ›</Text>
+          {mode === 'business' ? (
+            <Pressable onPress={() => setPage('profile')} style={s.row}>
+              <Store size={20} color={p.bodyText} />
+              <Text style={s.label}>Business profile</Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => setPage('cprofile')} style={s.row}>
+              <UserRound size={20} color={p.bodyText} />
+              <Text style={s.label}>Profile</Text>
+            </Pressable>
           )}
-          <Text style={s.item} onPress={() => setPage('settings')}>Settings ›</Text>
-          <Text style={s.item} onPress={() => setPage('help')}>Help & FAQ ›</Text>
+          <Pressable onPress={() => setPage('settings')} style={s.row}>
+            <SettingsIcon size={20} color={p.bodyText} />
+            <Text style={s.label}>Settings</Text>
+          </Pressable>
+          <Pressable onPress={() => setPage('help')} style={s.row}>
+            <CircleHelp size={20} color={p.bodyText} />
+            <Text style={s.label}>Help & FAQ</Text>
+          </Pressable>
+          <Pressable onPress={onClose} style={s.row}>
+            <X size={20} color={p.bodyText} />
+            <Text style={s.label}>Close</Text>
+          </Pressable>
         </Pressable>
       </Pressable>
       {page === 'profile' && <BizProfile onClose={() => setPage('menu')} onSaved={() => setPage('menu')} />}
+      {page === 'cprofile' && <ProfileSheet onClose={() => setPage('menu')} onSaved={() => setPage('menu')} />}
       {page === 'settings' && <Settings onClose={() => setPage('menu')} onHelp={() => setPage('help')} />}
       {page === 'help' && <Help onClose={() => setPage('menu')} />}
     </Modal>

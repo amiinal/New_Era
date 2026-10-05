@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import { MoreVertical } from 'lucide-react-native';
 import { api, img, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
@@ -83,7 +84,9 @@ export function StorefrontScreen({
             <Text style={s.meta}>{b.category} · {b.area ? `${b.area}, ` : ''}{b.city}</Text>
             {!!b.bio && <Text style={s.micro}>{b.bio}</Text>}
           </View>
-          <Text onPress={() => setMenu(m => !m)} style={s.kebab}>···</Text>
+          <Pressable onPress={() => setMenu(m => !m)} style={s.kebab}>
+            <MoreVertical size={20} color={p.bodyText} />
+          </Pressable>
         </View>
         {menu && (
           <View style={s.menu}>
@@ -155,7 +158,7 @@ const themed = (p: Palette) => StyleSheet.create({
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
-  kebab: { fontSize: 20, color: p.bodyText, padding: space.s2, letterSpacing: 2 },
+  kebab: { padding: space.s2 },
   menu: {
     position: 'absolute', top: 44, right: 12, backgroundColor: p.surface,
     borderRadius: 8, elevation: 4, zIndex: 10, minWidth: 180,

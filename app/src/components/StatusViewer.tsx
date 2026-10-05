@@ -1,3 +1,4 @@
+import { X } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { img, Status } from '../api';
@@ -58,7 +59,7 @@ export function StatusViewer({
         </View>
         <View style={styles.head}>
           <Text style={styles.biz}>{businessName}</Text>
-          <Pressable onPress={onClose}><Text style={styles.x}>✕</Text></Pressable>
+          <Pressable onPress={onClose} style={{ padding: 4 }}><X size={20} color="#fff" /></Pressable>
         </View>
         {s.kind === 'text' ? (
           <View style={[styles.textSlide, { backgroundColor: s.bg ?? C.primary }]}>

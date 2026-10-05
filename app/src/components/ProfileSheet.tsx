@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Alert, Image, Modal, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, img } from '../api';
 import { useAuth } from '../auth';
 import { radius, space, type } from '../theme';
@@ -52,8 +52,9 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   };
 
   return (
-    <Modal visible animationType="slide" onRequestClose={onClose}>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.root}>
+      <ScrollView style={s.card}>
         <Text style={s.h1}>Your profile</Text>
         {shownHeader ? <Image source={{ uri: shownHeader }} style={s.header} /> : null}
         {shown
@@ -70,6 +71,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
         <View style={{ height: space.s3 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
+      </ScrollView>
       </View>
       {settings && <Settings onClose={() => setSettings(false)} onHelp={() => setHelp(true)} />}
       {help && <Help onClose={() => setHelp(false)} />}
@@ -78,7 +80,11 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s5, alignItems: 'center' },
+  root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
+  card: {
+    width: '100%', maxWidth: 480, backgroundColor: p.background, borderRadius: radius.lg,
+    padding: space.s5, alignItems: 'center', maxHeight: '92%',
+  },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   av: { width: 96, height: 96, borderRadius: 48 },
   header: { width: '100%', height: 110, borderRadius: 12, marginBottom: space.s2 },

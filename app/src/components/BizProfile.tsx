@@ -45,8 +45,9 @@ export function BizProfile({ onClose, onSaved }: { onClose: () => void; onSaved:
   };
 
   return (
-    <Modal visible animationType="slide" onRequestClose={onClose}>
-      <ScrollView style={s.root}>
+    <Modal visible transparent animationType="fade" onRequestClose={onClose}>
+      <View style={s.root}>
+      <ScrollView style={s.card}>
         <Text style={s.h1}>Business profile</Text>
       <Text style={s.sec}>Logo</Text>
       <PickBox uri={logo} shown={biz?.logoKey} onPick={pick(setLogo)} />
@@ -61,6 +62,7 @@ export function BizProfile({ onClose, onSaved }: { onClose: () => void; onSaved:
         <View style={{ height: space.s3 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
       </ScrollView>
+      </View>
     </Modal>
   );
 }
@@ -83,7 +85,11 @@ function PickBox({ uri, shown, wide, onPick }: {
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
+  card: {
+    width: '100%', maxWidth: 480, maxHeight: '92%', backgroundColor: p.background,
+    borderRadius: radius.lg, padding: space.s5,
+  },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   micro: { ...type.micro, color: p.bodyText },
   sec: { ...type.h3, color: p.ink, marginBottom: space.s2, marginTop: space.s3 },
