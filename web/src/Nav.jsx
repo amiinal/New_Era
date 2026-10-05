@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { accountId, getMode, setMode, signOut } from './lib.js';
+import { ChatIcon, HelpIcon, LogoutIcon, MenuIcon, SettingsIcon, SwitchIcon, UserIcon } from './icons.jsx';
 
 // Shared topnav: Discover · About · FAQ centered, plus a hamburger once
 // signed in (mode switch, Profile, Settings, Customer support, My chats).
@@ -31,17 +32,19 @@ export default function Nav() {
         <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Sign in</Link>
       ) : (
         <div className="menu-wrap">
-          <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Menu">☰</button>
+          <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Menu">
+            <MenuIcon size={22} color="var(--color-primary)" />
+          </button>
           {open && (
             <div className="menu-panel" onClick={() => setOpen(false)}>
               <button onClick={(e) => { e.stopPropagation(); flip(); }}>
-                {mode === 'business' ? 'Switch to Customer view' : 'Switch to Business view'}
+                <SwitchIcon />{mode === 'business' ? 'Switch to Customer view' : 'Switch to Business view'}
               </button>
-              <Link to="/profile">Profile</Link>
-              <Link to="/settings">Settings</Link>
-              <Link to="/support">Customer support</Link>
-              <Link to="/chat">My chats</Link>
-              <button onClick={() => signOut(navigate)}>Sign out</button>
+              <Link to="/profile"><UserIcon />Profile</Link>
+              <Link to="/settings"><SettingsIcon />Settings</Link>
+              <Link to="/support"><HelpIcon />Customer support</Link>
+              <Link to="/chat"><ChatIcon />My chats</Link>
+              <button onClick={() => signOut(navigate)}><LogoutIcon />Sign out</button>
             </div>
           )}
         </div>

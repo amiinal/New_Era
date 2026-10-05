@@ -29,8 +29,8 @@ export default function Settings() {
           <span style={{ width: 8, display: 'inline-block' }} />
           <Link to="/support" className="btn btn-secondary">Contact support</Link>
         </div>
-        <div style={{ marginTop: 16 }}>
-          <button className="btn btn-secondary" onClick={() => signOut(navigate)}>Sign out</button>
+        <div className="card" style={{ marginTop: 8 }}>
+          <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => signOut(navigate)}>Sign out</button>
         </div>
         <p style={{ textAlign: 'center', color: 'var(--color-body-text)', fontSize: 12 }}>New Era · MVP beta · v1.0.0</p>
       </div>

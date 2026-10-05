@@ -1,5 +1,6 @@
 import React from 'react';
 import Nav from './Nav.jsx';
+import { ChevronDownIcon } from './icons.jsx';
 
 const FAQ = [
   ['How do I appear in Discover?', 'Publish 3 or more items with photos, plus a category and location. New businesses get a fair-rotation boost.'],
@@ -17,8 +18,11 @@ export default function Faq() {
       <div className="page" style={{ maxWidth: 720 }}>
         <h1>FAQ</h1>
         {FAQ.map(([q, a], j) => (
-          <details className="card" key={j} style={{ marginBottom: 8 }}>
-            <summary style={{ cursor: 'pointer', fontWeight: 600 }}>{q}</summary>
+          <details className="card faq" key={j} style={{ marginBottom: 8 }}>
+            <summary>
+              <span style={{ flex: 1 }}>{q}</span>
+              <ChevronDownIcon color="var(--color-body-text)" />
+            </summary>
             <p style={{ color: 'var(--color-body-text)' }}>{a}</p>
           </details>
         ))}

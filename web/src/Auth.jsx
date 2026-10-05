@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import { API } from './lib.js';
+import { COUNTRIES } from './countries.js';
 
 // Code sign-in + explicit country, mirroring the app: fresh visitors see
 // Sign up first, returning visitors see Sign in. Password accounts get a
@@ -111,9 +112,9 @@ export default function Auth() {
             <input className="input" placeholder="email or phone" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
             <label className="lbl">Country (explicit, never inferred)</label>
             <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%' }}>
-              <option value="NG">Nigeria</option>
-              <option value="GH">Ghana</option>
-              <option value="KE">Kenya</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.name}</option>
+              ))}
             </select>
             <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={request}>Send code</button></div>
             <p style={{ textAlign: 'center', fontSize: 14 }}>

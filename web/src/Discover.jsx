@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import { api } from './lib.js';
+import { COUNTRIES } from './countries.js';
 
 // Public Discover (DIS-1..8, CUS-9): country boundary + city filter,
 // no account needed — the login wall sits at first chat.
@@ -30,9 +31,9 @@ export default function Discover() {
         <h1>Discover businesses</h1>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: 160 }}>
-            <option value="NG">Nigeria</option>
-            <option value="GH">Ghana</option>
-            <option value="KE">Kenya</option>
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
           </select>
           <input className="input" placeholder="City (optional)" value={city} onChange={(e) => setCity(e.target.value)} style={{ width: 180 }} />
           <input className="input" placeholder="Search businesses…" value={q} onChange={(e) => setQ(e.target.value)}
