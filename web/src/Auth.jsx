@@ -25,6 +25,7 @@ export default function Auth() {
   const done = (j) => {
     localStorage.setItem('accountId', j.account.id);
     localStorage.setItem('returning', '1');
+    localStorage.setItem('mode', j.account.lastMode || 'customer');
     navigate(next, { replace: true });
   };
   const startOver = () => { setCode(''); setStage('contact'); };

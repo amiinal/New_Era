@@ -4,7 +4,17 @@ export const accountId = () => localStorage.getItem('accountId');
 
 export function signOut(navigate) {
   localStorage.removeItem('accountId');
+  localStorage.removeItem('mode');
   if (navigate) navigate('/');
+}
+
+// Customer/business mode (ACC-3): server is source of truth, mirrored here.
+export const getMode = () => localStorage.getItem('mode') || 'customer';
+
+export async function setMode(mode) {
+  const acc = await api('/me/mode', { method: 'PATCH', body: JSON.stringify({ mode }) });
+  localStorage.setItem('mode', acc.lastMode);
+  return acc;
 }
 
 // Appearance: system follows the device, otherwise pinned (mirrors the app).
