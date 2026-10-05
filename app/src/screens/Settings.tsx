@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, Headset } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../auth';
@@ -33,8 +34,11 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
           <Text style={s.chev}>›</Text>
         </Pressable>
         <Pressable onPress={() => setSup(!sup)} style={s.item}>
-          <Text style={s.itemT}>Contact support</Text>
-          <Text style={s.chev}>{sup ? '▲' : '▼'}</Text>
+          <Headset size={20} color={p.bodyText} />
+          <Text style={[s.itemT, { flex: 1 }]}>Contact support</Text>
+          {sup
+            ? <ChevronUp size={20} color={p.bodyText} />
+            : <ChevronDown size={20} color={p.bodyText} />}
         </Pressable>
         {sup && (
           <Text style={s.micro}>
@@ -72,11 +76,14 @@ export function Help({ onClose }: { onClose: () => void }) {
       <View style={s.root}>
         <Text style={s.h1}>Help center</Text>
         {FAQ.map(([q, a], j) => (
-          <View key={j} style={s.item}>
-            <Pressable onPress={() => setOpen(open === j ? null : j)}>
+          <View key={j} style={s.itemWrap}>
+            <Pressable onPress={() => setOpen(open === j ? null : j)} style={s.itemRow}>
               <Text style={s.itemT}>{q}</Text>
+              {open === j
+                ? <ChevronUp size={20} color={p.bodyText} />
+                : <ChevronDown size={20} color={p.bodyText} />}
             </Pressable>
-            {open === j && <Text style={s.micro}>{a}</Text>}
+            {open === j && <Text style={s.answer}>{a}</Text>}
           </View>
         ))}
         <View style={{ height: space.s4 }} />
@@ -97,10 +104,16 @@ const themed = (p: Palette) => StyleSheet.create({
     borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText, overflow: 'hidden',
   },
   optOn: { borderColor: p.primary, color: p.primary, fontWeight: '700' },
+  itemWrap: {
+    backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
+    marginBottom: space.s2,
+  },
   item: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
     marginBottom: space.s2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
   },
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  answer: { ...type.bodySm, color: p.bodyText, marginTop: space.s2 },
   itemT: { ...type.body, color: p.ink, flex: 1 },
   chev: { fontSize: 20, color: p.bodyText },
 });

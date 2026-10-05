@@ -54,7 +54,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <View style={s.root}>
-      <ScrollView style={s.card}>
+      <ScrollView style={s.card} contentContainerStyle={s.cardInner}>
         <Text style={s.h1}>Your profile</Text>
         {shownHeader ? <Image source={{ uri: shownHeader }} style={s.header} /> : null}
         {shown
@@ -83,7 +83,9 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
   card: {
     width: '100%', maxWidth: 480, backgroundColor: p.background, borderRadius: radius.lg,
-    padding: space.s5, alignItems: 'center', maxHeight: '92%',
+  },
+  cardInner: {
+    padding: space.s5, alignItems: 'center', flexGrow: 1,
   },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   av: { width: 96, height: 96, borderRadius: 48 },
