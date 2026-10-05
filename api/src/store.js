@@ -206,9 +206,14 @@ export function storeRoutes(app, prisma) {
   app.post('/reports', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { targetType, targetId, reason } = req.body || {};
+    const { targetType, targetId, reason, contact } = req.body || {};
     if (!targetType || !targetId || !reason) return reply.code(400).send({ error: 'targetType, targetId, reason required' });
-    return prisma.report.create({ data: { reporterId: acc.id, targetType, targetId, reason } });
+    return prisma.report.create({
+      data: {
+        reporterId: acc.id, targetType, targetId, reason,
+        contact: contact ? String(contact).slice(0, 120) : null,
+      },
+    });
   });
 
   // ONB: create the account's business (one per account in the MVP).

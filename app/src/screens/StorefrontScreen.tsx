@@ -9,6 +9,7 @@ import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { FullImage } from '../components/FullImage';
+import { ReportDialog } from '../components/ReportDialog';
 import { ListingCard } from '../components/ListingCard';
 import { Skeleton } from '../components/Skeleton';
 import { StatusViewer, statusLabel } from '../components/StatusViewer';
@@ -23,6 +24,7 @@ export function StorefrontScreen({
   const [sf, setSf] = useState<Storefront | null | undefined>(undefined);
   const [menu, setMenu] = useState(false);
   const [sent, setSent] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [view, setView] = useState(false);
   const [full, setFull] = useState<string | null>(null);
   const { width } = useWindowDimensions();
@@ -33,12 +35,13 @@ export function StorefrontScreen({
   const { p } = useTheme();
   const s = themed(p);
 
-  const report = async (id: string) => {
+  const report = (id: string) => {
     setMenu(false);
-    try {
-      await api.report({ targetType: 'profile', targetId: id, reason: 'Reported from storefront' });
-      setSent(true);
-    } catch { setSent(false); }
+    if (!account) {
+      Alert.alert('Sign in to report', 'We need your account so the team can follow up.');
+      return;
+    }
+    setReporting(true);
   };
 
   useEffect(() => { api.storefront(slug).then(setSf).catch(() => setSf(null)); }, [slug]);
@@ -94,6 +97,11 @@ export function StorefrontScreen({
           </View>
         )}
         {sent && <Text style={s.note}>Thanks — our team will review this storefront.</Text>}
+        {reporting && (
+          <ReportDialog targetType="profile" targetId={b.id} title="this storefront"
+            onClose={() => setReporting(false)}
+            onSent={() => { setReporting(false); setSent(true); }} />
+        )}
       <View style={s.actions}>
         <View style={{ flex: 2 }}>
           <Button title="Message" disabled={preview}

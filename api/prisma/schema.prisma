@@ -146,6 +146,7 @@ model Report {
   reason     String
   resolved   Boolean  @default(false) // triaged in /admin
   action     String?  // dismiss|hide (+ note), set on resolve
+  contact    String?  // reporter-supplied email/phone for follow-up
   createdAt DateTime @default(now())
 }
 

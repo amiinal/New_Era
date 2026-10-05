@@ -79,7 +79,7 @@ export default function Admin() {
           <div className="card" key={r.id} style={{ marginBottom: 8 }}>
             <strong>{r.label}</strong>
             <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '4px 0' }}>
-              {r.targetType} · “{r.reason}” · reported by {r.reporter}
+              {r.targetType} · “{r.reason}” · reported by {r.reporter} · reach out: {r.reachOut}
             </p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {r.link ? <Link to={r.link} className="btn btn-secondary" style={{ height: 36 }}>View</Link> : null}

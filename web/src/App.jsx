@@ -12,6 +12,7 @@ import Settings from './Settings.jsx';
 import Support from './Support.jsx';
 import Admin from './Admin.jsx';
 import Nav from './Nav.jsx';
+import ReportForm from './ReportForm.jsx';
 import { initTheme, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -40,6 +41,8 @@ function Storefront() {
   const { slug } = useParams();
   const [sf, setSf] = useState(null);
   const [failed, setFailed] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
 
   useEffect(() => {
     fetch(`${API}/storefront/${slug}`).then((r) => {
@@ -72,11 +75,19 @@ function Storefront() {
             </p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
           <MessageButton businessId={b.id} />
           <button className="btn" style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
             onClick={() => navigator.clipboard?.writeText(window.location.href).then(() => alert('Link copied.'))}>Share</button>
+          <button className="btn btn-secondary" onClick={() => setReporting(!reporting)}>Report</button>
         </div>
+        {reported ? (
+          <p style={{ fontSize: 13, color: 'var(--color-body-text)' }}>Thanks — our team will review this storefront.</p>
+        ) : null}
+        {reporting && !reported ? (
+          <ReportForm targetType="profile" targetId={b.id} title="this storefront"
+            onDone={(sent) => { setReporting(false); if (sent) setReported(true); }} />
+        ) : null}
         <h2>Listings</h2>
         <div className="grid">
           {sf.listings.map(l => (
@@ -114,6 +125,8 @@ function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [l, setL] = useState(null);
+  const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
   useEffect(() => {
     fetch(`${API}/listings/${id}`).then((r) => {
       if (!r.ok) throw new Error('bad status');
@@ -130,9 +143,17 @@ function ListingDetail() {
         {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
         <h1>{l.title}</h1>
         <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <MessageButton businessId={l.businessId} listingId={l.id} label="Message about this" />
-        </div>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <MessageButton businessId={l.businessId} listingId={l.id} label="Message about this" />
+        <button className="btn btn-secondary" onClick={() => setReporting(!reporting)}>Report</button>
+      </div>
+      {reported ? (
+        <p style={{ fontSize: 13, color: 'var(--color-body-text)' }}>Thanks — our team will review this listing.</p>
+      ) : null}
+      {reporting && !reported ? (
+        <ReportForm targetType="listing" targetId={l.id} title="this listing"
+          onDone={(sent) => { setReporting(false); if (sent) setReported(true); }} />
+      ) : null}
       </div>
     </div>
   );

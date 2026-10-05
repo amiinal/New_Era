@@ -104,7 +104,7 @@ export const api = {
   messages: (threadId: string) => req<Message[]>(`/threads/${threadId}/messages`),
   sendMessage: (threadId: string, body: { body?: string; imageKey?: string }) =>
     req<Message>(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify(body) }),
-  report: (body: { targetType: string; targetId: string; reason: string }) =>
+  report: (body: { targetType: string; targetId: string; reason: string; contact?: string }) =>
     req<{ id: string }>('/reports', { method: 'POST', body: JSON.stringify(body) }),
   presign: (key: string) =>
     req<{ uploadUrl: string; publicUrl: string }>('/uploads/presign', {

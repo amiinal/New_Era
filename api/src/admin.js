@@ -51,9 +51,11 @@ export function adminRoutes(app, prisma) {
     const out = [];
     for (const r of rows) {
       const reporter = await prisma.account.findUnique({ where: { id: r.reporterId } });
+      const reporterContact = reporter ? (reporter.email || reporter.phone) : '?';
       out.push({
         ...r,
-        reporter: reporter ? (reporter.email || reporter.phone) : '?',
+        reporter: reporterContact,
+        reachOut: r.contact || reporterContact,
         ...(await describe(prisma, r)),
       });
     }
