@@ -358,7 +358,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Listing photos | Max 5 photos per listing in a swipeable gallery, so variants need no separate listings (Decided Sept 30, 2026; supersedes the max-3 rule). |
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
 | Pick-list (cart-lite) | Multi-item pick attached to the first chat message, no totals or checkout; Phase 2 after chat loop is proven (Decided Sept 27, 2026). |
-| Pins (paid) | Pin-to-profile/storefront highlight + 7-day status pin; in-app links only; ships when chat value is proven (premium trigger). |
+| Pins (paid) | Pin-to-profile/storefront highlight + 7-day status pin; in-app links only; explicit "Share promo" button (system share sheet with attribution + install link); ships when chat value is proven (premium trigger). |
 | Sponsored placements | Labeled in-status area ads (promo/event), density-gated per DIS-11; in-app links first, external links only with review; customers can reshare with attribution + install link; max 3 active per business per city, swipable; subtle new-dot, no enticement animation; Phase 3. |
 | Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |
 | Phone sign-up | Removed for MVP — email-only sign-up; contact phone stays as an optional unverified profile field. Revisit with Africa's Talking at beta (Decided Oct 6, 2026). |
