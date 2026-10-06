@@ -14,9 +14,9 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
   const { account, mode, setAppMode, refresh } = useAuth();
-  const { p, dark } = useTheme();
+  const { p } = useTheme();
   const s = themed(p);
-  const link = dark ? '#7B90D6' : C.primary;
+  const link = p.primary;
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
@@ -62,7 +62,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
-  switch: { ...type.bodySm, color: C.primary, fontWeight: '600' },
+  switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,

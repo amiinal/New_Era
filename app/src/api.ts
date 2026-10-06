@@ -74,6 +74,9 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Currency symbol for the business's own currency (PRD §7, never converted). */
+export const symFor = (c: string) => ({ NGN: '₦', GHS: 'GH₵', KES: 'KSh' } as Record<string, string>)[c] ?? '';
+
 /** Resolve a stored photo key to a loadable URL (R2 public URL or local /img). */
 export const img = (key: string) => (/^https?:\/\//.test(key) ? key : `${API_URL}/img/${key}`);
 

@@ -183,5 +183,5 @@ const themed = (p: Palette) => StyleSheet.create({
   certImg: { width: 44, height: 44, borderRadius: radius.md },
   certT: { ...type.bodySm, fontWeight: '600', color: p.ink },
   micro: { ...type.micro, color: p.bodyText },
-  link: { ...type.body, color: C.primary, textAlign: 'center', marginVertical: space.s6 },
+  link: { ...type.body, color: p.primary, textAlign: 'center', marginVertical: space.s6 },
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { img, Listing } from '../api';
+import { img, Listing, symFor } from '../api';
 import { C, radius, space } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 
@@ -30,7 +30,7 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
       <View style={s.body}>
         <Text style={s.title} numberOfLines={2}>{item.title}</Text>
         <Text style={s.price}>
-          {item.price ?? 'Price on request'}
+          {item.price ? `${symFor(item.currency)}${item.price}` : 'Price on request'}
           {'  '}
           <View style={[s.dot, { backgroundColor: a.color }]} />
           <Text style={s.avail}> {a.label}</Text>
@@ -48,7 +48,7 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
 const themed = (p: Palette) => StyleSheet.create({
   card: { flex: 1, backgroundColor: p.surface, borderRadius: radius.lg, overflow: 'hidden' },
   photo: { width: '100%', aspectRatio: 1 },
-  phWrap: { backgroundColor: '#ECEEF1' },
+  phWrap: { backgroundColor: p.line },
   empty: { backgroundColor: p.line },
   body: { padding: space.s4 - 4 },
   title: { fontSize: 16, fontWeight: '600', color: p.ink },

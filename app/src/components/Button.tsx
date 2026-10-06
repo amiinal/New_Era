@@ -12,9 +12,9 @@ type Props = {
 };
 // One CTA (primary) per screen. 48/40/32 via `size` where needed.
 export function Button({ title, onPress, variant = 'primary', disabled, pill }: Props) {
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
-  const tx = dark ? '#7B90D6' : C.primary;
+  const { p } = useTheme();
+  const s = themed(p);
+  const tx = p.primary;
   return (
     <Pressable
       onPress={onPress}
@@ -43,11 +43,11 @@ export function Button({ title, onPress, variant = 'primary', disabled, pill }: 
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   base: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   label: { fontSize: 14, fontWeight: '600' },
   primary: { backgroundColor: C.cta },
-  secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: dark ? '#7B90D6' : C.primary },
+  secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: p.primary },
   tertiary: {},
   destructive: { backgroundColor: p.surface, borderWidth: 1, borderColor: C.error },
   dim: { opacity: 0.6 },

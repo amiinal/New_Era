@@ -33,7 +33,7 @@ export function AuthScreen() {
   }, []);
   if (!tab) return <View />;
   const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const s = themed(p);
 
   const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
   const contactBody = () => mode === 'email' ? { email: to.trim() } : { phone: fullPhone(to.trim()) };
@@ -219,7 +219,7 @@ export function AuthScreen() {
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: {
     width: '100%', maxWidth: 420, backgroundColor: p.surface,
@@ -246,12 +246,12 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   divider: { width: 1, height: 24, backgroundColor: p.line, marginHorizontal: space.s2 },
   menu: { borderRadius: 16, marginBottom: space.s3, maxHeight: 220, overflow: 'hidden' },
   opt: { ...type.body, color: p.ink, padding: space.s4, flex: 1 },
-  optOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
+  optOn: { color: p.primary, fontWeight: '700' },
   optRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optPressed: { backgroundColor: 'rgba(44,62,122,.06)' },
   optSel: { backgroundColor: 'rgba(44,62,122,.06)' },
-  tick: { ...type.body, color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700', paddingRight: space.s4 },
-  swap: { ...type.bodySm, color: dark ? '#7B90D6' : '#2C3E7A', marginBottom: space.s3 },
+  tick: { ...type.body, color: p.primary, fontWeight: '700', paddingRight: space.s4 },
+  swap: { ...type.bodySm, color: p.primary, marginBottom: space.s3 },
   swapLine: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s4 },
-  link: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '600' },
+  link: { color: p.primary, fontWeight: '600' },
 });

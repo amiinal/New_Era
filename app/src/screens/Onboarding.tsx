@@ -29,9 +29,9 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   const [cover, setCover] = useState<string | null>(null);
   const [biz, setBiz] = useState<{ id: string; slug: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
-  const link = dark ? '#7B90D6' : '#2C3E7A';
+  const { p } = useTheme();
+  const s = themed(p);
+  const link = p.primary;
 
   const pickInto = (set: (u: string) => void) => async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
@@ -121,8 +121,8 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
   const [title, setTitle] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const { p } = useTheme();
+  const s = themed(p);
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.7 });
     if (!r.canceled && r.assets[0]) setPhoto(r.assets[0].uri);
@@ -154,8 +154,8 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
 }
 
 function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const { p } = useTheme();
+  const s = themed(p);
   const link = `https://newera.shop/s/${slug}`;
   return (
     <>
@@ -173,7 +173,7 @@ function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
   prog: { flexDirection: 'row', gap: 4, marginBottom: space.s2 },
   seg: { flex: 1, height: 4, borderRadius: 2, backgroundColor: p.line },
@@ -187,11 +187,11 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginBottom: space.s3 },
   opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
-  optOn: { borderColor: dark ? '#7B90D6' : '#2C3E7A', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '600' },
+  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600' },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
   box: {
     width: 24, height: 24, borderRadius: 4, borderWidth: 1,
-    borderColor: dark ? '#7B90D6' : '#2C3E7A',
+    borderColor: p.primary,
     alignItems: 'center', justifyContent: 'center',
   },
   checkT: { ...type.body, color: p.ink },

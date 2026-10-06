@@ -48,5 +48,5 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   t: { ...type.body, color: p.ink, fontWeight: '600' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 2 },
   foot: { ...type.micro, color: p.bodyText, textAlign: 'center', marginTop: space.s2 },
-  icon: { ...type.body, color: dark ? '#7B90D6' : '#2C3E7A' },
+  icon: { ...type.body, color: p.primary },
 });

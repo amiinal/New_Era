@@ -15,9 +15,9 @@ const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
 ];
 // Business bottom nav: never the customer tabs (ACC-3 modes stay distinct).
 export function BizNav({ active, onTab, chatsDot }: { active: BizTab; onTab: (t: BizTab) => void; chatsDot?: boolean }) {
-  const { p, dark } = useTheme();
+  const { p } = useTheme();
   const s = themed(p);
-  const activeColor = dark ? '#7B90D6' : C.primary;
+  const activeColor = p.primary;
   return (
     <View style={s.bar}>
       {BIZ_TABS.map(({ key, label, Icon }) => {
@@ -42,9 +42,9 @@ const TABS: { key: Tab; label: string; Icon: typeof Compass }[] = [
 ];
 // Customer bottom nav (§CUS-1): active tab in primary, unread dot in error.
 export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t: Tab) => void; chatsDot?: boolean }) {
-  const { p, dark } = useTheme();
+  const { p } = useTheme();
   const s = themed(p);
-  const activeColor = dark ? '#7B90D6' : C.primary;
+  const activeColor = p.primary;
   return (
     <View style={s.bar}>
       {TABS.map(({ key, label, Icon }) => {

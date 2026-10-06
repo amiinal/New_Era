@@ -13,6 +13,7 @@ const dark: Partial<Palette> = {
   ink: C.darkInk,
   bodyText: C.darkBodyText,
   line: C.darkLine,
+  primary: C.primaryOnDark,
 };
 
 type Mode = 'system' | 'light' | 'dark';

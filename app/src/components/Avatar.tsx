@@ -8,7 +8,7 @@ import { Palette, useTheme } from '../useTheme';
 // `online` adds the green presence dot (seen < 2min ago).
 export function Avatar({ name, size = 64, ring = false, online }: { name: string; size?: number; ring?: boolean; online?: boolean }) {
   const { p, dark } = useTheme();
-  const fg = dark ? '#7B90D6' : C.primary;
+  const fg = p.primary;
   const dot = Math.max(10, size * 0.28);
   return (
     <View

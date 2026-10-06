@@ -31,7 +31,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const ref = useRef<CameraView>(null);
   const { p, dark } = useTheme();
   const s = themed(p, dark);
-  const link = dark ? '#7B90D6' : '#2C3E7A';
+  const link = p.primary;
 
   const addUri = (uri: string) => {
     if (photos.length >= 5) { Alert.alert('Photo limit', 'Up to 5 photos per listing.'); return; }
@@ -147,7 +147,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   addT: { fontWeight: '600' },
   toggle: { flexDirection: 'row', gap: space.s2, marginBottom: space.s4, flexWrap: 'wrap' },
   opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
-  optOn: { borderColor: dark ? '#7B90D6' : '#2C3E7A', color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '600' },
+  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,

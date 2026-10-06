@@ -31,7 +31,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   const [edit, setEdit] = useState(false);
   const { p, dark } = useTheme();
   const s = themed(p, dark);
-  const link = dark ? '#7B90D6' : '#2C3E7A';
+  const link = p.primary;
 
   const loadBiz = async () => {
     try {
@@ -139,7 +139,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   t: { ...type.h3, color: p.ink },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   range: { ...type.bodySm, color: p.bodyText, padding: space.s2 },
-  rangeOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
+  rangeOn: { color: p.primary, fontWeight: '700' },
   mrow: { flexDirection: 'row', alignItems: 'baseline', gap: space.s3, marginTop: space.s2 },
   mn: { ...type.h2, color: p.ink, fontVariant: ['tabular-nums'] },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, marginTop: space.s2 },
@@ -147,5 +147,5 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
     flexBasis: '47%', flexGrow: 1, backgroundColor: p.background,
     borderRadius: radius.md, padding: space.s3,
   },
-  link: { ...type.body, color: dark ? '#7B90D6' : '#2C3E7A', textAlign: 'center', marginVertical: space.s5 },
+  link: { ...type.body, color: p.primary, textAlign: 'center', marginVertical: space.s5 },
 });

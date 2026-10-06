@@ -14,7 +14,7 @@ import { SupportChat } from '../components/SupportChat';
 // sign out, version.
 export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () => void }) {
   const { account, refresh, signOut } = useAuth();
-  const { p, dark, mode, setMode } = useTheme();
+  const { p, mode, setMode } = useTheme();
   const [chat, setChat] = useState(false);
   const [panel, setPanel] = useState<'password' | 'email' | 'phone' | null>(null);
   // password form
@@ -29,7 +29,6 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
   const [phoneCode, setPhoneCode] = useState('');
   const [phoneSent, setPhoneSent] = useState(false);
   const s = themed(p);
-  const link = dark ? '#7B90D6' : '#2C3E7A';
   const dial = COUNTRIES.find(c => c.code === (account?.country ?? 'NG'))?.dial ?? '';
   const toggle = (k: 'password' | 'email' | 'phone') => {
     setPanel(panel === k ? null : k);

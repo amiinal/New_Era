@@ -36,7 +36,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
 }) {
   const { p, dark } = useTheme();
   const s = themed(p, dark);
-  const activeC = dark ? '#7B90D6' : '#2C3E7A';
+  const activeC = p.primary;
   const [page, setPage] = useState<'menu' | 'profile' | 'cprofile' | 'settings' | 'help'>('menu');
   const [biz, setBiz] = useState<Business | null>(null);
   useEffect(() => {
@@ -108,7 +108,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
     width: '82%', maxWidth: 340, height: '100%', backgroundColor: p.surface,
     padding: space.s5, borderTopRightRadius: radius.lg, borderBottomRightRadius: radius.lg,
   },
-  brand: { ...type.h1, fontSize: 22, color: dark ? '#7B90D6' : '#2C3E7A', marginBottom: space.s4 },
+  brand: { ...type.h1, fontSize: 22, color: p.primary, marginBottom: space.s4 },
   bizcard: {
     flexDirection: 'row', gap: space.s3, alignItems: 'center',
     backgroundColor: p.background, borderRadius: radius.md, padding: space.s3, marginBottom: space.s3,

@@ -1,7 +1,7 @@
 import { Check } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api, img, Listing } from '../api';
+import { api, img, Listing, symFor } from '../api';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
@@ -19,7 +19,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
   const [avFor, setAvFor] = useState<Listing | null>(null);
   const { p, dark } = useTheme();
   const s = themed(p, dark);
-  const link = dark ? '#7B90D6' : '#2C3E7A';
+  const link = p.primary;
 
   const load = async () => {
     try {
@@ -83,7 +83,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
             setForm(null); load();
             // STA-5: product-linked status with update text — no caption
             // screen needed; customers see what it is immediately.
-            const sym = ({ NGN: '₦', GHS: 'GH₵', KES: 'KSh' } as Record<string, string>)[saved.currency] ?? '';
+            const sym = symFor(saved.currency);
             const update = `${isNew ? 'New arrival' : 'Back in stock'}: ${saved.title}${
               saved.price ? ` · ${sym}${saved.price}` : ''}`;
             Alert.alert('Share as status?', `"${update}" as a 24h update?`, [
@@ -146,6 +146,6 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   opt: { ...type.body, color: p.ink, paddingVertical: space.s3, flex: 1 },
   optRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optSel: { backgroundColor: dark ? 'rgba(123,144,214,.12)' : 'rgba(44,62,122,.06)', borderRadius: 8 },
-  tick: { color: '#2C3E7A' },
-  optOn: { color: dark ? '#7B90D6' : '#2C3E7A', fontWeight: '700' },
+  tick: { color: p.primary },
+  optOn: { color: p.primary, fontWeight: '700' },
 });
