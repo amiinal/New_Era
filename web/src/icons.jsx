@@ -20,6 +20,12 @@ export const MenuIcon = (p) => base(p,
     <line x1="4" x2="20" y1="18" y2="18" />
   </>);
 
+export const PanelLeftIcon = (p) => base(p,
+  <>
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+    <path d="M9 3v18" />
+  </>);
+
 export const ChevronDownIcon = (p) => base(p, <path d="m6 9 6 6 6-6" />);
 
 export const UserIcon = (p) => base(p,

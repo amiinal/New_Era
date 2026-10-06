@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { accountId, api } from './lib.js';
 import {
-  ChartIcon, InboxIcon, MenuIcon, PowerIcon, SearchIcon, ShieldIcon,
+  ChartIcon, InboxIcon, PanelLeftIcon, PowerIcon, SearchIcon, ShieldIcon,
 } from './icons.jsx';
 
 // Internal control center (TRU-1 + ops): reports, support inbox, lookup,
@@ -290,7 +290,7 @@ export default function Admin() {
     <div className="admin-shell">
       <aside className={`admin-side ${shut ? '' : 'shut'}`}>
         <div className="admin-brand">
-          <button className="menu-btn" onClick={toggleNav} aria-label="Toggle menu"><MenuIcon size={22} /></button>
+          <button className="menu-btn" onClick={toggleNav} aria-label="Toggle menu"><PanelLeftIcon size={22} /></button>
           {shut ? <strong>Control</strong> : null}
         </div>
         {shut ? TABS.map(({ key, label, Icon }) => (
