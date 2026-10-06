@@ -169,4 +169,12 @@ export const api = {
     req<Account>('/me/mode', { method: 'PATCH', body: JSON.stringify({ mode }) }),
   postStatus: (businessId: string, body: { kind: 'photo' | 'text'; imageKey?: string; text?: string; bg?: string; caption?: string }) =>
     req<Status>(`/businesses/${businessId}/statuses`, { method: 'POST', body: JSON.stringify(body) }),
+  supportMine: () => req<SupportMsg[]>('/support/mine'),
+  sendSupport: (body: string) =>
+    req<SupportMsg>('/support/messages', { method: 'POST', body: JSON.stringify({ body }) }),
+};
+
+export type SupportMsg = {
+  id: string; accountId: string; body: string;
+  fromAdmin: boolean; read: boolean; createdAt: string;
 };

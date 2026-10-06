@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Headset } from 'lucide-react-native';
+import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '../api';
@@ -7,6 +7,7 @@ import { COUNTRIES } from '../countries';
 import { C, radius, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
+import { SupportChat } from '../components/SupportChat';
 
 // Settings (HLP-2 support scope: self-serve first). Account (email, phone,
 // password), appearance, help, support contact for bugs/important issues,
@@ -14,7 +15,7 @@ import { Button } from '../components/Button';
 export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () => void }) {
   const { account, refresh, signOut } = useAuth();
   const { p, dark, mode, setMode } = useTheme();
-  const [sup, setSup] = useState(false);
+  const [chat, setChat] = useState(false);
   const [panel, setPanel] = useState<'password' | 'email' | 'phone' | null>(null);
   // password form
   const [current, setCurrent] = useState('');
@@ -196,19 +197,10 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
           <Text style={s.itemT}>Help center & FAQ</Text>
           <Text style={s.chev}>›</Text>
         </Pressable>
-        <Pressable onPress={() => setSup(!sup)} style={s.item}>
-          <Headset size={20} color={p.bodyText} />
-          <Text style={[s.itemT, { flex: 1 }]}>Contact support</Text>
-          {sup
-            ? <ChevronUp size={20} color={p.bodyText} />
-            : <ChevronDown size={20} color={p.bodyText} />}
+        <Pressable onPress={() => setChat(true)} style={s.item}>
+          <Text style={s.itemT}>Contact support</Text>
+          <Text style={s.chev}>›</Text>
         </Pressable>
-        {sup && (
-          <Text style={s.micro}>
-            Support hours: Mon–Fri, 9:00–17:00 WAT. Typical reply within one business day.
-            For bugs or anything the FAQ doesn't cover: support@newera.shop
-          </Text>
-        )}
 
         <View style={{ height: space.s5 }} />
         <Button title="Sign out" variant="secondary" onPress={() => { signOut(); onClose(); }} />
@@ -216,6 +208,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <Button title="Close" variant="tertiary" onPress={onClose} />
         <Text style={[s.micro, { textAlign: 'center', marginTop: space.s4 }]}>New Era · MVP beta · v1.0.0</Text>
       </ScrollView>
+      {chat && <SupportChat onClose={() => setChat(false)} />}
     </Modal>
   );
 }
