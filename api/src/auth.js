@@ -65,6 +65,18 @@ function takeCode(key, code) {
 
 const tokenFor = (id) => Buffer.from(id).toString('base64');
 
+// Security mail, best-effort: console/Mailhog now, real inbox after
+// the domain is verified. Phone-only accounts have nowhere to send.
+function signInMail(acc, req, how) {
+  if (!acc?.email) return;
+  const when = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  sendMail({
+    to: acc.email,
+    subject: 'New sign-in to New Era',
+    html: `<p>Your account just signed in (${when} UTC via ${how}, IP ${req.ip}). If this wasn't you, reset your password from the sign-in screen.</p>`,
+  }).catch(() => {});
+}
+
 export function authRoutes(app, prisma) {
   app.post('/auth/request-code', async (req, reply) => {
     const ip = req.ip;
@@ -101,6 +113,7 @@ export function authRoutes(app, prisma) {
     if (account.passwordHash) {
       return { needsPassword: true, accountId: account.id, hasPassword: true };
     }
+    signInMail(account, req, 'code');
     return { token: tokenFor(account.id), account: safe(account) };
   });
 
@@ -113,6 +126,7 @@ export function authRoutes(app, prisma) {
     if (!acc?.passwordHash || !checkPassword(password, acc.passwordHash)) {
       return reply.code(401).send({ error: 'wrong password' });
     }
+    signInMail(acc, req, 'password');
     return { token: tokenFor(acc.id), account: safe(acc) };
   });
 
@@ -148,6 +162,7 @@ export function authRoutes(app, prisma) {
       where: { id: acc.id },
       data: { passwordHash: hashPassword(String(password)) },
     });
+    signInMail(updated, req, 'password reset');
     return { token: tokenFor(updated.id), account: safe(updated) };
   });
 
