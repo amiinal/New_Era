@@ -22,6 +22,8 @@ model Account {
   avatarKey     String?  // customer profile photo
   tagline       String?  // short customer bio
   displayName   String?  // shown to businesses in chat + inbox
+  showEmail     Boolean  @default(false) // opt-in: business may see email
+  showPhone     Boolean  @default(false) // opt-in: business may see phone
   headerKey     String?  // customer profile header background
   passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
   lastSeenAt    DateTime? // presence dot (online < 2min)

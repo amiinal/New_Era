@@ -11,6 +11,8 @@ export type Account = {
   country: string; lastMode: 'customer' | 'business';
   avatarKey: string | null; tagline: string | null; headerKey: string | null;
   displayName: string | null;
+  showEmail: boolean;
+  showPhone: boolean;
   hasPassword: boolean;
 };
 export type Business = {
@@ -35,7 +37,7 @@ export type Certificate = {
 export type Thread = { id: string; businessId: string; customerId: string; listingId: string | null };
 export type Peer =
   | { kind: 'business'; name: string; online: boolean; slug: string; logoKey: string | null }
-  | { kind: 'customer'; name: string; online: boolean; accountId: string; avatarKey: string | null; tagline: string | null };
+  | { kind: 'customer'; name: string; online: boolean; accountId: string; avatarKey: string | null; tagline: string | null; contact: string | null };
 export type MyThread = Thread & {
   business: { id: string; name: string; slug: string };
   messages: Message[]; unread: number; online: boolean;
@@ -98,7 +100,7 @@ export const api = {
   confirmPhoneChange: (body: { phone: string; code: string }) =>
     req<Account>('/me/phone/confirm', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
-  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string; displayName?: string | null }) =>
+  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string; displayName?: string | null; showEmail?: boolean; showPhone?: boolean }) =>
     req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
   patchBusiness: (id: string, body: { coverKey?: string; logoKey?: string; bio?: string; area?: string; deliveryArea?: string }) =>
     req<Business>(`/businesses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
@@ -174,7 +176,7 @@ export const api = {
       `/businesses/${businessId}/insights?range=${range}`),
   bizThreads: (businessId: string) =>
     req<(Thread & { messages: Message[]; unread: number; customer: {
-      name: string; tagline: string | null; avatarKey: string | null; online: boolean;
+      name: string; tagline: string | null; avatarKey: string | null; online: boolean; contact: string | null;
     } })[]>(`/businesses/${businessId}/threads`),
   setMode: (mode: 'customer' | 'business') =>
     req<Account>('/me/mode', { method: 'PATCH', body: JSON.stringify({ mode }) }),

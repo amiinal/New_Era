@@ -21,6 +21,16 @@ const authed = async (req, reply, prisma) => {
 const ONLINE_MS = 120000;
 const isOnline = (d) => !!d && Date.now() - new Date(d).getTime() < ONLINE_MS;
 
+// Only what the customer opted to share — nothing leaks by default.
+const publicContact = (c) => {
+  if (!c) return null;
+  const parts = [
+    c.showEmail ? c.email : null,
+    c.showPhone ? c.phone : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(' · ') : null;
+};
+
 // Messages from others arrived after this account last opened the thread.
 async function unreadFor(prisma, threadId, accId) {
   const mark = await prisma.threadRead.findUnique({
@@ -177,6 +187,7 @@ export function storeRoutes(app, prisma) {
       : await prisma.account.findUnique({ where: { id: t.customerId } }).then(c => ({
         kind: 'customer', name: custName(c), online: isOnline(c?.lastSeenAt),
         accountId: t.customerId, avatarKey: c?.avatarKey || null, tagline: c?.tagline || null,
+        contact: publicContact(c),
       }));
     return { thread: t, peer };
   });
@@ -366,7 +377,7 @@ export function storeRoutes(app, prisma) {
   app.patch('/me/profile', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { avatarKey, tagline, headerKey, displayName } = req.body || {};
+    const { avatarKey, tagline, headerKey, displayName, showEmail, showPhone } = req.body || {};
     const updated = await prisma.account.update({
       where: { id: acc.id },
       data: {
@@ -374,6 +385,8 @@ export function storeRoutes(app, prisma) {
         ...(tagline !== undefined ? { tagline: String(tagline).slice(0, 120) } : {}),
         ...(headerKey !== undefined ? { headerKey } : {}),
         ...(displayName !== undefined ? { displayName: String(displayName).slice(0, 40) || null } : {}),
+        ...(showEmail !== undefined ? { showEmail: !!showEmail } : {}),
+        ...(showPhone !== undefined ? { showPhone: !!showPhone } : {}),
       },
     });
     const { passwordHash, ...rest } = updated;
@@ -462,6 +475,7 @@ export function storeRoutes(app, prisma) {
           tagline: c?.tagline || null,
           avatarKey: c?.avatarKey || null,
           online: isOnline(c?.lastSeenAt),
+          contact: publicContact(c),
         },
       });
     }

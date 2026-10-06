@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
+import { Check } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Alert, Image, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, img } from '../api';
 import { useAuth } from '../auth';
 import { radius, space, type } from '../theme';
@@ -15,6 +16,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   const [uri, setUri] = useState<string | null>(null);
   const [name, setName] = useState(account?.displayName ?? '');
   const [tagline, setTagline] = useState(account?.tagline ?? '');
+  const [showEmail, setShowEmail] = useState(!!account?.showEmail);
+  const [showPhone, setShowPhone] = useState(!!account?.showPhone);
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
   const [help, setHelp] = useState(false);
@@ -36,6 +39,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         ...(avatarKey ? { avatarKey } : {}),
         tagline: tagline.trim(),
         displayName: name.trim() || null,
+        showEmail,
+        showPhone,
       });
       await refresh();
       onSaved();
@@ -56,8 +61,20 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         <Button title="Choose photo" variant="secondary" onPress={pick} />
         <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
           value={name} onChangeText={setName} maxLength={40} />
-        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s4 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
+        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} />
+        <Text style={s.micro}>Businesses you chat with can see:</Text>
+        {([
+          ['email', account?.email, showEmail, setShowEmail],
+          ['phone', account?.phone, showPhone, setShowPhone],
+        ] as const).map(([kind, value, on, set]) => (
+          value ? (
+            <Pressable key={kind} onPress={() => set(!on)} style={s.check}>
+              <View style={s.box}>{on ? <Check size={16} color={p.primary} /> : null}</View>
+              <Text style={s.checkT}>Show my {kind} ({value})</Text>
+            </Pressable>
+          ) : null
+        ))}
         <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
         <View style={{ height: space.s3 }} />
         <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
@@ -87,4 +104,11 @@ const themed = (p: Palette) => StyleSheet.create({
     width: '100%', backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
+  micro: { ...type.micro, color: p.bodyText, marginTop: space.s3, alignSelf: 'flex-start' },
+  check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: space.s2, alignSelf: 'flex-start' },
+  box: {
+    width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: p.primary,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  checkT: { ...type.body, color: p.ink },
 });

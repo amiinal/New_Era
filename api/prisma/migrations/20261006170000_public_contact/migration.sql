@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Account" ADD COLUMN "showEmail" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Account" ADD COLUMN "showPhone" BOOLEAN NOT NULL DEFAULT false;

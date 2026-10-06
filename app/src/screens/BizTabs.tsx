@@ -105,6 +105,9 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
                 {!!r.customer.tagline && r.customer.tagline !== name && (
                   <Text style={s.micro} numberOfLines={1}>{r.customer.tagline}</Text>
                 )}
+                {!!r.customer.contact && (
+                  <Text style={s.micro} numberOfLines={1}>Reach: {r.customer.contact}</Text>
+                )}
                 <Text style={s.micro} numberOfLines={1}>
                   {r.messages[0]?.body ?? 'Photo message'}
                 </Text>

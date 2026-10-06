@@ -23,6 +23,9 @@ export function PeerSheet({ peer, onClose }: {
           {!!peer.tagline && peer.tagline !== peer.name && (
             <Text style={s.micro}>{peer.tagline}</Text>
           )}
+          {!!peer.contact && (
+            <Text style={[s.micro, { marginTop: space.s2 }]}>Reach: {peer.contact}</Text>
+          )}
           <Text style={[s.micro, { marginTop: space.s2 }]}>
             {peer.online ? 'Online now' : 'Offline'}
           </Text>

@@ -10,6 +10,8 @@ export default function Profile() {
   const [acc, setAcc] = useState(null);
   const [tagline, setTagline] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [showEmail, setShowEmail] = useState(false);
+  const [showPhone, setShowPhone] = useState(false);
   const [mode, setModeState] = useState(getMode());
   const [biz, setBiz] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -20,6 +22,8 @@ export default function Profile() {
       setAcc(a);
       setTagline(a.tagline || '');
       setDisplayName(a.displayName || '');
+      setShowEmail(!!a.showEmail);
+      setShowPhone(!!a.showPhone);
       setModeState(a.lastMode || getMode());
       localStorage.setItem('mode', a.lastMode || 'customer');
       if ((a.lastMode || 'customer') === 'business') {
@@ -47,9 +51,13 @@ export default function Profile() {
       const updated = await api('/me/profile', { method: 'PATCH', body: JSON.stringify({
         tagline: tagline.trim().slice(0, 120),
         displayName: displayName.trim().slice(0, 40) || null,
+        showEmail,
+        showPhone,
       }) });
       setAcc(updated);
       setDisplayName(updated.displayName || '');
+      setShowEmail(!!updated.showEmail);
+      setShowPhone(!!updated.showPhone);
       alert('Saved.');
     } catch {
       alert('Could not save — retry.');
@@ -95,6 +103,21 @@ export default function Profile() {
           <label className="lbl">Short tagline</label>
           <input className="input" placeholder="e.g. Cake lover in Ikeja" value={tagline}
             onChange={(e) => setTagline(e.target.value)} maxLength={120} style={{ width: '100%' }} />
+          <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '12px 0 4px' }}>
+            Businesses you chat with can see:
+          </p>
+          {acc.email ? (
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={showEmail} onChange={(e) => setShowEmail(e.target.checked)} />
+              Show my email ({acc.email})
+            </label>
+          ) : null}
+          {acc.phone ? (
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={showPhone} onChange={(e) => setShowPhone(e.target.checked)} />
+              Show my phone ({acc.phone})
+            </label>
+          ) : null}
           <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
             <button className="btn" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
             <button className="btn btn-secondary" onClick={() => signOut(navigate)}>Sign out</button>

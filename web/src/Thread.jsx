@@ -110,6 +110,9 @@ export default function Thread() {
             {peer?.kind === 'customer' && peer.tagline ? (
               <span className="online-word" style={{ display: 'block' }}>{peer.tagline}</span>
             ) : peer?.online ? <span className="online-word">online</span> : null}
+            {peer?.kind === 'customer' && peer.contact ? (
+              <span className="online-word" style={{ display: 'block' }}>Reach: {peer.contact}</span>
+            ) : null}
           </span>
         </span>
         <span className="sp"></span>
