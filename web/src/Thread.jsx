@@ -1,7 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { accountId, api } from './lib.js';
+import { accountId, api, API } from './lib.js';
 import { DotsIcon } from './icons.jsx';
+
+const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
+
+function PeerAvatar({ peer, size }) {
+  const s = size || 36;
+  const logo = peer?.kind === 'business' ? img(peer.logoKey) : null;
+  const inner = logo
+    ? <img src={logo} alt="" style={{ width: s, height: s, borderRadius: '50%', objectFit: 'cover' }} />
+    : <span className="chat-avatar" style={{ width: s, height: s, fontSize: s * 0.45 }}>{(peer?.name || '?').slice(0, 1).toUpperCase()}</span>;
+  const body = peer?.kind === 'business' && peer.slug
+    ? <Link to={`/s/${peer.slug}`} style={{ display: 'inline-flex' }}>{inner}</Link>
+    : inner;
+  return (
+    <span className="avatar-dot" style={{ width: s, height: s }}>
+      {body}
+      {peer?.online ? <span className="presence" /> : null}
+    </span>
+  );
+}
 
 // One thread (CHT-1..4, text): same history as the app, polled.
 // ⋯ on a message copies/deletes; header ⋯ deletes the conversation.
@@ -9,7 +28,7 @@ export default function Thread() {
   const { threadId } = useParams();
   const navigate = useNavigate();
   const [msgs, setMsgs] = useState(null);
-  const [peer, setPeer] = useState('');
+  const [peer, setPeer] = useState(null);
   const [draft, setDraft] = useState('');
   const [menuId, setMenuId] = useState(null);
   const [headMenu, setHeadMenu] = useState(false);
@@ -22,7 +41,7 @@ export default function Thread() {
         api(`/threads/${threadId}`),
       ]);
       setMsgs(m);
-      setPeer(t.peer.name);
+      setPeer(t.peer);
     } catch {
       setMsgs([]);
     }
@@ -85,8 +104,9 @@ export default function Thread() {
       <div className="topnav">
         <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
         <span className="chat-peer">
-          <span className="chat-avatar">{(peer || '?').slice(0, 1).toUpperCase()}</span>
-          {peer || 'Chat'}
+          <PeerAvatar peer={peer} />
+          {peer?.name || 'Chat'}
+          {peer?.online ? <span className="online-word"> · online</span> : null}
         </span>
         <span className="sp"></span>
         <div className="menu-wrap">
@@ -111,6 +131,7 @@ export default function Thread() {
             const showDots = !!m.body || mine;
             return (
               <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
+                {!mine ? <PeerAvatar peer={peer} size={28} /> : null}
                 <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>
                   {m.body || 'Photo'}
                 </div>

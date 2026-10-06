@@ -14,7 +14,7 @@ const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
   { key: 'bdiscover', label: 'Discover', Icon: Compass },
 ];
 // Business bottom nav: never the customer tabs (ACC-3 modes stay distinct).
-export function BizNav({ active, onTab }: { active: BizTab; onTab: (t: BizTab) => void }) {
+export function BizNav({ active, onTab, chatsDot }: { active: BizTab; onTab: (t: BizTab) => void; chatsDot?: boolean }) {
   const { p, dark } = useTheme();
   const s = themed(p);
   const activeColor = dark ? '#7B90D6' : C.primary;
@@ -24,7 +24,10 @@ export function BizNav({ active, onTab }: { active: BizTab; onTab: (t: BizTab) =
         const on = key === active;
         return (
           <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
-            <Icon size={24} color={on ? active : p.bodyText} />
+            <View>
+              <Icon size={24} color={on ? active : p.bodyText} />
+              {chatsDot && key === 'bchats' ? <View style={s.dot} /> : null}
+            </View>
             <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
           </Pressable>
         );
@@ -38,7 +41,7 @@ const TABS: { key: Tab; label: string; Icon: typeof Compass }[] = [
   { key: 'discover', label: 'Discover', Icon: Compass },
 ];
 // Customer bottom nav (§CUS-1): active tab in primary, unread dot in error.
-export function BottomNav({ active, onTab }: { active: Tab; onTab: (t: Tab) => void }) {
+export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t: Tab) => void; chatsDot?: boolean }) {
   const { p, dark } = useTheme();
   const s = themed(p);
   const activeColor = dark ? '#7B90D6' : C.primary;
@@ -48,7 +51,10 @@ export function BottomNav({ active, onTab }: { active: Tab; onTab: (t: Tab) => v
         const on = key === active;
         return (
           <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
-            <Icon size={24} color={on ? active : p.bodyText} />
+            <View>
+              <Icon size={24} color={on ? active : p.bodyText} />
+              {chatsDot && key === 'chats' ? <View style={s.dot} /> : null}
+            </View>
             <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
           </Pressable>
         );
@@ -61,4 +67,8 @@ const themed = (p: Palette) => StyleSheet.create({
   bar: { flexDirection: 'row', backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
   tab: { flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 18 },
   label: { fontSize: 12, color: p.bodyText },
+  dot: {
+    position: 'absolute', top: 0, right: -2, width: 10, height: 10,
+    borderRadius: 5, backgroundColor: C.error,
+  },
 });

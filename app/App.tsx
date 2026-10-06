@@ -40,6 +40,7 @@ function Shell() {
   const [bizAuto, setBizAuto] = useState(false);
   const [paused, setPaused] = useState(false);
   const [pausedMessage, setPausedMessage] = useState('');
+  const [hasUnread, setHasUnread] = useState(false);
 
   // Kill switch: paused app shows the notice (reads stay, writes 503).
   useEffect(() => {
@@ -47,6 +48,20 @@ function Shell() {
       .then(s => { setPaused(s.maintenance); setPausedMessage(s.message); })
       .catch(() => {});
   }, []);
+  // Chat badge: dot the Chats tab while any thread has unread mail.
+  useEffect(() => {
+    if (!account) { setHasUnread(false); return; }
+    let live = true;
+    const check = async () => {
+      try {
+        const rows = await api.myThreads();
+        if (live) setHasUnread(rows.some(t => t.unread > 0));
+      } catch { /* keep stale */ }
+    };
+    check();
+    const t = setInterval(check, 15000);
+    return () => { live = false; clearInterval(t); };
+  }, [account?.id]);
 
   // Fresh accounts pick customer vs business once — business skips
   // Discover and lands straight on storefront creation.
@@ -141,7 +156,7 @@ function Shell() {
           : route.name === 'listing'
           ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
           : route.name === 'chat'
-          ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} />
+          ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} onOpenStore={openStore} />
           : route.name === 'bupdates'
           ? <BizUpdates onStore={openStore} dRoutes={BIZ} dActive="bupdates" onDNav={goDrawer} />
           : route.name === 'bchats'
@@ -155,6 +170,7 @@ function Shell() {
               dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer}
               autoStart={bizAuto} onAutoDone={() => setBizAuto(false)} />}
         <BizNav active={bizTab}
+          chatsDot={hasUnread}
           onTab={t => setRoute(
             t === 'mybiz' ? { name: 'bizhome' }
             : t === 'blistings' ? { name: 'blistings' }
@@ -191,8 +207,8 @@ function Shell() {
       {route.name === 'listing' && (
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
       )}
-      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} />}
-      <BottomNav active={tab} onTab={t => setRoute({ name: t } as Route)} />
+      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} />}
+      <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)} />
       <StatusBar style="auto" />
     </SafeAreaView>
   );

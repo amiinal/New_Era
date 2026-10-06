@@ -13,8 +13,24 @@ const authed = async (req, reply, prisma) => {
   if (!id) { reply.code(401).send({ error: 'x-account-id required' }); return null; }
   const acc = await prisma.account.findUnique({ where: { id } });
   if (!acc) { reply.code(401).send({ error: 'unknown account' }); return null; }
+  // Presence: every authed hit refreshes the online dot (2min window).
+  prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
   return acc;
 };
+
+const ONLINE_MS = 120000;
+const isOnline = (d) => !!d && Date.now() - new Date(d).getTime() < ONLINE_MS;
+
+// Messages from others arrived after this account last opened the thread.
+async function unreadFor(prisma, threadId, accId) {
+  const mark = await prisma.threadRead.findUnique({
+    where: { threadId_accountId: { threadId, accountId: accId } },
+  }).catch(() => null);
+  const since = mark?.at || new Date(0);
+  return prisma.message.count({
+    where: { threadId, senderId: { not: accId }, createdAt: { gt: since } },
+  });
+}
 
 export function storeRoutes(app, prisma) {
   // DIS-1..8: country boundary (default = caller), optional city first.
@@ -146,14 +162,21 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const t = await prisma.thread.findUnique({
       where: { id: req.params.id },
-      include: { business: { select: { id: true, name: true, ownerId: true } } },
+      include: { business: true },
     });
     if (!t) return reply.code(404).send({ error: 'unknown thread' });
     const mine = t.customerId === acc.id || t.business.ownerId === acc.id;
     if (!mine) return reply.code(404).send({ error: 'unknown thread' });
+    // Peer identity for tappable avatars + online dot.
     const peer = t.customerId === acc.id
-      ? { kind: 'business', name: t.business.name }
-      : { kind: 'customer', name: 'Customer' };
+      ? await prisma.account.findUnique({ where: { id: t.business.ownerId } }).then(o => ({
+        kind: 'business', name: t.business.name, online: isOnline(o?.lastSeenAt),
+        slug: t.business.slug, logoKey: t.business.logoKey,
+      }))
+      : await prisma.account.findUnique({ where: { id: t.customerId } }).then(c => ({
+        kind: 'customer', name: c?.tagline || 'Customer', online: isOnline(c?.lastSeenAt),
+        accountId: t.customerId, avatarKey: c?.avatarKey || null, tagline: c?.tagline || null,
+      }));
     return { thread: t, peer };
   });
 
@@ -164,6 +187,12 @@ export function storeRoutes(app, prisma) {
     if (!t || (t.customerId !== acc.id && !(await prisma.business.findFirst({ where: { id: t.businessId, ownerId: acc.id } })))) {
       return reply.code(404).send({ error: 'unknown thread' });
     }
+    // Opening the thread marks it read for this account.
+    await prisma.threadRead.upsert({
+      where: { threadId_accountId: { threadId: t.id, accountId: acc.id } },
+      update: { at: new Date() },
+      create: { threadId: t.id, accountId: acc.id },
+    }).catch(() => {});
     return prisma.message.findMany({ where: { threadId: t.id }, orderBy: { createdAt: 'asc' } });
   });
 
@@ -200,6 +229,7 @@ export function storeRoutes(app, prisma) {
     const t = await prisma.thread.findUnique({ where: { id: req.params.id } });
     if (!t || !await participant(acc, t)) return reply.code(404).send({ error: 'unknown thread' });
     await prisma.message.deleteMany({ where: { threadId: t.id } });
+    await prisma.threadRead.deleteMany({ where: { threadId: t.id } }).catch(() => {});
     await prisma.thread.delete({ where: { id: t.id } });
     return { deleted: true };
   });
@@ -355,18 +385,32 @@ export function storeRoutes(app, prisma) {
     return prisma.business.findMany({ where: { ownerId: acc.id } });
   });
 
-  // CHT-4: customer's own threads (web chat list + app Chats).
+  // CHT-4: my threads, either side — powers chat lists + unread badges.
   app.get('/me/threads', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    return prisma.thread.findMany({
-      where: { customerId: acc.id },
+    const rows = await prisma.thread.findMany({
+      where: { OR: [{ customerId: acc.id }, { business: { ownerId: acc.id } }] },
       include: {
-        business: { select: { id: true, name: true, slug: true } },
+        business: { select: { id: true, name: true, slug: true, ownerId: true } },
         messages: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
       orderBy: { createdAt: 'desc' },
+      take: 50,
     });
+    const out = [];
+    for (const t of rows) {
+      out.push({
+        ...t,
+        unread: await unreadFor(prisma, t.id, acc.id),
+        online: await (async () => {
+          const otherId = t.customerId === acc.id ? t.business.ownerId : t.customerId;
+          const other = await prisma.account.findUnique({ where: { id: otherId } }).catch(() => null);
+          return isOnline(other?.lastSeenAt);
+        })(),
+      });
+    }
+    return out;
   });
 
   // ANA-1: append-only events. ANA-3: free 7/30d insights (real counts;

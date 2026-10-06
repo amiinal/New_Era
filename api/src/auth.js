@@ -155,6 +155,7 @@ export function authRoutes(app, prisma) {
     const id = req.headers['x-account-id'];
     if (!id) return reply.code(401).send({ error: 'x-account-id required (stub auth)' });
     const acc = await prisma.account.findUnique({ where: { id } });
+    if (acc) prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
     return acc ? safe(acc) : acc;
   };
 
@@ -164,7 +165,9 @@ export function authRoutes(app, prisma) {
       reply.code(401).send({ error: 'x-account-id required (stub auth)' });
       return null;
     }
-    return prisma.account.findUnique({ where: { id } });
+    const row = await prisma.account.findUnique({ where: { id } });
+    if (row) prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
+    return row;
   };
 
   app.get('/me', async (req, reply) => me(req, reply));

@@ -32,6 +32,13 @@ export type Certificate = {
   id: string; title: string; issuer: string | null; year: number | null; photo: string;
 };
 export type Thread = { id: string; businessId: string; customerId: string; listingId: string | null };
+export type Peer =
+  | { kind: 'business'; name: string; online: boolean; slug: string; logoKey: string | null }
+  | { kind: 'customer'; name: string; online: boolean; accountId: string; avatarKey: string | null; tagline: string | null };
+export type MyThread = Thread & {
+  business: { id: string; name: string; slug: string };
+  messages: Message[]; unread: number; online: boolean;
+};
 export type Message = {
   id: string; threadId: string; senderId: string;
   body: string | null; imageKey: string | null; createdAt: string;
@@ -101,7 +108,8 @@ export const api = {
   openThread: (businessId: string, listingId?: string) =>
     req<Thread>('/threads', { method: 'POST', body: JSON.stringify({ businessId, listingId }) }),
   thread: (threadId: string) =>
-    req<{ thread: Thread; peer: { kind: 'business' | 'customer'; name: string } }>(`/threads/${threadId}`),
+    req<{ thread: Thread; peer: Peer }>(`/threads/${threadId}`),
+  myThreads: () => req<MyThread[]>('/me/threads'),
   messages: (threadId: string) => req<Message[]>(`/threads/${threadId}/messages`),
   sendMessage: (threadId: string, body: { body?: string; imageKey?: string }) =>
     req<Message>(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify(body) }),

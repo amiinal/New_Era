@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { api, Storefront } from '../api';
-import { space, type } from '../theme';
+import { api, MyThread, Storefront } from '../api';
+import { useAuth } from '../auth';
+import { C, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
@@ -61,34 +62,56 @@ export function UpdatesScreen({
   );
 }
 
-// Chats (Step 8 shell): Mama's Kitchen demo thread first. Tapping opens
-// the real thread — same history in app and web (CHT-4).
+// Chats (Step 8 shell): real threads first, Mama's Kitchen demo to start
+// one when empty — same history in app and web (CHT-4).
 export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
   onOpenThread: (businessId: string, label: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
+  const { account } = useAuth();
+  const [rows, setRows] = useState<MyThread[] | null>(null);
   const [biz, setBiz] = useState<{ id: string; name: string } | null>(null);
   const { p } = useTheme();
   const s = themed(p);
   useEffect(() => {
+    api.myThreads().then(setRows).catch(() => setRows([]));
     api.storefront('mamas-kitchen')
       .then(sf => setBiz({ id: sf.business.id, name: sf.business.name }))
       .catch(() => setBiz(null));
   }, []);
-  if (!biz) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
+  if (rows === null || !account) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
+  const mine = rows.filter(t => t.customerId === account.id);
 
   return (
     <View style={s.root}>
       <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
-      <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
-        <View style={s.row}>
-          <Avatar name={biz.name} size={48} />
-          <View>
-            <Text style={s.t}>{biz.name}</Text>
-            <Text style={s.micro}>Tap to open demo thread</Text>
+      {mine.map(t => (
+        <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={s.card}>
+          <View style={s.row}>
+            <Avatar name={t.business.name} size={48} online={t.online} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.t}>{t.business.name}</Text>
+              <Text style={s.micro} numberOfLines={1}>
+                {t.messages[0]?.body || 'Photo'}
+              </Text>
+            </View>
+            {t.unread > 0 ? (
+              <View style={s.badge}><Text style={s.badgeT}>{t.unread}</Text></View>
+            ) : null}
           </View>
-        </View>
-      </Pressable>
+        </Pressable>
+      ))}
+      {mine.length === 0 && biz && (
+        <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
+          <View style={s.row}>
+            <Avatar name={biz.name} size={48} />
+            <View>
+              <Text style={s.t}>{biz.name}</Text>
+              <Text style={s.micro}>Tap to open demo thread</Text>
+            </View>
+          </View>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -99,4 +122,9 @@ const themed = (p: Palette) => StyleSheet.create({
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
+  badge: {
+    minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.error,
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6,
+  },
+  badgeT: { color: '#fff', fontSize: 12, fontWeight: '700' },
 });

@@ -5,19 +5,24 @@ import {
 } from 'react-native';
 import { MoreHorizontal, MoreVertical } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
-import { api, Message } from '../api';
+import { api, Message, Peer } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Palette, useTheme } from '../useTheme';
+import { PeerSheet } from '../components/PeerSheet';
 
 // Step 6: thread with listing context (CHT-3). Native keyboard via TextInput.
 // Long-press (or ⋯) a message for copy/delete; header ⋯ deletes the chat.
-export function ChatScreen({ threadId, context, onExit }: { threadId: string; context?: string; onExit?: () => void }) {
+// Avatars are live: business opens the storefront, customer opens their card.
+export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
+  threadId: string; context?: string; onExit?: () => void; onOpenStore?: (slug: string) => void;
+}) {
   const { account } = useAuth();
   const [msgs, setMsgs] = useState<Message[] | null>(null);
   const [draft, setDraft] = useState('');
-  const [peer, setPeer] = useState('');
+  const [peer, setPeer] = useState<Peer | null>(null);
+  const [peerCard, setPeerCard] = useState(false);
   const [menuMsg, setMenuMsg] = useState<Message | null>(null);
   const [headMenu, setHeadMenu] = useState(false);
   const { p } = useTheme();
@@ -27,7 +32,7 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
     try {
       const [m, t] = await Promise.all([api.messages(threadId), api.thread(threadId)]);
       setMsgs(m);
-      setPeer(t.peer.name);
+      setPeer(t.peer);
     } catch { setMsgs([]); }
   };
   useEffect(() => { load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [threadId]);
@@ -70,11 +75,22 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
     ]);
   };
 
+  const openPeer = () => {
+    if (!peer) return;
+    if (peer.kind === 'business') onOpenStore?.(peer.slug);
+    else setPeerCard(true);
+  };
+
   return (
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={s.head}>
-        <Avatar name={peer || '?'} size={36} />
-        <Text style={s.peer} numberOfLines={1}>{peer || 'Chat'}</Text>
+        <Pressable onPress={openPeer} hitSlop={8}>
+          <Avatar name={peer?.name || '?'} size={36} online={peer?.online} />
+        </Pressable>
+        <Pressable onPress={openPeer} style={{ flex: 1 }} hitSlop={8}>
+          <Text style={s.peer} numberOfLines={1}>{peer?.name || 'Chat'}</Text>
+          <Text style={s.presence}>{peer ? (peer.online ? 'Online now' : 'Offline') : ''}</Text>
+        </Pressable>
         <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
           <MoreVertical size={20} color={p.bodyText} />
         </Pressable>
@@ -97,7 +113,11 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
             const toggle = () => setMenuMsg(open ? null : item);
             return (
               <View style={[s.row, mine && s.rowMe]}>
-                {!mine && <Avatar name={peer || '?'} size={32} />}
+                {!mine && (
+                  <Pressable onPress={openPeer} hitSlop={8}>
+                    <Avatar name={peer?.name || '?'} size={32} online={peer?.online} />
+                  </Pressable>
+                )}
                 <View style={[s.col, mine && s.colMe]}>
                   <View style={s.bubbleRow}>
                     <Pressable onPress={toggle} onLongPress={() => setMenuMsg(item)} delayLongPress={400}
@@ -125,6 +145,9 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
         <TextInput style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
           onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
       </View>
+      {peer?.kind === 'customer' && peerCard && (
+        <PeerSheet peer={peer} onClose={() => setPeerCard(false)} />
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -133,6 +156,7 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.s3, backgroundColor: p.surface, paddingHorizontal: space.s4, paddingVertical: space.s3 },
   peer: { ...type.h3, color: p.ink, flex: 1 },
+  presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
   headMenu: {
     backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line,

@@ -23,6 +23,7 @@ model Account {
   tagline       String?  // short customer bio
   headerKey     String?  // customer profile header background
   passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
+  lastSeenAt    DateTime? // presence dot (online < 2min)
   createdAt     DateTime @default(now())
   businesses    Business[]
   threads       Thread[] @relation("CustomerThreads")
@@ -30,6 +31,7 @@ model Account {
   reports       Report[]
   events        Event[]
   support       SupportMessage[]
+  reads         ThreadRead[]
 }
 
 model Business {
@@ -119,8 +121,9 @@ model Thread {
   customerId  String
   customer    Account  @relation("CustomerThreads", fields: [customerId], references: [id])
   listingId   String?
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
   messages    Message[]
+  reads       ThreadRead[]
 
   @@index([businessId])
   @@index([customerId])
@@ -174,4 +177,16 @@ model SupportMessage {
   createdAt DateTime @default(now())
 
   @@index([accountId])
+}
+
+// Read receipts: per-account per-thread watermark for unread badges.
+model ThreadRead {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  at        DateTime @default(now())
+
+  @@unique([threadId, accountId])
 }
