@@ -83,7 +83,7 @@ A single account works as both customer and business, with a switch between the 
 | Phase 0: Prep | PRD sign-off, design, prototype tests with business owners, choose the launch country, cities, and categories, and recruit the first businesses. |
 | Phase 1: MVP beta | The scope in section 4.1, released as a closed beta in a small number of places so density, support, and moderation can be managed. |
 | Phase 2: Expand | Verified business tag, all-countries remote services, ratings once density is reached, video status (up to 3 minutes), voice notes, pick-list attachment (multi-item inquiry from the store, no checkout), premium (when value is proven), and more languages as markets require. |
-| Phase 3: Grow | Promoted placement (clearly labeled), staff seats, payments and orders, and a web dashboard for businesses. |
+| Phase 3: Grow | Promoted placement (clearly labeled), staff seats, payments and orders, and a web dashboard for businesses. Sponsored area placements: labeled in-status ads (promo/event), area-targeted, in-app links only at first, customer reshare with attribution, max 3 active per business per city, swipable where multiple. |
 
 ## 5. Functional requirements
 
@@ -358,6 +358,8 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Listing photos | Max 5 photos per listing in a swipeable gallery, so variants need no separate listings (Decided Sept 30, 2026; supersedes the max-3 rule). |
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
 | Pick-list (cart-lite) | Multi-item pick attached to the first chat message, no totals or checkout; Phase 2 after chat loop is proven (Decided Sept 27, 2026). |
+| Pins (paid) | Pin-to-profile/storefront highlight + 7-day status pin; in-app links only; ships when chat value is proven (premium trigger). |
+| Sponsored placements | Labeled in-status area ads (promo/event), density-gated per DIS-11; in-app links first, external links only with review; customers can reshare with attribution + install link; max 3 active per business per city, swipable; subtle new-dot, no enticement animation; Phase 3. |
 | Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |
 | Phone sign-up | Removed for MVP — email-only sign-up; contact phone stays as an optional unverified profile field. Revisit with Africa's Talking at beta (Decided Oct 6, 2026). |
 
