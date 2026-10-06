@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { api, img, Listing, symFor } from '../api';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -54,6 +54,9 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
       <View style={s.card}>
         <Text style={s.h1}>{item.title}</Text>
         <Text style={s.price}>{price}</Text>
+        {!!item.description && (
+          <Text style={s.desc}>{item.description}</Text>
+        )}
         <Text style={s.avail}>
           <View style={[s.avDot, { backgroundColor: a.color }]} />
           <Text style={s.availT}> {a.label}</Text>
@@ -83,9 +86,10 @@ const themed = (p: Palette) => StyleSheet.create({
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: p.line },
   dotOn: { width: 18, backgroundColor: C.cta },
-  card: { backgroundColor: p.surface, borderRadius: 16, margin: space.s4, padding: space.s3 },
+  card: { backgroundColor: p.surface, borderRadius: 16, margin: space.s4, padding: space.s3, ...shadow.md },
   h1: { ...type.h1, fontSize: 20, color: p.ink },
   price: { fontSize: 15, color: p.ink, fontVariant: ['tabular-nums'], marginTop: space.s1 },
+  desc: { ...type.body, color: p.ink, marginTop: space.s2 },
   avail: { marginTop: space.s2 },
   avDot: { width: 8, height: 8, borderRadius: 4 },
   availT: { fontSize: 13, color: p.bodyText },

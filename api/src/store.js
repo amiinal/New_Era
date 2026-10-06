@@ -114,7 +114,7 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
     if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
-    const { type, title, price, currency, availability, photos } = req.body || {};
+    const { type, title, price, currency, availability, photos, description } = req.body || {};
     if (!title || !photos || photos.length < 1 || photos.length > 5) {
       return reply.code(400).send({ error: 'title + 1..5 photos required' });
     }
@@ -124,6 +124,7 @@ export function storeRoutes(app, prisma) {
         title, price: price || null,
         currency: currency || (biz.country === 'GH' ? 'GHS' : biz.country === 'KE' ? 'KES' : 'NGN'),
         availability: availability || 'in_stock', photos,
+        description: description ? String(description).slice(0, 280) : null,
       },
     });
   });
@@ -141,7 +142,7 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const l = await ownListing(req, reply, prisma, acc);
     if (!l) return;
-    const { title, price, availability, photos } = req.body || {};
+    const { title, price, availability, photos, description } = req.body || {};
     return prisma.listing.update({
       where: { id: l.id },
       data: {
@@ -149,6 +150,7 @@ export function storeRoutes(app, prisma) {
         ...(price !== undefined ? { price } : {}),
         ...(availability ? { availability } : {}),
         ...(photos ? { photos } : {}),
+        ...(description !== undefined ? { description: description ? String(description).slice(0, 280) : null } : {}),
       },
     });
   });

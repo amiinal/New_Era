@@ -30,6 +30,7 @@ export type Business = {
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';
   title: string; price: string | null; currency: string;
+  description: string | null;
   availability: 'in_stock' | 'limited' | 'sold_out' | 'made_to_order';
   photos: string[];
 };
@@ -165,10 +166,10 @@ export const api = {
   },
   bizListings: (businessId: string) => req<Listing[]>(`/businesses/${businessId}/listings`),
   createListing: (businessId: string, body: {
-    type: 'product' | 'service'; title: string; price?: string;
+    type: 'product' | 'service'; title: string; price?: string; description?: string;
     availability?: Listing['availability']; photos: string[];
   }) => req<Listing>(`/businesses/${businessId}/listings`, { method: 'POST', body: JSON.stringify(body) }),
-  patchListing: (id: string, body: Partial<Pick<Listing, 'title' | 'price' | 'availability' | 'photos'>>) =>
+  patchListing: (id: string, body: Partial<Pick<Listing, 'title' | 'price' | 'availability' | 'photos' | 'description'>>) =>
     req<Listing>(`/listings/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteListing: (id: string) =>
     req<{ deleted: boolean }>(`/listings/${id}`, { method: 'DELETE' }),

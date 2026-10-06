@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { C, radius } from '../theme';
+import { C, radius, shadow } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 
 type Props = {
@@ -46,8 +46,8 @@ export function Button({ title, onPress, variant = 'primary', disabled, pill }: 
 const themed = (p: Palette) => StyleSheet.create({
   base: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
   label: { fontSize: 14, fontWeight: '600' },
-  primary: { backgroundColor: C.cta },
-  secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: p.primary },
+  primary: { backgroundColor: C.cta, ...shadow.cta },
+  secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: p.primary, ...shadow.sm },
   tertiary: {},
   destructive: { backgroundColor: p.surface, borderWidth: 1, borderColor: C.error },
   dim: { opacity: 0.6 },

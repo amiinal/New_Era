@@ -1,7 +1,7 @@
 import { Compass, Store } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 
 // ONB role entry: fresh users pick customer vs business once, so business
@@ -36,13 +36,13 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
-  card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6 },
+  card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
   opt: {
     flexDirection: 'row', gap: space.s4, alignItems: 'center',
     backgroundColor: p.background, borderWidth: 1, borderColor: p.lineStrong,
-    borderRadius: radius.lg, padding: space.s4, marginBottom: space.s3,
+    borderRadius: radius.lg, padding: space.s4, marginBottom: space.s3, ...shadow.sm,
   },
   pressed: { opacity: 0.7 },
   t: { ...type.body, color: p.ink, fontWeight: '600' },

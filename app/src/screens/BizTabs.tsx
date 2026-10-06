@@ -2,7 +2,7 @@ import { Plus } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
-import { C, space, type } from '../theme';
+import { C, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -114,7 +114,7 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
       {rows.map(r => {
         const name = r.customer.name;
         return (
-          <Pressable key={r.id} style={[s.card, r.unread > 0 && s.fresh]}
+          <Pressable key={r.id} style={({ pressed }) => [s.card, r.unread > 0 && s.fresh, pressed && s.pressed]}
             onPress={() => onThread(r.id, name)}>
             <View style={s.row}>
               <Avatar name={name} size={48} online={r.customer.online} />
@@ -137,7 +137,8 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
-  card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3 },
+  card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
+  pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },

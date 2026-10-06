@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { img, Listing, symFor } from '../api';
-import { C, radius, space } from '../theme';
+import { C, radius, shadow, space } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 
 const AVAIL: Record<Listing['availability'], { color: string; label: string }> = {
@@ -19,7 +19,7 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
   const { p } = useTheme();
   const s = themed(p);
   return (
-    <Pressable onPress={onPress} style={s.card}>
+    <Pressable onPress={onPress} style={({ pressed }) => [s.card, pressed && s.pressed]}>
       {item.photos[0] ? (
         <Pressable onPress={onPhoto ?? onPress} style={s.phWrap}>
           <Image source={{ uri: img(item.photos[0]) }} style={s.photo} resizeMode="contain" />
@@ -46,7 +46,8 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  card: { flex: 1, backgroundColor: p.surface, borderRadius: radius.lg, overflow: 'hidden' },
+  card: { flex: 1, backgroundColor: p.surface, borderRadius: radius.lg, overflow: 'hidden', ...shadow.md },
+  pressed: { opacity: 0.92 },
   photo: { width: '100%', aspectRatio: 1 },
   phWrap: { backgroundColor: p.line },
   empty: { backgroundColor: p.line },

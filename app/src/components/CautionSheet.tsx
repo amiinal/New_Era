@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, StyleSheet, Text, View } from 'react-native';
 import { Business } from '../api';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -47,6 +47,7 @@ const themed = (p: Palette) => StyleSheet.create({
   card: {
     width: '100%', maxWidth: 420, backgroundColor: 'rgba(232,166,57,.15)',
     borderWidth: 1, borderColor: C.warningTint, borderRadius: radius.lg, padding: space.s5,
+    ...shadow.lg,
   },
   h1: { ...type.h3, color: p.ink, marginBottom: space.s2 },
   micro: { ...type.bodySm, color: p.ink, marginBottom: space.s3 },

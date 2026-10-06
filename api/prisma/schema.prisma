@@ -73,6 +73,7 @@ model Listing {
   type         String   // product|service (LST-2)
   title        String
   price        String?  // string to allow ranges + "on request" (LST-6)
+  description  String?  // short seller-written blurb (brand polish)
   currency     String   @default("NGN")
   availability String   @default("in_stock") // in_stock|limited|sold_out|made_to_order (LST-5)
   photos       String[] // R2 keys, 1..5 (LST-1)

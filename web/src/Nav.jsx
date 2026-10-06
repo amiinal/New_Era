@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { accountId, api, getMode, setMode, signOut } from './lib.js';
 import { ChatIcon, HelpIcon, LogoutIcon, MenuIcon, SettingsIcon, ShieldIcon, SwitchIcon, UserIcon } from './icons.jsx';
 
@@ -13,7 +13,9 @@ export default function Nav() {
   const [admin, setAdmin] = useState(false);
   const [unread, setUnread] = useState(0);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const signed = !!accountId();
+  const active = (to) => pathname === to || (to !== '/' && pathname.startsWith(to + '/'));
   useEffect(() => {
     if (!signed) return;
     api('/admin/maintenance').then(() => setAdmin(true)).catch(() => {});
@@ -42,12 +44,17 @@ export default function Nav() {
     <div className="topnav">
       <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
       <span className="links">
-        <Link to="/discover" style={{ textDecoration: 'none', color: 'inherit' }}>Discover</Link>
-        <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>About</Link>
-        <Link to="/faq" style={{ textDecoration: 'none', color: 'inherit' }}>FAQ</Link>
-        <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>
-          Chats{unread > 0 ? <span className="nav-badge">{unread > 9 ? '9+' : unread}</span> : null}
-        </Link>
+        {[
+          ['/discover', 'Discover'],
+          ['/about', 'About'],
+          ['/faq', 'FAQ'],
+          ['/chat', 'Chats'],
+        ].map(([to, label]) => (
+          <Link key={to} to={to} className={`nav-link ${active(to) ? 'on' : ''}`}>
+            {label}
+            {to === '/chat' && unread > 0 ? <span className="nav-badge">{unread > 9 ? '9+' : unread}</span> : null}
+          </Link>
+        ))}
       </span>
       <span className="sp"></span>
       {!signed ? (

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { BizProfile } from '../components/BizProfile';
@@ -155,7 +155,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
   switch: { ...type.bodySm, fontWeight: '600' },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
-  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3 },
+  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
   t: { ...type.h3, color: p.ink },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   range: { ...type.bodySm, color: p.bodyText, padding: space.s2 },
@@ -165,7 +165,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, marginTop: space.s2 },
   metric: {
     flexBasis: '47%', flexGrow: 1, backgroundColor: p.background,
-    borderRadius: radius.md, padding: space.s3,
+    borderRadius: radius.md, padding: space.s3, ...shadow.sm,
   },
   link: { ...type.body, color: p.primary, textAlign: 'center', marginVertical: space.s5 },
 });

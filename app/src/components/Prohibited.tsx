@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -46,7 +46,7 @@ const themed = (p: Palette) => StyleSheet.create({
   inner: { padding: space.s5 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s2 },
   micro: { ...type.micro, color: p.bodyText, marginBottom: space.s3 },
-  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginBottom: space.s2 },
+  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginBottom: space.s2, ...shadow.md },
   t: { ...type.body, color: p.ink, fontWeight: '600' },
   answer: { ...type.bodySm, color: p.bodyText, marginTop: space.s2 },
 });

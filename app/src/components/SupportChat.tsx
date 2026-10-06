@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, SupportMsg } from '../api';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -76,7 +76,7 @@ const themed = (p: Palette) => StyleSheet.create({
   list: { paddingBottom: space.s3 },
   row: { flexDirection: 'row', marginBottom: space.s2 },
   rowMe: { justifyContent: 'flex-end' },
-  bubble: { maxWidth: '80%', padding: space.s3, borderRadius: radius.lg },
+  bubble: { maxWidth: '80%', padding: space.s3, borderRadius: radius.lg, ...shadow.sm },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
   text: { fontSize: 15, color: p.ink },

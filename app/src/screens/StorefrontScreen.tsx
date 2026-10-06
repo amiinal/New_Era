@@ -4,7 +4,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { MoreVertical } from 'lucide-react-native';
 import { api, img, Storefront } from '../api';
 import { useAuth } from '../auth';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -162,7 +162,7 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   cover: { width: '100%', height: 220 },
-  card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4 },
+  card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4, ...shadow.md },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
@@ -179,7 +179,7 @@ const themed = (p: Palette) => StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s3, paddingHorizontal: space.s4 },
   cell: { flexBasis: '47%' },
   cellWide: { flexBasis: '31%' },
-  cert: { flexDirection: 'row', gap: space.s3, backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center' },
+  cert: { flexDirection: 'row', gap: space.s3, backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center', ...shadow.md },
   certImg: { width: 44, height: 44, borderRadius: radius.md },
   certT: { ...type.bodySm, fontWeight: '600', color: p.ink },
   micro: { ...type.micro, color: p.bodyText },

@@ -5,7 +5,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Avatar } from './Avatar';
 import { BizProfile } from './BizProfile';
 import { Help, Settings } from '../screens/Settings';
@@ -62,7 +62,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
             const on = r === active;
             return (
               <Pressable key={r} onPress={() => { onClose(); onNav(r); }}
-                style={[s.row, on && s.rowOn]}>
+                style={({ pressed }) => [s.row, on && s.rowOn, pressed && s.pressed]}>
                 <Icon size={20} color={on ? activeC : p.bodyText} />
                 <Text style={[s.label, on && { color: activeC, fontWeight: '700' as const }]}>{LABELS[r]}</Text>
               </Pressable>
@@ -107,6 +107,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   panel: {
     width: '82%', maxWidth: 340, height: '100%', backgroundColor: p.surface,
     padding: space.s5, borderTopRightRadius: radius.lg, borderBottomRightRadius: radius.lg,
+    ...shadow.lg,
   },
   brand: { ...type.h1, fontSize: 22, color: p.primary, marginBottom: space.s4 },
   bizcard: {
@@ -117,6 +118,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   micro: { ...type.micro, color: p.bodyText },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center', paddingVertical: space.s3, paddingHorizontal: space.s3, borderRadius: radius.md },
   rowOn: { backgroundColor: dark ? 'rgba(123,144,214,.14)' : 'rgba(44,62,122,.07)' },
+  pressed: { opacity: 0.7 },
   label: { ...type.body, color: p.bodyText },
   item: { ...type.body, color: p.ink, paddingVertical: space.s3 },
 });

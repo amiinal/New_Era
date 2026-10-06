@@ -1,7 +1,7 @@
 import { Compass, MessageCircle, Newspaper, Package, Store } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { C } from '../theme';
+import { C, shadow } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 
 export type Tab = 'chats' | 'updates' | 'discover';
@@ -23,9 +23,10 @@ export function BizNav({ active, onTab, chatsDot }: { active: BizTab; onTab: (t:
       {BIZ_TABS.map(({ key, label, Icon }) => {
         const on = key === active;
         return (
-          <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
+          <Pressable key={key} onPress={() => onTab(key)}
+            style={({ pressed }) => [s.tab, on && s.tabOn, pressed && s.pressed]}>
             <View>
-              <Icon size={24} color={on ? active : p.bodyText} />
+              <Icon size={24} color={on ? activeColor : p.bodyText} />
               {chatsDot && key === 'bchats' ? <View style={s.dot} /> : null}
             </View>
             <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
@@ -50,9 +51,10 @@ export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t:
       {TABS.map(({ key, label, Icon }) => {
         const on = key === active;
         return (
-          <Pressable key={key} onPress={() => onTab(key)} style={s.tab}>
+          <Pressable key={key} onPress={() => onTab(key)}
+            style={({ pressed }) => [s.tab, on && s.tabOn, pressed && s.pressed]}>
             <View>
-              <Icon size={24} color={on ? active : p.bodyText} />
+              <Icon size={24} color={on ? activeColor : p.bodyText} />
               {chatsDot && key === 'chats' ? <View style={s.dot} /> : null}
             </View>
             <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
@@ -64,8 +66,13 @@ export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t:
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  bar: { flexDirection: 'row', backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
-  tab: { flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 18 },
+  bar: {
+    flexDirection: 'row', backgroundColor: p.surface,
+    borderTopWidth: 1, borderTopColor: p.line, ...shadow.lg,
+  },
+  tab: { flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 18, borderRadius: 12, marginHorizontal: 4 },
+  tabOn: { backgroundColor: 'rgba(44,62,122,.07)' },
+  pressed: { opacity: 0.7 },
   label: { fontSize: 12, color: p.bodyText },
   dot: {
     position: 'absolute', top: 0, right: -2, width: 10, height: 10,

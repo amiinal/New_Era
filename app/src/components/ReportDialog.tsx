@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -67,7 +67,7 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
 
 const themed = (p: Palette) => StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
-  card: { width: '100%', maxWidth: 420, backgroundColor: p.background, borderRadius: radius.lg, padding: space.s5 },
+  card: { width: '100%', maxWidth: 420, backgroundColor: p.background, borderRadius: radius.lg, padding: space.s5, ...shadow.lg },
   h1: { ...type.h3, color: p.ink, marginBottom: space.s1 },
   micro: { ...type.micro, color: p.bodyText, marginBottom: space.s2 },
   opt: {

@@ -4,7 +4,7 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View 
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { COUNTRIES } from '../countries';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
 import { SupportChat } from '../components/SupportChat';
@@ -267,7 +267,7 @@ const themed = (p: Palette) => StyleSheet.create({
   optOn: { borderColor: p.primary, color: p.primary, fontWeight: '700' },
   card: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
-    marginBottom: space.s2,
+    marginBottom: space.s2, ...shadow.md,
   },
   field: {
     backgroundColor: p.background, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
@@ -282,11 +282,12 @@ const themed = (p: Palette) => StyleSheet.create({
   divider: { width: 1, height: 24, backgroundColor: p.line, marginHorizontal: space.s2 },
   itemWrap: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
-    marginBottom: space.s2,
+    marginBottom: space.s2, ...shadow.md,
   },
   item: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
     marginBottom: space.s2, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    ...shadow.sm,
   },
   itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   answer: { ...type.bodySm, color: p.bodyText, marginTop: space.s2 },

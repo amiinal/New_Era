@@ -2,7 +2,7 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, Business, img } from '../api';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -89,7 +89,7 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
   card: {
     width: '100%', maxWidth: 480, maxHeight: '92%', backgroundColor: p.background,
-    borderRadius: radius.lg, padding: space.s5,
+    borderRadius: radius.lg, padding: space.s5, ...shadow.lg,
   },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   micro: { ...type.micro, color: p.bodyText },

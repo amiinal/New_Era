@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, img } from '../api';
 import { useAuth } from '../auth';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 import { Help, Settings } from '../screens/Settings';
@@ -103,7 +103,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
   card: {
-    width: '100%', maxWidth: 480, backgroundColor: p.background, borderRadius: radius.lg,
+    width: '100%', maxWidth: 480, backgroundColor: p.background, borderRadius: radius.lg, ...shadow.lg,
   },
   cardInner: {
     padding: space.s5, alignItems: 'center', flexGrow: 1,

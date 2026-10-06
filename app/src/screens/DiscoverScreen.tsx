@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
@@ -60,7 +60,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
         <FlatList data={items} keyExtractor={b => b.id}
           ListEmptyComponent={<Text style={s.empty}>No businesses yet — try widening the city.</Text>}
           renderItem={({ item }) => (
-            <Pressable onPress={() => onOpen(item.slug)} style={s.card}>
+            <Pressable onPress={() => onOpen(item.slug)}
+              style={({ pressed }) => [s.card, pressed && s.pressed]}>
               <Text style={s.name}>{item.name}</Text>
               <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
             </Pressable>
@@ -77,7 +78,8 @@ const themed = (p: Palette) => StyleSheet.create({
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
-  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3 },
+  card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
+  pressed: { opacity: 0.85 },
   name: { ...type.h3, color: p.ink },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },

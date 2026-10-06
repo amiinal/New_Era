@@ -144,8 +144,9 @@ function ListingDetail() {
       <div className="page" style={{ maxWidth: 720 }}>
         <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
         {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
-        <h1>{l.title}</h1>
-        <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
+      <h1>{l.title}</h1>
+      <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
+      {l.description ? <p style={{ color: 'var(--color-ink)' }}>{l.description}</p> : null}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <MessageButton businessId={l.businessId} listingId={l.id} label="Message about this" />
         <button className="btn btn-secondary" onClick={() => setReporting(!reporting)}>Report</button>

@@ -23,6 +23,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const [photos, setPhotos] = useState<string[]>(initial?.photos ?? []);
   const [title, setTitle] = useState(initial?.title ?? '');
   const [price, setPrice] = useState(initial?.price ?? '');
+  const [desc, setDesc] = useState(initial?.description ?? '');
   const [kind, setKind] = useState<'product' | 'service'>(initial?.type ?? 'product');
   const [avail, setAvail] = useState<Listing['availability']>(initial?.availability ?? 'in_stock');
   const [cam, setCam] = useState(false);
@@ -72,6 +73,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
       }
       const body = {
         type: kind, title: title.trim(), price: price.trim() || undefined,
+        description: desc.trim() || undefined,
         availability: avail, photos: keys,
       };
       let saved: Listing; const isNew = !initial;
@@ -120,6 +122,8 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
             ))}
           </View>
           <TextInput style={s.input} placeholder="Name" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
+          <TextInput style={[s.input, s.area]} placeholder="Short description (what makes it good?)" placeholderTextColor={p.bodyText}
+            value={desc} onChangeText={setDesc} multiline numberOfLines={3} maxLength={280} />
           <TextInput style={s.input} placeholder="Price (or leave blank for on request)" placeholderTextColor={p.bodyText}
             value={price} onChangeText={setPrice} keyboardType="numbers-and-punctuation" />
           {kind === 'service' && (
@@ -165,6 +169,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,
   },
+  area: { height: 84, paddingTop: space.s3, textAlignVertical: 'top' },
   micro: { ...type.micro, color: p.bodyText, marginBottom: space.s3 },
   sec: { ...type.h3, color: p.ink, marginBottom: space.s2 },
   camrow: { flexDirection: 'row', gap: space.s3, padding: space.s5, backgroundColor: '#000' },

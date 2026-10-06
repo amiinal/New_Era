@@ -5,7 +5,7 @@ import { api } from '../api';
 import { useAuth } from '../auth';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -204,7 +204,7 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: {
     width: '100%', maxWidth: 420, backgroundColor: p.surface,
-    borderRadius: 28, padding: space.s6,
+    borderRadius: 28, padding: space.s6, ...shadow.md,
   },
   h1: { ...type.h1, fontSize: 26, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },

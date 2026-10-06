@@ -29,6 +29,27 @@ export const C = {
 export const space = { s1: 4, s2: 8, s3: 12, s4: 16, s5: 24, s6: 32, s7: 48, s8: 64 } as const;
 export const radius = { sm: 4, md: 8, lg: 16, xl: 24 } as const;
 
+// Shadows — DS §5: sm = buttons/chips, md = cards, lg = sheets/nav,
+// cta = primary CTA. iOS props + Android elevation side by side.
+export const shadow = {
+  sm: {
+    shadowColor: '#1E1E24', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 2, elevation: 1,
+  },
+  md: {
+    shadowColor: '#1E1E24', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
+  },
+  lg: {
+    shadowColor: '#1E1E24', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12, shadowRadius: 24, elevation: 8,
+  },
+  cta: {
+    shadowColor: '#C24E22', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 12, elevation: 4,
+  },
+} as const;
+
 // Type scale (§1.2): size + weight pairs.
 export const type = {
   h1: { fontSize: 28, fontWeight: '700' },

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, MyThread, Storefront } from '../api';
 import { useAuth } from '../auth';
-import { C, space, type } from '../theme';
+import { C, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
@@ -98,7 +98,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
     <View style={s.root}>
       <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       {mine.map(t => (
-        <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={[s.card, t.unread > 0 && s.fresh]}>
+        <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
           <View style={s.row}>
             <Avatar name={t.business.name} size={48} online={t.online} />
             <View style={{ flex: 1 }}>
@@ -114,7 +114,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
         </Pressable>
       ))}
       {mine.length === 0 && !failed && biz && (
-        <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
+        <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={({ pressed }) => [s.card, pressed && s.pressed]}>
           <View style={s.row}>
             <Avatar name={biz.name} size={48} />
             <View>
@@ -142,7 +142,8 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
-  card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3 },
+  card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
+  pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },

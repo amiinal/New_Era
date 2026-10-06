@@ -8,7 +8,7 @@ import * as Clipboard from 'expo-clipboard';
 import { api, Business, Message, Peer } from '../api';
 import { useAuth } from '../auth';
 import { getFlag, setFlag } from '../store';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { CautionSheet } from '../components/CautionSheet';
@@ -215,8 +215,7 @@ const themed = (p: Palette) => StyleSheet.create({
   headPop: {
     position: 'absolute', top: 32, right: 0, backgroundColor: p.surface,
     borderRadius: radius.md, paddingHorizontal: space.s4, paddingVertical: space.s3,
-    minWidth: 180, elevation: 4, zIndex: 10,
-    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
+    minWidth: 180, zIndex: 10, ...shadow.md,
   },
   danger: { ...type.body, color: C.error },
   ctx: { backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line, padding: 8 },
@@ -230,11 +229,10 @@ const themed = (p: Palette) => StyleSheet.create({
   bubbleRow: { flexDirection: 'row', gap: 4, alignItems: 'center' },
   pop: {
     marginTop: 4, minWidth: 160, backgroundColor: p.surface, borderRadius: radius.md,
-    paddingHorizontal: space.s4, paddingVertical: space.s2, elevation: 3,
-    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
+    paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.md,
   },
   popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
-  bubble: { maxWidth: '75%', padding: 12, borderRadius: 16 },
+  bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, ...shadow.sm },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
   text: { fontSize: 16, color: p.ink },

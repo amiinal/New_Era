@@ -2,7 +2,7 @@ import { Check } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Listing, symFor } from '../api';
-import { C, radius, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
 import { TabHead } from '../components/TabHead';
@@ -65,7 +65,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
       ) : null}
       {!failed && items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
-        <Pressable key={l.id} onPress={() => setForm(l)} style={s.rowCard}>
+        <Pressable key={l.id} onPress={() => setForm(l)} style={({ pressed }) => [s.rowCard, pressed && s.pressed]}>
           {l.photos[0] ? (
             <Image source={{ uri: img(l.photos[0]) }} style={s.thumb} />
           ) : (
@@ -139,7 +139,9 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   rowCard: {
     flexDirection: 'row', gap: space.s3, alignItems: 'center',
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s3, marginBottom: space.s3,
+    ...shadow.md,
   },
+  pressed: { opacity: 0.85 },
   thumb: { width: 64, height: 64, borderRadius: radius.md },
   side: { width: 110, gap: space.s2 },
   av: { backgroundColor: p.surface, borderRadius: 8, padding: space.s3 },
