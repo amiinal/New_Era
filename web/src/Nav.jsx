@@ -16,6 +16,11 @@ export default function Nav() {
   useEffect(() => {
     if (signed) api('/admin/maintenance').then(() => setAdmin(true)).catch(() => {});
   }, []);
+  // Re-check on open too, so a stale first probe can never hide the entry.
+  const toggle = () => {
+    setOpen(!open);
+    if (!open && signed) api('/admin/maintenance').then(() => setAdmin(true)).catch(() => setAdmin(false));
+  };
   const flip = async () => {
     const next = mode === 'business' ? 'customer' : 'business';
     try {
@@ -38,7 +43,7 @@ export default function Nav() {
         <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Sign in</Link>
       ) : (
         <div className="menu-wrap">
-          <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Menu">
+          <button className="menu-btn" onClick={toggle} aria-label="Menu">
             <MenuIcon size={22} color="var(--color-primary)" />
           </button>
           {open && (
