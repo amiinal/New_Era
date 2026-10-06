@@ -84,7 +84,10 @@ export default function Thread() {
     <div>
       <div className="topnav">
         <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
-        <span style={{ marginLeft: 16, fontWeight: 600 }}>{peer}</span>
+        <span className="chat-peer">
+          <span className="chat-avatar">{(peer || '?').slice(0, 1).toUpperCase()}</span>
+          {peer || 'Chat'}
+        </span>
         <span className="sp"></span>
         <div className="menu-wrap">
           <button className="menu-btn" style={{ width: 36, height: 36 }} onClick={() => setHeadMenu(!headMenu)} aria-label="Chat options">

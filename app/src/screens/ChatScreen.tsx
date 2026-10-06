@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Modal, Platform,
+  ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { MoreHorizontal, MoreVertical } from 'lucide-react-native';
@@ -73,6 +73,7 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
   return (
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={s.head}>
+        <Avatar name={peer || '?'} size={36} />
         <Text style={s.peer} numberOfLines={1}>{peer || 'Chat'}</Text>
         <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
           <MoreVertical size={20} color={p.bodyText} />
@@ -92,16 +93,30 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
         <FlatList data={msgs} keyExtractor={m => m.id} contentContainerStyle={s.list}
           renderItem={({ item }) => {
             const mine = item.senderId === account?.id;
+            const open = menuMsg?.id === item.id;
+            const toggle = () => setMenuMsg(open ? null : item);
             return (
               <View style={[s.row, mine && s.rowMe]}>
                 {!mine && <Avatar name={peer || '?'} size={32} />}
-                <Pressable onLongPress={() => setMenuMsg(item)} delayLongPress={400}
-                  style={[s.bubble, mine ? s.me : s.them]}>
-                  <Text style={[s.text, mine && { color: '#fff' }]}>{item.body}</Text>
-                </Pressable>
-                <Pressable onPress={() => setMenuMsg(item)} style={s.dots} hitSlop={8}>
-                  <MoreHorizontal size={16} color={p.bodyText} />
-                </Pressable>
+                <View style={[s.col, mine && s.colMe]}>
+                  <View style={s.bubbleRow}>
+                    <Pressable onPress={toggle} onLongPress={() => setMenuMsg(item)} delayLongPress={400}
+                      style={[s.bubble, mine ? s.me : s.them]}>
+                      <Text style={[s.text, mine && { color: '#fff' }]}>{item.body}</Text>
+                    </Pressable>
+                    <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
+                      <MoreHorizontal size={16} color={p.bodyText} />
+                    </Pressable>
+                  </View>
+                  {open && (
+                    <View style={s.pop}>
+                      {item.body ? <Text onPress={() => copy(item)} style={s.popItem}>Copy text</Text> : null}
+                      {mine ? (
+                        <Text onPress={() => delMsg(item)} style={[s.popItem, s.dangerItem]}>Delete message</Text>
+                      ) : null}
+                    </View>
+                  )}
+                </View>
               </View>
             );
           }} />
@@ -110,25 +125,13 @@ export function ChatScreen({ threadId, context, onExit }: { threadId: string; co
         <TextInput style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
           onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
       </View>
-      {menuMsg && (
-        <Modal visible transparent animationType="fade" onRequestClose={() => setMenuMsg(null)}>
-          <Pressable style={s.scrim} onPress={() => setMenuMsg(null)}>
-            <Pressable style={s.menu} onPress={() => {}}>
-              {menuMsg.body ? <Text onPress={() => copy(menuMsg)} style={s.menuItem}>Copy text</Text> : null}
-              {menuMsg.senderId === account?.id ? (
-                <Text onPress={() => delMsg(menuMsg)} style={[s.menuItem, s.dangerItem]}>Delete message</Text>
-              ) : null}
-            </Pressable>
-          </Pressable>
-        </Modal>
-      )}
     </KeyboardAvoidingView>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
-  head: { flexDirection: 'row', alignItems: 'center', backgroundColor: p.surface, paddingHorizontal: space.s4, paddingVertical: space.s3 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.s3, backgroundColor: p.surface, paddingHorizontal: space.s4, paddingVertical: space.s3 },
   peer: { ...type.h3, color: p.ink, flex: 1 },
   kebab: { padding: space.s1 },
   headMenu: {
@@ -141,6 +144,15 @@ const themed = (p: Palette) => StyleSheet.create({
   list: { padding: space.s4 },
   row: { flexDirection: 'row', gap: 8, alignItems: 'flex-end', marginBottom: 8 },
   rowMe: { justifyContent: 'flex-end' },
+  col: { maxWidth: '85%' },
+  colMe: { alignItems: 'flex-end' },
+  bubbleRow: { flexDirection: 'row', gap: 4, alignItems: 'center' },
+  pop: {
+    marginTop: 4, minWidth: 160, backgroundColor: p.surface, borderRadius: radius.md,
+    paddingHorizontal: space.s4, paddingVertical: space.s2, elevation: 3,
+    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
+  },
+  popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16 },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
@@ -151,8 +163,5 @@ const themed = (p: Palette) => StyleSheet.create({
     flex: 1, height: 48, borderRadius: 8, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     paddingHorizontal: space.s4, fontSize: 16, backgroundColor: p.surface,
   },
-  scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s5 },
-  menu: { width: '100%', maxWidth: 320, backgroundColor: p.background, borderRadius: radius.lg, padding: space.s4 },
-  menuItem: { ...type.body, color: p.ink, paddingVertical: space.s3 },
   dangerItem: { color: C.error },
 });
