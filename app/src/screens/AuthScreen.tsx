@@ -12,12 +12,12 @@ import { Palette, useTheme } from '../useTheme';
 const FIELD_BG = '#F2F3F5'; // soft pill fill (auth only)
 
 // Sleek card auth, no logo. Fresh installs see Sign up first; returning
-// users see Sign in (remembered on-device). OTP underneath in both.
+// users see Sign in (remembered on-device). Email-only OTP (phone sign-up
+// removed for MVP — see PRD decision log); country stays for Discover scope.
 // Accounts with a password ask for it after the code (2nd step).
 export function AuthScreen() {
   const { signIn, completePassword, applySession, pendingTo } = useAuth();
   const [tab, setTab] = useState<'signup' | 'signin' | null>(null);
-  const [mode, setMode] = useState<'email' | 'phone'>(pendingTo.includes('@') || !pendingTo ? 'email' : 'phone');
   const [to, setTo] = useState(pendingTo);
   const [code, setCode] = useState('');
   const [country, setCountry] = useState('NG');
@@ -36,12 +36,11 @@ export function AuthScreen() {
   const s = themed(p);
 
   const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
-  const contactBody = () => mode === 'email' ? { email: to.trim() } : { phone: fullPhone(to.trim()) };
 
   const request = async () => {
-    if (!to.trim()) { Alert.alert('Enter email or phone', 'We need somewhere to send the code.'); return; }
+    if (!to.trim()) { Alert.alert('Enter email', 'We need somewhere to send the code.'); return; }
     try {
-      const r = await api.requestCode(contactBody());
+      const r = await api.requestCode({ email: to.trim() });
       setStage('code');
       if (r.devCode) Alert.alert('Dev code', r.devCode);
     } catch (e) {
@@ -53,7 +52,7 @@ export function AuthScreen() {
   };
   const verify = async () => {
     try {
-      const r = await signIn(mode === 'email' ? to.trim() : fullPhone(to.trim()), code, country);
+      const r = await signIn(to.trim(), code, country);
       await setFlag('returning', '1');
       if (r.needsPassword && r.accountId) {
         setPendingId(r.accountId);
@@ -78,7 +77,7 @@ export function AuthScreen() {
   };
   const forgot = async () => {
     try {
-      const r = await api.forgotPassword(contactBody());
+      const r = await api.forgotPassword({ email: to.trim() });
       setResetCode('');
       setNewPassword('');
       setStage('reset');
@@ -91,8 +90,7 @@ export function AuthScreen() {
   const submitReset = async () => {
     if (newPassword.length < 8) { Alert.alert('Password too short', 'Use 8 or more characters.'); return; }
     try {
-      const body = { ...contactBody(), code: resetCode, password: newPassword };
-      const r = await api.resetPassword(body);
+      const r = await api.resetPassword({ email: to.trim(), code: resetCode, password: newPassword });
       await applySession(r.token, r.account);
       await setFlag('returning', '1');
     } catch (e) {
@@ -104,9 +102,6 @@ export function AuthScreen() {
   };
 
   const fresh = tab === 'signup';
-  const dial = COUNTRIES.find(c => c.code === country)?.dial ?? '';
-  // Full international format: +dial + number without trunk zero.
-  const fullPhone = (raw: string) => `+${dial}${raw.trim().replace(/^0+/, '')}`;
   const fieldBg = dark ? p.surface : FIELD_BG;
   const title = stage === 'password' ? 'Enter password'
     : stage === 'reset' ? 'Reset password'
@@ -126,23 +121,9 @@ export function AuthScreen() {
 
         {stage === 'contact' && (
           <>
-            {mode === 'email' ? (
-              <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Email address" placeholderTextColor={p.bodyText}
-                value={to} onChangeText={setTo} autoCapitalize="none"
-                keyboardType="email-address" />
-            ) : (
-              <View style={[s.phoneBox, { backgroundColor: fieldBg }]}>
-                <Text style={s.prefix}>+{dial}</Text>
-                <View style={s.divider} />
-                <TextInput style={[s.field, { flex: 1, marginBottom: 0, backgroundColor: 'transparent' }]}
-                  placeholder="Phone number" placeholderTextColor={p.bodyText}
-                  value={to} onChangeText={setTo} keyboardType="phone-pad" />
-              </View>
-            )}
-            <Text onPress={() => { setMode(mode === 'email' ? 'phone' : 'email'); setTo(''); }}
-              style={s.swap}>
-              {mode === 'email' ? 'Use phone number instead' : 'Use email instead'}
-            </Text>
+            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Email address" placeholderTextColor={p.bodyText}
+              value={to} onChangeText={setTo} autoCapitalize="none"
+              keyboardType="email-address" />
             <Pressable onPress={() => setDrop(!drop)} style={[s.fieldRow, { backgroundColor: fieldBg }]}>
               <Text style={s.fieldT}>{COUNTRIES.find(c => c.code === country)?.name}</Text>
               {drop
@@ -237,13 +218,6 @@ const themed = (p: Palette) => StyleSheet.create({
     paddingHorizontal: space.s5, marginBottom: space.s4,
   },
   fieldT: { ...type.body, color: p.ink },
-  phoneBox: {
-    flexDirection: 'row', alignItems: 'center',
-    borderRadius: 24, height: 52,
-    paddingLeft: space.s5, marginBottom: space.s3,
-  },
-  prefix: { ...type.body, color: p.ink, fontWeight: '600' },
-  divider: { width: 1, height: 24, backgroundColor: p.line, marginHorizontal: space.s2 },
   menu: { borderRadius: 16, marginBottom: space.s3, maxHeight: 220, overflow: 'hidden' },
   opt: { ...type.body, color: p.ink, padding: space.s4, flex: 1 },
   optOn: { color: p.primary, fontWeight: '700' },
@@ -251,7 +225,6 @@ const themed = (p: Palette) => StyleSheet.create({
   optPressed: { backgroundColor: 'rgba(44,62,122,.06)' },
   optSel: { backgroundColor: 'rgba(44,62,122,.06)' },
   tick: { ...type.body, color: p.primary, fontWeight: '700', paddingRight: space.s4 },
-  swap: { ...type.bodySm, color: p.primary, marginBottom: space.s3 },
   swapLine: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s4 },
   link: { color: p.primary, fontWeight: '600' },
 });

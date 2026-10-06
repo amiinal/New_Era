@@ -359,6 +359,7 @@ Targets will be set after prototype testing and early beta data, not guessed in 
 | Support scope | Guides + FAQ first; human support for bug reports and important non-FAQ issues only, not onboarding (Decided Sept 26, 2026). |
 | Pick-list (cart-lite) | Multi-item pick attached to the first chat message, no totals or checkout; Phase 2 after chat loop is proven (Decided Sept 27, 2026). |
 | Design system | v1.1 tokens + preview: contrast-corrected colors, dark mode from start, one CTA per screen, no popularity styling; certificates use plain "not verified" label (Reviewed Sept 26, 2026). |
+| Phone sign-up | Removed for MVP — email-only sign-up; contact phone stays as an optional unverified profile field. Revisit with Africa's Talking at beta (Decided Oct 6, 2026). |
 
 ## Appendix: Glossary
 

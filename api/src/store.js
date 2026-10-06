@@ -386,7 +386,7 @@ export function storeRoutes(app, prisma) {
   app.patch('/me/profile', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { avatarKey, tagline, headerKey, displayName, showEmail, showPhone } = req.body || {};
+    const { avatarKey, tagline, headerKey, displayName, showEmail, showPhone, contactPhone } = req.body || {};
     const updated = await prisma.account.update({
       where: { id: acc.id },
       data: {
@@ -396,6 +396,7 @@ export function storeRoutes(app, prisma) {
         ...(displayName !== undefined ? { displayName: String(displayName).slice(0, 40) || null } : {}),
         ...(showEmail !== undefined ? { showEmail: !!showEmail } : {}),
         ...(showPhone !== undefined ? { showPhone: !!showPhone } : {}),
+        ...(contactPhone !== undefined ? { contactPhone: String(contactPhone).slice(0, 20) || null } : {}),
       },
     });
     const { passwordHash, ...rest } = updated;

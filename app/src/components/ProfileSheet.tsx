@@ -18,6 +18,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   const [tagline, setTagline] = useState(account?.tagline ?? '');
   const [showEmail, setShowEmail] = useState(!!account?.showEmail);
   const [showPhone, setShowPhone] = useState(!!account?.showPhone);
+  const [contactPhone, setContactPhone] = useState(account?.contactPhone ?? '');
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
   const [help, setHelp] = useState(false);
@@ -41,6 +42,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         displayName: name.trim() || null,
         showEmail,
         showPhone,
+        contactPhone: contactPhone.trim() || null,
       });
       await refresh();
       onSaved();
@@ -63,6 +65,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
           value={name} onChangeText={setName} maxLength={40} />
         <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} />
+        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
+          value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
         <Text style={s.micro}>Businesses you chat with can see:</Text>
         {([
           ['email', account?.email, showEmail, setShowEmail],
