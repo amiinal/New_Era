@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { ChevronDownIcon } from './icons.jsx';
 
 const FAQ = [
@@ -17,6 +18,7 @@ export default function Faq() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <h1>FAQ</h1>
         {FAQ.map(([q, a], j) => (
           <details className="card faq" key={j} style={{ marginBottom: 8 }}>

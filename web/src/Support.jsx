@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { accountId, api } from './lib.js';
 
 // Message the team (lands in /admin), read replies here.
@@ -29,6 +30,7 @@ export default function Support() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 560 }}>
+        <Back />
         <h1 style={{ textAlign: 'center', marginBottom: 4 }}>Customer support</h1>
         <p style={{ color: 'var(--color-body-text)', textAlign: 'center', fontSize: 13, marginTop: 0 }}>
           Mon–Fri, 9:00–17:00 WAT · replies within one business day.

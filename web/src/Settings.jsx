@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { accountId, api, initTheme, signOut } from './lib.js';
 
 // Website settings: password, appearance, help, sign out.
@@ -56,6 +57,7 @@ export default function Settings() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <h1>Settings</h1>
         {accountId() ? <PasswordCard /> : null}
         <div className="card" style={{ marginTop: 8 }}>

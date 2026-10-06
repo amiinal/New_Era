@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { accountId, api } from './lib.js';
 
 // Customer chat list (CHT-4): same threads as the app. A storefront
@@ -40,6 +41,7 @@ export default function Chats() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <h1>Chats</h1>
         {rows === null ? (
           <div className="card">Loading…</div>

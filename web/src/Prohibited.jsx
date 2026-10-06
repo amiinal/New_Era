@@ -1,5 +1,6 @@
 import React from 'react';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 
 // TRU-2: prohibited items + conduct. Static policy, day one.
 // Keep in step with app/src/components/Prohibited.tsx.
@@ -19,6 +20,7 @@ export default function Prohibited() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <h1>Prohibited items & conduct</h1>
         <p style={{ color: 'var(--color-body-text)' }}>
           These are never allowed on New Era. Listings that break the rules are

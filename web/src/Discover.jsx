@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { api } from './lib.js';
 import { COUNTRIES } from './countries.js';
 
@@ -28,6 +29,7 @@ export default function Discover() {
     <div>
       <Nav />
       <div className="page">
+        <Back />
         <h1>Discover businesses</h1>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: 160 }}>

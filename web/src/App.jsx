@@ -13,6 +13,7 @@ import Support from './Support.jsx';
 import Prohibited from './Prohibited.jsx';
 import Admin from './Admin.jsx';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
 import { initTheme, startThread } from './lib.js';
 
@@ -64,6 +65,7 @@ function Storefront() {
     <div>
       <Nav />
       <div className="page">
+        <Back />
         {sf.listings[0] && sf.listings[0].photos[0] ? (
           <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" />
         ) : null}

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 
 export default function About() {
   return (
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <div className="card">
           <h1>About New Era</h1>
           <p style={{ color: 'var(--color-body-text)' }}>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Nav from './Nav.jsx';
+import Back from './Back.jsx';
 import { accountId, api, getMode, setMode, signOut } from './lib.js';
 
 // Your contact + tagline + mode, private to the account. Business view
@@ -89,6 +90,7 @@ export default function Profile() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
+        <Back />
         <div className="card">
           <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
             <div className="avatar" style={{ margin: 0, width: 72, height: 72, fontSize: 28 }}>
