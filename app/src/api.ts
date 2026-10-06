@@ -10,6 +10,7 @@ export type Account = {
   id: string; email: string | null; phone: string | null;
   country: string; lastMode: 'customer' | 'business';
   avatarKey: string | null; tagline: string | null; headerKey: string | null;
+  displayName: string | null;
   hasPassword: boolean;
 };
 export type Business = {
@@ -97,7 +98,7 @@ export const api = {
   confirmPhoneChange: (body: { phone: string; code: string }) =>
     req<Account>('/me/phone/confirm', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
-  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string }) =>
+  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string; displayName?: string | null }) =>
     req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
   patchBusiness: (id: string, body: { coverKey?: string; logoKey?: string; bio?: string; area?: string; deliveryArea?: string }) =>
     req<Business>(`/businesses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
@@ -172,7 +173,9 @@ export const api = {
     req<{ range: number; storefrontViews: number; chatsStarted: number; listings: number; activeStatuses: number }>(
       `/businesses/${businessId}/insights?range=${range}`),
   bizThreads: (businessId: string) =>
-    req<(Thread & { messages: Message[] })[]>(`/businesses/${businessId}/threads`),
+    req<(Thread & { messages: Message[]; unread: number; customer: {
+      name: string; tagline: string | null; avatarKey: string | null; online: boolean;
+    } })[]>(`/businesses/${businessId}/threads`),
   setMode: (mode: 'customer' | 'business') =>
     req<Account>('/me/mode', { method: 'PATCH', body: JSON.stringify({ mode }) }),
   postStatus: (businessId: string, body: { kind: 'photo' | 'text'; imageKey?: string; text?: string; bg?: string; caption?: string }) =>

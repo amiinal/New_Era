@@ -49,7 +49,7 @@ export default function Chats() {
           </div>
         ) : rows.map((t) => (
           <Link to={`/chat/${t.id}`} key={t.id} className="thread-row">
-            <div className="card" style={{ marginBottom: 8, display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div className={`card ${t.unread > 0 ? 'thread-new' : ''}`} style={{ marginBottom: 8, display: 'flex', gap: 12, alignItems: 'center' }}>
               <span className="avatar-dot" style={{ width: 44, height: 44 }}>
                 <span className="chat-avatar" style={{ width: 44, height: 44, fontSize: 20 }}>{t.business.name.slice(0, 1)}</span>
                 {t.online ? <span className="presence" /> : null}

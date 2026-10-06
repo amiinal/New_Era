@@ -13,6 +13,7 @@ import { Help, Settings } from '../screens/Settings';
 export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const { account, refresh } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
+  const [name, setName] = useState(account?.displayName ?? '');
   const [tagline, setTagline] = useState(account?.tagline ?? '');
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -34,6 +35,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
       await api.saveProfile({
         ...(avatarKey ? { avatarKey } : {}),
         tagline: tagline.trim(),
+        displayName: name.trim() || null,
       });
       await refresh();
       onSaved();
@@ -52,6 +54,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
           : <View style={[s.av, s.empty]} />}
         <View style={{ height: space.s3 }} />
         <Button title="Choose photo" variant="secondary" onPress={pick} />
+        <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
+          value={name} onChangeText={setName} maxLength={40} />
         <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s4 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} />
         <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />

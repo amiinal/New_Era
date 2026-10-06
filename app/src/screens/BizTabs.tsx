@@ -73,21 +73,18 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
 }
 
 // Business inbox: threads started by customers, newest first.
+// Unread threads are tinted so new arrivals stand out.
 export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
   onThread: (threadId: string, label: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
-  const [rows, setRows] = useState<{ id: string; label: string }[] | null>(null);
+  const [rows, setRows] = useState<Awaited<ReturnType<typeof api.bizThreads>> | null>(null);
   const { p } = useTheme();
   const s = themed(p);
   useEffect(() => {
     api.myBusinesses().then(async list => {
       if (!list[0]) { setRows([]); return; }
-      const threads = await api.bizThreads(list[0].id);
-      setRows(threads.map(t => ({
-        id: t.id,
-        label: t.messages[0]?.body ?? 'Photo message',
-      })));
+      setRows(await api.bizThreads(list[0].id));
     }).catch(() => setRows([]));
   }, []);
   if (rows === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
@@ -96,13 +93,29 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
     <View style={s.root}>
       <TabHead title="Inbox" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
       {rows.length === 0 && <Text style={s.micro}>No chats yet — share the storefront link.</Text>}
-      {rows.map(r => (
-        <Pressable key={r.id} style={s.card}
-          onPress={() => onThread(r.id, 'Customer chat')}>
-          <Text style={s.t} numberOfLines={1}>{r.label}</Text>
-          <Text style={s.micro}>Tap to reply</Text>
-        </Pressable>
-      ))}
+      {rows.map(r => {
+        const name = r.customer.name;
+        return (
+          <Pressable key={r.id} style={[s.card, r.unread > 0 && s.fresh]}
+            onPress={() => onThread(r.id, name)}>
+            <View style={s.row}>
+              <Avatar name={name} size={48} online={r.customer.online} />
+              <View style={{ flex: 1 }}>
+                <Text style={[s.t, r.unread > 0 && s.tNew]} numberOfLines={1}>{name}</Text>
+                {!!r.customer.tagline && r.customer.tagline !== name && (
+                  <Text style={s.micro} numberOfLines={1}>{r.customer.tagline}</Text>
+                )}
+                <Text style={s.micro} numberOfLines={1}>
+                  {r.messages[0]?.body ?? 'Photo message'}
+                </Text>
+              </View>
+              {r.unread > 0 ? (
+                <View style={s.badge}><Text style={s.badgeT}>{r.unread}</Text></View>
+              ) : null}
+            </View>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -110,9 +123,16 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3 },
+  fresh: { borderWidth: 1, borderColor: C.success },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },
+  tNew: { fontWeight: '700' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
+  badge: {
+    minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.error,
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6,
+  },
+  badgeT: { color: '#fff', fontSize: 12, fontWeight: '700' },
   plus: {
     width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(194,78,34,.12)',

@@ -9,6 +9,7 @@ export default function Profile() {
   const navigate = useNavigate();
   const [acc, setAcc] = useState(null);
   const [tagline, setTagline] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [mode, setModeState] = useState(getMode());
   const [biz, setBiz] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -18,6 +19,7 @@ export default function Profile() {
     api('/me').then((a) => {
       setAcc(a);
       setTagline(a.tagline || '');
+      setDisplayName(a.displayName || '');
       setModeState(a.lastMode || getMode());
       localStorage.setItem('mode', a.lastMode || 'customer');
       if ((a.lastMode || 'customer') === 'business') {
@@ -42,8 +44,12 @@ export default function Profile() {
   const save = async () => {
     setBusy(true);
     try {
-      const updated = await api('/me/profile', { method: 'PATCH', body: JSON.stringify({ tagline: tagline.trim().slice(0, 120) }) });
+      const updated = await api('/me/profile', { method: 'PATCH', body: JSON.stringify({
+        tagline: tagline.trim().slice(0, 120),
+        displayName: displayName.trim().slice(0, 40) || null,
+      }) });
       setAcc(updated);
+      setDisplayName(updated.displayName || '');
       alert('Saved.');
     } catch {
       alert('Could not save — retry.');
@@ -83,6 +89,9 @@ export default function Profile() {
               {mode === 'business' ? 'Customer view' : 'Business view'}
             </button>
           </div>
+          <label className="lbl">Your name (shown to businesses)</label>
+          <input className="input" placeholder="e.g. Adaeze" value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)} maxLength={40} style={{ width: '100%' }} />
           <label className="lbl">Short tagline</label>
           <input className="input" placeholder="e.g. Cake lover in Ikeja" value={tagline}
             onChange={(e) => setTagline(e.target.value)} maxLength={120} style={{ width: '100%' }} />

@@ -86,11 +86,11 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
     <View style={s.root}>
       <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       {mine.map(t => (
-        <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={s.card}>
+        <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={[s.card, t.unread > 0 && s.fresh]}>
           <View style={s.row}>
             <Avatar name={t.business.name} size={48} online={t.online} />
             <View style={{ flex: 1 }}>
-              <Text style={s.t}>{t.business.name}</Text>
+              <Text style={[s.t, t.unread > 0 && s.tNew]}>{t.business.name}</Text>
               <Text style={s.micro} numberOfLines={1}>
                 {t.messages[0]?.body || 'Photo'}
               </Text>
@@ -119,8 +119,10 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3 },
+  fresh: { borderWidth: 1, borderColor: C.success },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },
+  tNew: { fontWeight: '700' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
   badge: {
     minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.error,

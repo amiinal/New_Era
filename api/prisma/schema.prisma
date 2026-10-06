@@ -21,6 +21,7 @@ model Account {
   lastMode      String   @default("customer") // customer|business (ACC-3)
   avatarKey     String?  // customer profile photo
   tagline       String?  // short customer bio
+  displayName   String?  // shown to businesses in chat + inbox
   headerKey     String?  // customer profile header background
   passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
   lastSeenAt    DateTime? // presence dot (online < 2min)

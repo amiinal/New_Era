@@ -168,13 +168,14 @@ export function storeRoutes(app, prisma) {
     const mine = t.customerId === acc.id || t.business.ownerId === acc.id;
     if (!mine) return reply.code(404).send({ error: 'unknown thread' });
     // Peer identity for tappable avatars + online dot.
+    const custName = (c) => c?.displayName || c?.tagline || 'Customer';
     const peer = t.customerId === acc.id
       ? await prisma.account.findUnique({ where: { id: t.business.ownerId } }).then(o => ({
         kind: 'business', name: t.business.name, online: isOnline(o?.lastSeenAt),
         slug: t.business.slug, logoKey: t.business.logoKey,
       }))
       : await prisma.account.findUnique({ where: { id: t.customerId } }).then(c => ({
-        kind: 'customer', name: c?.tagline || 'Customer', online: isOnline(c?.lastSeenAt),
+        kind: 'customer', name: custName(c), online: isOnline(c?.lastSeenAt),
         accountId: t.customerId, avatarKey: c?.avatarKey || null, tagline: c?.tagline || null,
       }));
     return { thread: t, peer };
@@ -365,13 +366,14 @@ export function storeRoutes(app, prisma) {
   app.patch('/me/profile', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { avatarKey, tagline, headerKey } = req.body || {};
+    const { avatarKey, tagline, headerKey, displayName } = req.body || {};
     const updated = await prisma.account.update({
       where: { id: acc.id },
       data: {
         ...(avatarKey !== undefined ? { avatarKey } : {}),
         ...(tagline !== undefined ? { tagline: String(tagline).slice(0, 120) } : {}),
         ...(headerKey !== undefined ? { headerKey } : {}),
+        ...(displayName !== undefined ? { displayName: String(displayName).slice(0, 40) || null } : {}),
       },
     });
     const { passwordHash, ...rest } = updated;
@@ -444,10 +446,26 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
     if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
-    return prisma.thread.findMany({
+    const rows = await prisma.thread.findMany({
       where: { businessId: biz.id }, orderBy: { createdAt: 'desc' }, take: 20,
       include: { messages: { orderBy: { createdAt: 'desc' }, take: 1 } },
     });
+    // Customer identity per thread so the inbox shows names, bios, dots.
+    const out = [];
+    for (const t of rows) {
+      const c = await prisma.account.findUnique({ where: { id: t.customerId } }).catch(() => null);
+      out.push({
+        ...t,
+        unread: await unreadFor(prisma, t.id, acc.id),
+        customer: {
+          name: c?.displayName || c?.tagline || 'Customer',
+          tagline: c?.tagline || null,
+          avatarKey: c?.avatarKey || null,
+          online: isOnline(c?.lastSeenAt),
+        },
+      });
+    }
+    return out;
   });
 
   // Local-dev fallback when R2 keys are absent: accept base64 inline and

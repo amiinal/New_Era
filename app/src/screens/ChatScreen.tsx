@@ -91,15 +91,17 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
           <Text style={s.peer} numberOfLines={1}>{peer?.name || 'Chat'}</Text>
           <Text style={s.presence}>{peer ? (peer.online ? 'Online now' : 'Offline') : ''}</Text>
         </Pressable>
-        <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
-          <MoreVertical size={20} color={p.bodyText} />
-        </Pressable>
-      </View>
-      {headMenu && (
-        <View style={s.headMenu}>
-          <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
+        <View>
+          <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
+            <MoreVertical size={20} color={p.bodyText} />
+          </Pressable>
+          {headMenu && (
+            <View style={s.headPop}>
+              <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
+            </View>
+          )}
         </View>
-      )}
+      </View>
       {!!context && (
         <View style={s.ctx}><Text style={s.ctxT} numberOfLines={1}>{context}</Text></View>
       )}
@@ -158,9 +160,11 @@ const themed = (p: Palette) => StyleSheet.create({
   peer: { ...type.h3, color: p.ink, flex: 1 },
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
-  headMenu: {
-    backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line,
-    padding: space.s4,
+  headPop: {
+    position: 'absolute', top: 32, right: 0, backgroundColor: p.surface,
+    borderRadius: radius.md, paddingHorizontal: space.s4, paddingVertical: space.s3,
+    minWidth: 180, elevation: 4, zIndex: 10,
+    shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 6, shadowOffset: { width: 0, height: 2 },
   },
   danger: { ...type.body, color: C.error },
   ctx: { backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line, padding: 8 },

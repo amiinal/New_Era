@@ -119,6 +119,11 @@ select.input::-ms-expand { display: none; }
 .msg-row { display: flex; align-items: center; gap: 4px; justify-content: flex-start; }
 .msg-row.me { justify-content: flex-end; }
 .menu-panel.pop { top: calc(100% + 4px); min-width: 180px; }
+.menu-panel.pop-left { left: 0; right: auto; }
+
+/* Unread threads stand out */
+.thread-new { border: 1px solid var(--color-success) !important; }
+.thread-new strong { font-weight: 800; }
 .msg-dots { background: none; border: 0; cursor: pointer; padding: 6px;
   display: inline-flex; align-items: center; opacity: .55; }
 .msg-dots:hover { opacity: 1; }

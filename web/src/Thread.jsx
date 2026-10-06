@@ -105,8 +105,12 @@ export default function Thread() {
         <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
         <span className="chat-peer">
           <PeerAvatar peer={peer} />
-          {peer?.name || 'Chat'}
-          {peer?.online ? <span className="online-word"> · online</span> : null}
+          <span>
+            <span style={{ display: 'block' }}>{peer?.name || 'Chat'}</span>
+            {peer?.kind === 'customer' && peer.tagline ? (
+              <span className="online-word" style={{ display: 'block' }}>{peer.tagline}</span>
+            ) : peer?.online ? <span className="online-word">online</span> : null}
+          </span>
         </span>
         <span className="sp"></span>
         <div className="menu-wrap">
@@ -141,7 +145,7 @@ export default function Thread() {
                     <DotsIcon size={18} color="var(--color-body-text)" />
                   </button>
                   {menuId === m.id && (
-                    <div className="menu-panel pop" onClick={() => setMenuId(null)}>
+                    <div className={`menu-panel pop ${mine ? '' : 'pop-left'}`} onClick={() => setMenuId(null)}>
                       {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
                       {mine ? <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button> : null}
                     </div>
