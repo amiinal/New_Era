@@ -120,9 +120,6 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
               <Avatar name={name} size={48} online={r.customer.online} />
               <View style={{ flex: 1 }}>
                 <Text style={[s.t, r.unread > 0 && s.tNew]} numberOfLines={1}>{name}</Text>
-                {!!r.customer.tagline && r.customer.tagline !== name && (
-                  <Text style={s.micro} numberOfLines={1}>{r.customer.tagline}</Text>
-                )}
                 {!!r.customer.contact && (
                   <Text style={s.micro} numberOfLines={1}>Reach: {r.customer.contact}</Text>
                 )}

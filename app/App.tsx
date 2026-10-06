@@ -26,7 +26,7 @@ type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
   | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' } | { name: 'blistings' } | { name: 'bdiscover' }
   | { name: 'store'; slug: string }
-  | { name: 'listing'; id: string }
+  | { name: 'listing'; id: string; from?: Route }
   | { name: 'chat'; threadId: string; context: string };
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
@@ -150,11 +150,11 @@ function Shell() {
       <SafeAreaView style={[styles.root, bg]}>
         {route.name === 'store'
           ? <StorefrontScreen slug={route.slug}
-              onListing={id => setRoute({ name: 'listing', id })}
+          onListing={id => setRoute({ name: 'listing', id, from: route })}
               onChat={(bid, lid, label) => openChat(bid, lid, label)}
               onBack={() => setRoute({ name: 'bdiscover' })} />
           : route.name === 'listing'
-          ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
+          ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'bizhome' })} />
           : route.name === 'chat'
           ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} onOpenStore={openStore} />
           : route.name === 'bupdates'
@@ -205,7 +205,7 @@ function Shell() {
           onBack={() => setRoute({ name: 'discover' })} />
       )}
       {route.name === 'listing' && (
-        <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
+        <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'discover' })} />
       )}
       {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} />}
       <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)} />

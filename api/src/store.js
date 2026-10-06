@@ -27,6 +27,7 @@ const publicContact = (c) => {
   const parts = [
     c.showEmail ? c.email : null,
     c.showPhone ? c.phone : null,
+    c.showContactPhone ? c.contactPhone : null,
   ].filter(Boolean);
   return parts.length ? parts.join(' · ') : null;
 };
@@ -386,7 +387,7 @@ export function storeRoutes(app, prisma) {
   app.patch('/me/profile', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
-    const { avatarKey, tagline, headerKey, displayName, showEmail, showPhone, contactPhone } = req.body || {};
+    const { avatarKey, tagline, headerKey, displayName, showEmail, showPhone, contactPhone, showContactPhone } = req.body || {};
     const updated = await prisma.account.update({
       where: { id: acc.id },
       data: {
@@ -397,6 +398,7 @@ export function storeRoutes(app, prisma) {
         ...(showEmail !== undefined ? { showEmail: !!showEmail } : {}),
         ...(showPhone !== undefined ? { showPhone: !!showPhone } : {}),
         ...(contactPhone !== undefined ? { contactPhone: String(contactPhone).slice(0, 20) || null } : {}),
+        ...(showContactPhone !== undefined ? { showContactPhone: !!showContactPhone } : {}),
       },
     });
     const { passwordHash, ...rest } = updated;

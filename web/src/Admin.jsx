@@ -298,6 +298,7 @@ export default function Admin() {
             <Icon />{label}
           </button>
         )) : null}
+        {shut ? <Link to="/" className="admin-back">← Back to site</Link> : null}
       </aside>
       <main className="admin-main">
         <h1>

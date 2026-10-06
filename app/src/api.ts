@@ -19,6 +19,7 @@ export type Account = {
   showEmail: boolean;
   showPhone: boolean;
   contactPhone: string | null;
+  showContactPhone: boolean;
   hasPassword: boolean;
 };
 export type Business = {
@@ -109,7 +110,7 @@ export const api = {
   confirmPhoneChange: (body: { phone: string; code: string }) =>
     req<Account>('/me/phone/confirm', { method: 'POST', body: JSON.stringify(body) }),
   me: () => req<Account>('/me'),
-  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string; displayName?: string | null; showEmail?: boolean; showPhone?: boolean; contactPhone?: string | null }) =>
+  saveProfile: (body: { avatarKey?: string; tagline?: string; headerKey?: string; displayName?: string | null; showEmail?: boolean; showPhone?: boolean; contactPhone?: string | null; showContactPhone?: boolean }) =>
     req<Account>('/me/profile', { method: 'PATCH', body: JSON.stringify(body) }),
   patchBusiness: (id: string, body: { coverKey?: string; logoKey?: string; bio?: string; area?: string; deliveryArea?: string }) =>
     req<Business>(`/businesses/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),

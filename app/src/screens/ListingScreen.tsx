@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { api, img, Listing, symFor } from '../api';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
@@ -14,7 +14,7 @@ const AVAIL: Record<Listing['availability'], { color: string; label: string }> =
 
 // Listing detail (LST): photos, price + currency, availability, inquiry
 // brief for services. Photo-less and failed loads get real states.
-export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId: string, listingId: string, label: string) => void }) {
+export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (businessId: string, listingId: string, label: string) => void; onBack: () => void }) {
   const [item, setItem] = useState<Listing | null | undefined>(undefined);
   const [page, setPage] = useState(0);
   const { width } = useWindowDimensions();
@@ -28,6 +28,9 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
   const price = item.price ? `${symFor(item.currency)}${item.price}` : 'Price on request';
   return (
     <ScrollView style={s.root}>
+      <Pressable onPress={onBack} hitSlop={8} style={s.back}>
+        <Text style={s.backT}>‹ Back</Text>
+      </Pressable>
       {item.photos.length > 0 ? (
         <View>
           <FlatList data={item.photos} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
@@ -69,6 +72,8 @@ export function ListingScreen({ id, onChat }: { id: string; onChat: (businessId:
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8, color: p.bodyText },
+  back: { paddingHorizontal: space.s4, paddingTop: space.s3 },
+  backT: { ...type.body, color: p.primary, fontWeight: '600' },
   photoEmpty: {
     height: 280, borderRadius: 16, backgroundColor: p.line,
     alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginTop: space.s4,

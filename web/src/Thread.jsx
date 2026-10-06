@@ -34,6 +34,7 @@ export default function Thread() {
   const [headMenu, setHeadMenu] = useState(false);
   const [nudge, setNudge] = useState(false);
   const [caution, setCaution] = useState(null);
+  const [peerCard, setPeerCard] = useState(false);
   const me = accountId();
 
   const load = async () => {
@@ -133,15 +134,34 @@ export default function Thread() {
         <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
         <span className="chat-peer">
           <PeerAvatar peer={peer} />
-          <span>
-            <span style={{ display: 'block' }}>{peer?.name || 'Chat'}</span>
-            {peer?.kind === 'customer' && peer.tagline ? (
-              <span className="online-word" style={{ display: 'block' }}>{peer.tagline}</span>
-            ) : peer?.online ? <span className="online-word">online</span> : null}
-            {peer?.kind === 'customer' && peer.contact ? (
-              <span className="online-word" style={{ display: 'block' }}>Reach: {peer.contact}</span>
-            ) : null}
-          </span>
+          {peer?.kind === 'customer' ? (
+            <span className="menu-wrap">
+              <button className="linklike" style={{ fontWeight: 600, fontSize: 15 }} onClick={() => setPeerCard(!peerCard)}>
+                {peer?.name || 'Chat'}
+              </button>
+              {peerCard ? (
+                <div className="menu-panel pop" onClick={() => setPeerCard(false)}>
+                  <div style={{ padding: 12, minWidth: 200 }}>
+                    <strong>{peer.name}</strong>
+                    <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '4px 0' }}>
+                      {peer.tagline || 'No bio yet.'}
+                    </p>
+                    <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '4px 0' }}>
+                      {peer.contact ? `Reach: ${peer.contact}` : 'Contact private.'}
+                    </p>
+                    <p style={{ fontSize: 12, color: 'var(--color-body-text)', margin: '4px 0 0' }}>
+                      {peer.online ? 'Online now' : 'Offline'}
+                    </p>
+                  </div>
+                </div>
+              ) : null}
+            </span>
+          ) : (
+            <span>
+              <span style={{ display: 'block' }}>{peer?.name || 'Chat'}</span>
+              {peer?.online ? <span className="online-word">online</span> : null}
+            </span>
+          )}
         </span>
         <span className="sp"></span>
         <div className="menu-wrap">

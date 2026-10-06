@@ -144,6 +144,10 @@ select.input::-ms-expand { display: none; }
 .unread-badge { min-width: 22px; height: 22px; border-radius: 11px;
   background: var(--color-error); color: #fff; font-size: 12px; font-weight: 700;
   display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+.nav-badge { min-width: 18px; height: 18px; border-radius: 9px;
+  background: var(--color-error); color: #fff; font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
+  margin-left: 6px; vertical-align: 1px; }
 
 /* Centered auth card (mirrors the app) */
 .auth-wrap { display: flex; justify-content: center; padding: 24px; }
@@ -188,6 +192,8 @@ select.input::-ms-expand { display: none; }
   padding: 12px; border-radius: var(--radius-md); font-size: 15px; color: var(--color-ink); }
 .admin-tab:hover { background: var(--color-background); }
 .admin-tab.on { background: var(--color-background); font-weight: 700; color: var(--color-primary); }
+.admin-back { margin-top: auto; padding: 12px; font-size: 14px;
+  color: var(--color-body-text); text-decoration: none; }
 .admin-main { flex: 1; padding: 24px; max-width: 960px; }
 @media (max-width: 640px) {
   .admin-side { position: fixed; z-index: 20; height: 100vh; }

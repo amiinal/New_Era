@@ -19,6 +19,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   const [showEmail, setShowEmail] = useState(!!account?.showEmail);
   const [showPhone, setShowPhone] = useState(!!account?.showPhone);
   const [contactPhone, setContactPhone] = useState(account?.contactPhone ?? '');
+  const [showContactPhone, setShowContactPhone] = useState(!!account?.showContactPhone);
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
   const [help, setHelp] = useState(false);
@@ -43,6 +44,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         showEmail,
         showPhone,
         contactPhone: contactPhone.trim() || null,
+        showContactPhone,
       });
       await refresh();
       onSaved();
@@ -67,6 +69,12 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
           value={tagline} onChangeText={setTagline} maxLength={120} />
         <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
           value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
+        {!!contactPhone.trim() && (
+          <Pressable onPress={() => setShowContactPhone(!showContactPhone)} style={[s.check, { marginBottom: space.s2 }]}>
+            <View style={s.box}>{showContactPhone ? <Check size={16} color={p.primary} /> : null}</View>
+            <Text style={s.checkT}>Show contact phone to businesses</Text>
+          </Pressable>
+        )}
         <Text style={s.micro}>Businesses you chat with can see:</Text>
         {([
           ['email', account?.email, showEmail, setShowEmail],

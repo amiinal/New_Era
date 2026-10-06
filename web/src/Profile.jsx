@@ -12,6 +12,8 @@ export default function Profile() {
   const [displayName, setDisplayName] = useState('');
   const [showEmail, setShowEmail] = useState(false);
   const [showPhone, setShowPhone] = useState(false);
+  const [contactPhone, setContactPhone] = useState('');
+  const [showContactPhone, setShowContactPhone] = useState(false);
   const [mode, setModeState] = useState(getMode());
   const [biz, setBiz] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -24,6 +26,8 @@ export default function Profile() {
       setDisplayName(a.displayName || '');
       setShowEmail(!!a.showEmail);
       setShowPhone(!!a.showPhone);
+      setContactPhone(a.contactPhone || '');
+      setShowContactPhone(!!a.showContactPhone);
       setModeState(a.lastMode || getMode());
       localStorage.setItem('mode', a.lastMode || 'customer');
       if ((a.lastMode || 'customer') === 'business') {
@@ -53,11 +57,15 @@ export default function Profile() {
         displayName: displayName.trim().slice(0, 40) || null,
         showEmail,
         showPhone,
+        contactPhone: contactPhone.trim().slice(0, 20) || null,
+        showContactPhone,
       }) });
       setAcc(updated);
       setDisplayName(updated.displayName || '');
       setShowEmail(!!updated.showEmail);
       setShowPhone(!!updated.showPhone);
+      setContactPhone(updated.contactPhone || '');
+      setShowContactPhone(!!updated.showContactPhone);
       alert('Saved.');
     } catch {
       alert('Could not save — retry.');
@@ -118,6 +126,15 @@ export default function Profile() {
               Show my phone ({acc.phone})
             </label>
           ) : null}
+          <label className="lbl">Contact phone (optional, not verified)</label>
+          <input className="input" placeholder="e.g. +2348012345678" value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)} maxLength={20} style={{ width: '100%' }} />
+          {!!contactPhone.trim() && (
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
+              <input type="checkbox" checked={showContactPhone} onChange={(e) => setShowContactPhone(e.target.checked)} />
+              Show contact phone to businesses
+            </label>
+          )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
             <button className="btn" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
             <button className="btn btn-secondary" onClick={() => signOut(navigate)}>Sign out</button>

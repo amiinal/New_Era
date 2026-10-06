@@ -11,10 +11,18 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
   const [mode, setModeState] = useState(getMode());
   const [admin, setAdmin] = useState(false);
+  const [unread, setUnread] = useState(0);
   const navigate = useNavigate();
   const signed = !!accountId();
   useEffect(() => {
-    if (signed) api('/admin/maintenance').then(() => setAdmin(true)).catch(() => {});
+    if (!signed) return;
+    api('/admin/maintenance').then(() => setAdmin(true)).catch(() => {});
+    const checkUnread = () => {
+      api('/me/threads').then((rows) => setUnread(rows.reduce((n, t) => n + (t.unread > 0 ? 1 : 0), 0))).catch(() => {});
+    };
+    checkUnread();
+    const t = setInterval(checkUnread, 30000);
+    return () => clearInterval(t);
   }, []);
   // Re-check on open too, so a stale first probe can never hide the entry.
   const toggle = () => {
@@ -37,6 +45,9 @@ export default function Nav() {
         <Link to="/discover" style={{ textDecoration: 'none', color: 'inherit' }}>Discover</Link>
         <Link to="/about" style={{ textDecoration: 'none', color: 'inherit' }}>About</Link>
         <Link to="/faq" style={{ textDecoration: 'none', color: 'inherit' }}>FAQ</Link>
+        <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>
+          Chats{unread > 0 ? <span className="nav-badge">{unread > 9 ? '9+' : unread}</span> : null}
+        </Link>
       </span>
       <span className="sp"></span>
       {!signed ? (

@@ -25,6 +25,7 @@ model Account {
   showEmail     Boolean  @default(false) // opt-in: business may see email
   showPhone     Boolean  @default(false) // opt-in: business may see phone
   contactPhone  String?  // user-provided, unverified (no OTP)
+  showContactPhone Boolean @default(false) // opt-in: business may see it
   headerKey     String?  // customer profile header background
   passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
   lastSeenAt    DateTime? // presence dot (online < 2min)
