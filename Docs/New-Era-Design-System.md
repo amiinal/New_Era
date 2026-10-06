@@ -210,6 +210,18 @@ The app uses two grids: **mobile** (phones) and **tablet** (larger screens, for 
 | Verified badge | `color-success` icon + text, small icon only, never resized to draw extra attention |
 | Low-stock / caution tag | `color-warning-tint` background at 15% opacity, `color-warning-text` label — never white text on solid amber |
 
+### 2.5 Monetization components
+
+Pins, renewals, Paystack checkout, and (Phase 3) sponsored slots. All reuse §2.4 tokens — no new colors, radii, or type styles.
+
+1. **Offer fields (pins composer).** Title input + price/date row + CTA button row. Same input rules as §2.4 (`color-surface` background, `color-line-strong` border, `radius-md`, `space-4` padding). A post without the offer structure is rejected — naked-image posts cannot be published as pins.
+2. **Countdown badge ("6d left").** `type-micro`/500, `color-cta-tint` text on `color-cta-tint` background at 15% opacity, `radius-sm`. Reused in the Pins list and on pinned statuses.
+3. **My Business → Pins rows.** Active rows show the countdown badge plus a renew action; expired rows are greyed (`color-body-text`) with a renew CTA. Card rules per §2.4 (`color-surface`, `radius-lg`, `space-4` padding).
+4. **Paystack sheet.** Price line, duration line, primary Pay button (`color-cta` background, white text), success state with a Lucide check icon. Sheet rules per §2.3 (`radius-xl`, modal presentation).
+5. **Sponsored slot (Phase 3).** `Sponsored` label in `color-warning-text` on `color-warning-tint` at 15% opacity — never white text on solid amber. Reshare row, swipeable container, and an area picker using the DIS-2 country/city filter pattern. Discovery of new sponsored content is signaled with a subtle new-dot only — no enticement animation, per the fairness rule (§1.1).
+
+**Rules that bind this section:** single CTA per screen; no popularity styling (counts, ranks, and badges must never imply endorsement); contrast AA per §1.3 — `color-cta-tint` (#F2703C) and `color-warning-tint` (#E8A639) both fail with white text, so they appear only as 15%-opacity backgrounds carrying dark text; dark-mode tokens per §1.4 (surfaces and ink swap, tints stay); Lucide outline icons only per §1.6.
+
 ---
 
 ## 3. Web (public storefronts, web chat, internal admin tool)
