@@ -177,6 +177,33 @@ export function storeRoutes(app, prisma) {
     return prisma.message.create({ data: { threadId: t.id, senderId: acc.id, body: body || null, imageKey: imageKey || null } });
   });
 
+  const participant = async (acc, t) =>
+    t.customerId === acc.id || !!(await prisma.business.findFirst({ where: { id: t.businessId, ownerId: acc.id } }));
+
+  // Delete your own message.
+  app.delete('/threads/:tid/messages/:mid', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const t = await prisma.thread.findUnique({ where: { id: req.params.tid } });
+    if (!t || !await participant(acc, t)) return reply.code(404).send({ error: 'unknown thread' });
+    const m = await prisma.message.findFirst({ where: { id: req.params.mid, threadId: t.id } });
+    if (!m) return reply.code(404).send({ error: 'unknown message' });
+    if (m.senderId !== acc.id) return reply.code(403).send({ error: 'only your own messages' });
+    await prisma.message.delete({ where: { id: m.id } });
+    return { deleted: true };
+  });
+
+  // Delete the whole conversation (either side; gone for both).
+  app.delete('/threads/:id', async (req, reply) => {
+    const acc = await authed(req, reply, prisma);
+    if (!acc) return;
+    const t = await prisma.thread.findUnique({ where: { id: req.params.id } });
+    if (!t || !await participant(acc, t)) return reply.code(404).send({ error: 'unknown thread' });
+    await prisma.message.deleteMany({ where: { threadId: t.id } });
+    await prisma.thread.delete({ where: { id: t.id } });
+    return { deleted: true };
+  });
+
   // STA-1..3: post photo/text status, 5/day from server_config, 24h expiry.
   app.post('/businesses/:id/statuses', async (req, reply) => {
     const acc = await authed(req, reply, prisma);

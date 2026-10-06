@@ -141,7 +141,7 @@ function Shell() {
           : route.name === 'listing'
           ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
           : route.name === 'chat'
-          ? <ChatScreen threadId={route.threadId} context={route.context} />
+          ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} />
           : route.name === 'bupdates'
           ? <BizUpdates onStore={openStore} dRoutes={BIZ} dActive="bupdates" onDNav={goDrawer} />
           : route.name === 'bchats'
@@ -191,7 +191,7 @@ function Shell() {
       {route.name === 'listing' && (
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} />
       )}
-      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} />}
+      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} />}
       <BottomNav active={tab} onTab={t => setRoute({ name: t } as Route)} />
       <StatusBar style="auto" />
     </SafeAreaView>

@@ -105,6 +105,10 @@ export const api = {
   messages: (threadId: string) => req<Message[]>(`/threads/${threadId}/messages`),
   sendMessage: (threadId: string, body: { body?: string; imageKey?: string }) =>
     req<Message>(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteMessage: (threadId: string, messageId: string) =>
+    req<{ deleted: boolean }>(`/threads/${threadId}/messages/${messageId}`, { method: 'DELETE' }),
+  deleteThread: (threadId: string) =>
+    req<{ deleted: boolean }>(`/threads/${threadId}`, { method: 'DELETE' }),
   report: (body: { targetType: string; targetId: string; reason: string; contact?: string }) =>
     req<{ id: string }>('/reports', { method: 'POST', body: JSON.stringify(body) }),
   presign: (key: string) =>

@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { accountId, api } from './lib.js';
+import { DotsIcon } from './icons.jsx';
 
 // One thread (CHT-1..4, text): same history as the app, polled.
+// ⋯ on a message copies/deletes; header ⋯ deletes the conversation.
 export default function Thread() {
   const { threadId } = useParams();
+  const navigate = useNavigate();
   const [msgs, setMsgs] = useState(null);
   const [peer, setPeer] = useState('');
   const [draft, setDraft] = useState('');
+  const [menuId, setMenuId] = useState(null);
+  const [headMenu, setHeadMenu] = useState(false);
   const me = accountId();
 
   const load = async () => {
@@ -51,6 +56,29 @@ export default function Thread() {
       alert('Could not send — check the API is running, then retry.');
     }
   };
+  const copy = async (m) => {
+    if (m.body) await navigator.clipboard?.writeText(m.body);
+    setMenuId(null);
+  };
+  const delMsg = async (m) => {
+    setMenuId(null);
+    try {
+      await api(`/threads/${threadId}/messages/${m.id}`, { method: 'DELETE' });
+      load();
+    } catch {
+      alert('Could not delete — retry.');
+    }
+  };
+  const delChat = async () => {
+    setHeadMenu(false);
+    if (!window.confirm('Delete this conversation? Gone for both sides.')) return;
+    try {
+      await api(`/threads/${threadId}`, { method: 'DELETE' });
+      navigate('/chat', { replace: true });
+    } catch {
+      alert('Could not delete — retry.');
+    }
+  };
 
   return (
     <div>
@@ -58,6 +86,16 @@ export default function Thread() {
         <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
         <span style={{ marginLeft: 16, fontWeight: 600 }}>{peer}</span>
         <span className="sp"></span>
+        <div className="menu-wrap">
+          <button className="menu-btn" style={{ width: 36, height: 36 }} onClick={() => setHeadMenu(!headMenu)} aria-label="Chat options">
+            <DotsIcon size={20} color="var(--color-primary)" />
+          </button>
+          {headMenu && (
+            <div className="menu-panel" onClick={() => setHeadMenu(false)}>
+              <button onClick={delChat} style={{ color: 'var(--color-error)' }}>Delete conversation</button>
+            </div>
+          )}
+        </div>
       </div>
       <div className="chat-wrap">
         <div className="chat-list">
@@ -65,11 +103,27 @@ export default function Thread() {
             <div className="card">Loading…</div>
           ) : msgs.length === 0 ? (
             <div className="card">No messages yet — say hello.</div>
-          ) : msgs.map((m) => (
-            <div key={m.id} className={`msg ${m.senderId === me ? 'msg-me' : 'msg-them'}`}>
-              {m.body || 'Photo'}
-            </div>
-          ))}
+          ) : msgs.map((m) => {
+            const mine = m.senderId === me;
+            return (
+              <div key={m.id} className="msg-row">
+                <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>
+                  {m.body || 'Photo'}
+                </div>
+                <div className="menu-wrap">
+                  <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
+                    <DotsIcon size={18} color="var(--color-body-text)" />
+                  </button>
+                  {menuId === m.id && (
+                    <div className="menu-panel" onClick={() => setMenuId(null)}>
+                      {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
+                      {mine ? <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button> : null}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
         <div className="chat-box">
           <input className="input" placeholder="Type a message…" value={draft}
