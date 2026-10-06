@@ -82,6 +82,15 @@ export function storeRoutes(app, prisma) {
     return { business, listings: listings.filter(l => !l.hidden), collections, certificates, statuses };
   });
 
+  // TRU-7: minimal public business card for the pre-chat caution check.
+  // Hidden/suspended stores stay invisible here too.
+  app.get('/businesses/:id', async (req, reply) => {
+    const b = await prisma.business.findUnique({ where: { id: req.params.id } });
+    if (!b || b.hidden || b.suspended) return reply.code(404).send({ error: 'unknown business' });
+    const { ownerId, ...pub } = b;
+    return pub;
+  });
+
   app.get('/listings/:id', async (req, reply) => {
     const l = await prisma.listing.findUnique({ where: { id: req.params.id } });
     if (!l || l.hidden) return reply.code(404).send({ error: 'unknown listing' });

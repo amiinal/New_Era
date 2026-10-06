@@ -8,6 +8,7 @@ import { C, radius, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
 import { SupportChat } from '../components/SupportChat';
+import { Prohibited } from '../components/Prohibited';
 
 // Settings (HLP-2 support scope: self-serve first). Account (email, phone,
 // password), appearance, help, support contact for bugs/important issues,
@@ -225,6 +226,7 @@ const FAQ: [string, string][] = [
 export function Help({ onClose }: { onClose: () => void }) {
   const { p } = useTheme();
   const [open, setOpen] = useState<number | null>(null);
+  const [rules, setRules] = useState(false);
   const s = themed(p);
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
@@ -241,9 +243,12 @@ export function Help({ onClose }: { onClose: () => void }) {
             {open === j && <Text style={s.answer}>{a}</Text>}
           </View>
         ))}
+        <View style={{ height: space.s2 }} />
+        <Button title="Prohibited items & conduct" variant="secondary" onPress={() => setRules(true)} />
         <View style={{ height: space.s4 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
       </View>
+      {rules && <Prohibited onClose={() => setRules(false)} />}
     </Modal>
   );
 }

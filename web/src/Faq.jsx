@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import { ChevronDownIcon } from './icons.jsx';
 
@@ -26,6 +27,13 @@ export default function Faq() {
             <p style={{ color: 'var(--color-body-text)' }}>{a}</p>
           </details>
         ))}
+        <div className="card" style={{ marginTop: 8 }}>
+          <strong>What can&apos;t be listed?</strong>
+          <p style={{ color: 'var(--color-body-text)', margin: '4px 0 8px' }}>
+            Drugs, weapons, counterfeits, money schemes, and more.
+          </p>
+          <Link to="/prohibited" className="btn btn-secondary">Prohibited items & conduct</Link>
+        </div>
       </div>
     </div>
   );

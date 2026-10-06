@@ -32,16 +32,34 @@ export default function Thread() {
   const [draft, setDraft] = useState('');
   const [menuId, setMenuId] = useState(null);
   const [headMenu, setHeadMenu] = useState(false);
+  const [nudge, setNudge] = useState(false);
+  const [caution, setCaution] = useState(null);
   const me = accountId();
 
   const load = async () => {
     try {
-      const [m, t] = await Promise.all([
+      const [m, t, self] = await Promise.all([
         api(`/threads/${threadId}/messages`),
         api(`/threads/${threadId}`),
+        api('/me'),
       ]);
       setMsgs(m);
       setPeer(t.peer);
+      // TRU-6: once a reply lands, ask privately — once per thread.
+      if (t.peer.kind === 'business' && m.some((x) => x.senderId !== me)) {
+        if (!localStorage.getItem(`nudge:${threadId}`)) setNudge(true);
+      }
+      // TRU-7: first chat across a border, or a remote service.
+      if (t.peer.kind === 'business') {
+        const b = await api(`/businesses/${t.thread.businessId}`).catch(() => null);
+        if (b) {
+          const cross = b.country !== self.country;
+          const remote = /nation/i.test(b.deliveryArea || '');
+          if ((cross || remote) && !localStorage.getItem(`caution:${b.id}`)) {
+            setCaution({ biz: b, cross });
+          }
+        }
+      }
     } catch {
       setMsgs([]);
     }
@@ -98,6 +116,16 @@ export default function Thread() {
       alert('Could not delete — retry.');
     }
   };
+  const answer = async (yes) => {
+    setNudge(false);
+    localStorage.setItem(`nudge:${threadId}`, '1');
+    api('/events', { method: 'POST', body: JSON.stringify({ name: 'nudge_reply', props: { threadId, answer: yes ? 'yes' : 'no' } }) }).catch(() => {});
+  };
+
+  const ackCaution = () => {
+    if (caution) localStorage.setItem(`caution:${caution.biz.id}`, '1');
+    setCaution(null);
+  };
 
   return (
     <div>
@@ -128,7 +156,27 @@ export default function Thread() {
         </div>
       </div>
       <div className="chat-wrap">
-        <div className="chat-list">
+        {caution ? (
+          <div className="card" style={{
+            background: 'rgba(232,166,57,.15)', border: '1px solid var(--color-warning-tint)',
+          }}>
+            <h2 style={{ marginTop: 0 }}>Stay safe</h2>
+            <p>{caution.cross
+              ? `This business is in ${caution.biz.country} — a different country from yours.`
+              : 'This is a remote service — you may never meet this seller in person.'}</p>
+            <ul style={{ paddingLeft: 20 }}>
+              <li>Don’t pay in full upfront to a seller you don’t know.</li>
+              <li>Never share bank details, card numbers, or OTP codes.</li>
+              <li>Meet in a public place for in-person exchange where you can.</li>
+              <li>Report anything suspicious straight from this chat.</li>
+            </ul>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <button className="btn" onClick={ackCaution}>I understand — continue</button>
+              <button className="btn btn-secondary" onClick={() => navigate('/chat')}>Go back</button>
+            </div>
+          </div>
+        ) : null}
+        <div className="chat-list" style={caution ? { display: 'none' } : undefined}>
           {msgs === null ? (
             <div className="card">Loading…</div>
           ) : msgs.length === 0 ? (
@@ -159,12 +207,21 @@ export default function Thread() {
             );
           })}
         </div>
-        <div className="chat-box">
+        <div className="chat-box" style={caution ? { display: 'none' } : undefined}>
           <input className="input" placeholder="Type a message…" value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') send(); }} style={{ flex: 1 }} />
           <button className="btn" onClick={send}>Send</button>
         </div>
+        {nudge ? (
+          <div className="card" style={{ textAlign: 'center', marginBottom: 8 }}>
+            <strong>Did you get a reply?</strong>
+            <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginTop: 8 }}>
+              <button className="linklike" onClick={() => answer(true)}>Yes</button>
+              <button className="linklike" onClick={() => answer(false)}>Not yet</button>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

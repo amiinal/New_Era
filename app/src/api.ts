@@ -171,6 +171,7 @@ export const api = {
   deleteListing: (id: string) =>
     req<{ deleted: boolean }>(`/listings/${id}`, { method: 'DELETE' }),
   myBusinesses: () => req<Business[]>('/me/businesses'),
+  business: (id: string) => req<Business>(`/businesses/${id}`),
   createBusiness: (body: {
     name: string; category: string; country: string; city: string;
     area?: string; deliveryArea?: string; nationwide?: boolean; logoKey?: string; coverKey?: string;
