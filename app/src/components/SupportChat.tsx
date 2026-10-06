@@ -9,12 +9,13 @@ import { Palette, useTheme } from '../useTheme';
 // Same thread as the web Support page (HLP-2, self-serve first).
 export function SupportChat({ onClose }: { onClose: () => void }) {
   const [msgs, setMsgs] = useState<SupportMsg[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState('');
   const { p } = useTheme();
   const s = themed(p);
 
   const load = async () => {
-    try { setMsgs(await api.supportMine()); } catch { setMsgs([]); }
+    try { setMsgs(await api.supportMine()); setFailed(false); } catch { setMsgs([]); setFailed(true); }
   };
   useEffect(() => { load(); const t = setInterval(load, 10000); return () => clearInterval(t); }, []);
 
@@ -37,7 +38,14 @@ export function SupportChat({ onClose }: { onClose: () => void }) {
         <Text style={s.micro}>Mon–Fri, 9:00–17:00 WAT · replies within one business day.</Text>
         <ScrollView style={s.thread} contentContainerStyle={s.list}>
           {msgs === null ? <ActivityIndicator style={{ marginTop: space.s5 }} />
-            : msgs.length === 0 ? (
+            : failed ? (
+              <View style={{ alignItems: 'center', marginTop: space.s5 }}>
+                <Text style={[s.micro, { textAlign: 'center' }]}>Couldn&apos;t load messages.</Text>
+                <View style={{ marginTop: space.s3, alignSelf: 'stretch' }}>
+                  <Button title="Retry" variant="secondary" onPress={load} />
+                </View>
+              </View>
+            ) : msgs.length === 0 ? (
               <Text style={[s.micro, { textAlign: 'center', marginTop: space.s5 }]}>
                 No messages yet — tell us what you need help with.
               </Text>

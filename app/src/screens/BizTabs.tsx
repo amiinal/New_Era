@@ -21,6 +21,7 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
   const [statuses, setStatuses] = useState<import('../api').Status[]>([]);
   const [compose, setCompose] = useState(false);
   const [view, setView] = useState(false);
+  const [failed, setFailed] = useState(false);
   const { p } = useTheme();
   const s = themed(p);
 
@@ -31,13 +32,20 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
       setBiz(list[0]);
       const sf = await api.storefront(list[0].slug);
       setStatuses(sf.statuses);
-    } catch { setBiz(null); }
+      setFailed(false);
+    } catch { setBiz(null); setFailed(true); }
   };
   useEffect(() => { load(); }, []);
 
   return (
     <View style={s.root}>
       <TabHead title="Updates" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
+      {failed && !biz ? (
+        <Pressable onPress={load} style={s.card}>
+          <Text style={s.t}>Couldn&apos;t load updates.</Text>
+          <Text style={s.micro}>Check your connection — tap to retry.</Text>
+        </Pressable>
+      ) : null}
       <Pressable onPress={() => setCompose(true)} style={s.card}>
         <View style={s.row}>
           <View style={s.plus}><Plus size={24} color="#C24E22" /></View>
@@ -79,20 +87,30 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
   const [rows, setRows] = useState<Awaited<ReturnType<typeof api.bizThreads>> | null>(null);
+  const [failed, setFailed] = useState(false);
   const { p } = useTheme();
   const s = themed(p);
   useEffect(() => {
     api.myBusinesses().then(async list => {
       if (!list[0]) { setRows([]); return; }
-      setRows(await api.bizThreads(list[0].id));
-    }).catch(() => setRows([]));
+      try {
+        setRows(await api.bizThreads(list[0].id));
+        setFailed(false);
+      } catch { setRows([]); setFailed(true); }
+    }).catch(() => { setRows([]); setFailed(true); });
   }, []);
   if (rows === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
 
   return (
     <View style={s.root}>
       <TabHead title="Inbox" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
-      {rows.length === 0 && <Text style={s.micro}>No chats yet — share the storefront link.</Text>}
+      {failed ? (
+        <View style={s.card}>
+          <Text style={s.t}>Couldn&apos;t load inbox.</Text>
+          <Text style={s.micro}>Check your connection, then retry.</Text>
+        </View>
+      ) : null}
+      {!failed && rows.length === 0 && <Text style={s.micro}>No chats yet — share the storefront link.</Text>}
       {rows.map(r => {
         const name = r.customer.name;
         return (

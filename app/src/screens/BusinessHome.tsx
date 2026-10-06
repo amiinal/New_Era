@@ -24,8 +24,10 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   const [biz, setBiz] = useState<Business | null>(null);
   const [range, setRange] = useState<7 | 30>(7);
   const [ins, setIns] = useState<{ storefrontViews: number; chatsStarted: number; listings: number; activeStatuses: number } | null>(null);
+  const [insFailed, setInsFailed] = useState(false);
   const [compose, setCompose] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [menu, setMenu] = useState(false);
   const [edit, setEdit] = useState(false);
@@ -37,26 +39,43 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
     try {
       const list = await api.myBusinesses();
       setBiz(list[0] ?? null);
-    } catch { setBiz(null); }
+      setFailed(false);
+    } catch { setBiz(null); setFailed(true); }
   };
+  const retry = () => { setLoaded(false); setFailed(false); loadBiz().finally(() => setLoaded(true)); };
   useEffect(() => { loadBiz().finally(() => setLoaded(true)); }, []);
   // Role entry: business picks open the wizard straight away when empty.
   useEffect(() => {
-    if (autoStart && loaded && !biz) setOnboard(true);
+    if (autoStart && loaded && !biz && !failed) setOnboard(true);
     if (autoStart && loaded && biz) onAutoDone?.();
-  }, [autoStart, loaded, biz?.id]);
+  }, [autoStart, loaded, failed, biz?.id]);
   useEffect(() => {
-    if (biz) api.insights(biz.id, range).then(setIns).catch(() => setIns(null));
+    if (biz) {
+      setInsFailed(false);
+      api.insights(biz.id, range).then(setIns).catch(() => { setIns(null); setInsFailed(true); });
+    }
   }, [biz?.id, range]);
   if (!loaded) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   if (!biz) {
     return (
       <View style={s.root}>
-        <Text style={s.h1}>Business home</Text>
-        <Text style={s.micro}>No storefront yet — go live in about 5 minutes.</Text>
-        <View style={{ marginTop: space.s4 }}>
-          <Button title="Start selling" onPress={() => setOnboard(true)} />
-        </View>
+        {failed ? (
+          <>
+            <Text style={s.h1}>Couldn&apos;t load your business</Text>
+            <Text style={s.micro}>Check your connection, then retry.</Text>
+            <View style={{ marginTop: space.s4 }}>
+              <Button title="Retry" onPress={retry} />
+            </View>
+          </>
+        ) : (
+          <>
+            <Text style={s.h1}>Business home</Text>
+            <Text style={s.micro}>No storefront yet — go live in about 5 minutes.</Text>
+            <View style={{ marginTop: space.s4 }}>
+              <Button title="Start selling" onPress={() => setOnboard(true)} />
+            </View>
+          </>
+        )}
         {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
       </View>
     );
@@ -107,7 +126,8 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
             <View style={s.metric}><Text style={s.mn}>{ins.chatsStarted}</Text><Text style={s.micro}>Chats started</Text></View>
             <View style={s.metric}><Text style={s.mn}>{ins.activeStatuses}</Text><Text style={s.micro}>Active statuses</Text></View>
           </View>
-        ) : <Text style={s.micro}>Loading…</Text>}
+        ) : insFailed ? <Text style={s.micro}>Couldn&apos;t load insights — switch range to retry.</Text>
+        : <Text style={s.micro}>Loading…</Text>}
         <Text style={s.micro}>Private to you · deeper trends arrive with premium.</Text>
       </View>
 
@@ -118,7 +138,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
 
       {compose && (
         <Composer businessId={biz.id} onClose={() => setCompose(false)}
-          onPosted={() => { setCompose(false); api.insights(biz.id, range).then(setIns).catch(() => {}); }} />
+          onPosted={() => { setCompose(false); api.insights(biz.id, range).then(i => { setIns(i); setInsFailed(false); }).catch(() => {}); }} />
       )}
       {menu && <Drawer mode="business" routes={dRoutes} active={dActive}
         onNav={r => { setMenu(false); onDNav(r); }} onClose={() => setMenu(false)} />}

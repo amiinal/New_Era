@@ -21,19 +21,29 @@ export function UpdatesScreen({
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
 }) {
   const [sf, setSf] = useState<Storefront | null>(null);
+  const [failed, setFailed] = useState(false);
   const [view, setView] = useState(false);
   const { p } = useTheme();
   const s = themed(p);
 
   const load = async () => {
-    try { setSf(await api.storefront('mamas-kitchen')); } catch { setSf(null); }
+    try { setSf(await api.storefront('mamas-kitchen')); setFailed(false); } catch { setSf(null); setFailed(true); }
   };
   useEffect(() => { load(); }, []);
 
   return (
     <View style={s.root}>
       <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
-      {!sf && <Skeleton kind="card" />}
+      {!sf && !failed && <Skeleton kind="card" />}
+      {!sf && failed && (
+        <View style={s.card}>
+          <Text style={s.t}>Couldn&apos;t load updates.</Text>
+          <Text style={s.micro}>Check your connection, then retry.</Text>
+          <View style={{ marginTop: space.s3 }}>
+            <Button title="Retry" variant="secondary" onPress={load} />
+          </View>
+        </View>
+      )}
       {sf && sf.statuses.length === 0 && (
         <Text style={s.micro}>Nothing posted in the last 24 hours — check back soon.</Text>
       )}
@@ -70,15 +80,17 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
 }) {
   const { account } = useAuth();
   const [rows, setRows] = useState<MyThread[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [biz, setBiz] = useState<{ id: string; name: string } | null>(null);
   const { p } = useTheme();
   const s = themed(p);
-  useEffect(() => {
-    api.myThreads().then(setRows).catch(() => setRows([]));
+  const load = () => {
+    api.myThreads().then(r => { setRows(r); setFailed(false); }).catch(() => { setRows([]); setFailed(true); });
     api.storefront('mamas-kitchen')
       .then(sf => setBiz({ id: sf.business.id, name: sf.business.name }))
       .catch(() => setBiz(null));
-  }, []);
+  };
+  useEffect(() => { load(); }, []);
   if (rows === null || !account) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   const mine = rows.filter(t => t.customerId === account.id);
 
@@ -101,7 +113,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
           </View>
         </Pressable>
       ))}
-      {mine.length === 0 && biz && (
+      {mine.length === 0 && !failed && biz && (
         <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={s.card}>
           <View style={s.row}>
             <Avatar name={biz.name} size={48} />
@@ -111,6 +123,18 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
             </View>
           </View>
         </Pressable>
+      )}
+      {mine.length === 0 && !failed && !biz && (
+        <Text style={s.micro}>No chats yet — discover a business and say hello.</Text>
+      )}
+      {mine.length === 0 && failed && (
+        <View style={s.card}>
+          <Text style={s.t}>Couldn&apos;t load chats.</Text>
+          <Text style={s.micro}>Check your connection, then retry.</Text>
+          <View style={{ marginTop: space.s3 }}>
+            <Button title="Retry" variant="secondary" onPress={load} />
+          </View>
+        </View>
       )}
     </View>
   );

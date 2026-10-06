@@ -15,6 +15,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
 }) {
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [items, setItems] = useState<Listing[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [form, setForm] = useState<'add' | Listing | null>(null);
   const [avFor, setAvFor] = useState<Listing | null>(null);
   const { p, dark } = useTheme();
@@ -27,7 +28,8 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
       if (!list[0]) { setBusinessId(null); setItems([]); return; }
       setBusinessId(list[0].id);
       setItems(await api.bizListings(list[0].id));
-    } catch { setItems([]); }
+      setFailed(false);
+    } catch { setItems([]); setFailed(true); }
   };
   useEffect(() => { load(); }, [businessId]);
   if (items === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
@@ -52,7 +54,16 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
   return (
     <ScrollView style={s.root}>
       <TabHead title="Listings" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} right={<Button title="+ Add" onPress={() => setForm('add')} />} />
-      {items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
+      {failed ? (
+        <View style={s.rowCard}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.t}>Couldn&apos;t load listings.</Text>
+            <Text style={s.micro}>Check your connection.</Text>
+          </View>
+          <Button title="Retry" variant="secondary" onPress={load} />
+        </View>
+      ) : null}
+      {!failed && items.length === 0 && <Text style={s.micro}>No listings yet — add the first one.</Text>}
       {items.map(l => (
         <Pressable key={l.id} onPress={() => setForm(l)} style={s.rowCard}>
           {l.photos[0] ? (

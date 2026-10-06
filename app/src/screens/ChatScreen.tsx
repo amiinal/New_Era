@@ -9,6 +9,7 @@ import { api, Message, Peer } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
+import { Button } from '../components/Button';
 import { Palette, useTheme } from '../useTheme';
 import { PeerSheet } from '../components/PeerSheet';
 
@@ -20,6 +21,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
 }) {
   const { account } = useAuth();
   const [msgs, setMsgs] = useState<Message[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState('');
   const [peer, setPeer] = useState<Peer | null>(null);
   const [peerCard, setPeerCard] = useState(false);
@@ -33,7 +35,8 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
       const [m, t] = await Promise.all([api.messages(threadId), api.thread(threadId)]);
       setMsgs(m);
       setPeer(t.peer);
-    } catch { setMsgs([]); }
+      setFailed(false);
+    } catch { setMsgs([]); setFailed(true); }
   };
   useEffect(() => { load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [threadId]);
 
@@ -105,7 +108,14 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
       {!!context && (
         <View style={s.ctx}><Text style={s.ctxT} numberOfLines={1}>{context}</Text></View>
       )}
-      {msgs === null ? <ActivityIndicator style={{ marginTop: space.s8 }} /> : msgs.length === 0 ? (
+      {msgs === null ? <ActivityIndicator style={{ marginTop: space.s8 }} /> : failed ? (
+        <View style={s.errBox}>
+          <Text style={[s.text, { textAlign: 'center' }]}>Couldn&apos;t load messages.</Text>
+          <View style={{ marginTop: space.s3, alignSelf: 'stretch' }}>
+            <Button title="Retry" variant="secondary" onPress={load} />
+          </View>
+        </View>
+      ) : msgs.length === 0 ? (
         <Text style={[s.text, { textAlign: 'center', marginTop: space.s8 }]}>No messages yet — say hello.</Text>
       ) : (
         <FlatList data={msgs} keyExtractor={m => m.id} contentContainerStyle={s.list}
@@ -170,6 +180,7 @@ const themed = (p: Palette) => StyleSheet.create({
   ctx: { backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line, padding: 8 },
   ctxT: { fontSize: 14, color: p.bodyText },
   list: { padding: space.s4 },
+  errBox: { padding: space.s5, alignItems: 'center' },
   row: { flexDirection: 'row', gap: 8, alignItems: 'flex-end', marginBottom: 8 },
   rowMe: { justifyContent: 'flex-end' },
   col: { maxWidth: '85%' },

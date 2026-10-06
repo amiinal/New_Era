@@ -3,6 +3,7 @@ import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextIn
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
+import { Button } from '../components/Button';
 import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
 import { Skeleton } from '../components/Skeleton';
@@ -20,13 +21,15 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
   const [prof, setProf] = useState(false);
 
   const load = async () => {
     try {
       setItems(await api.discover({ country: account?.country ?? 'NG', ...(city ? { city } : {}), ...(q ? { q } : {}) }));
-    } catch { setItems([]); }
+      setFailed(false);
+    } catch { setItems([]); setFailed(true); }
   };
   useEffect(() => { load(); }, []);
   useEffect(() => { api.myBusinesses().then(b => setHasBiz(b.length > 0)).catch(() => {}); }, []);
@@ -46,6 +49,13 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
         value={city} onChangeText={setCity} onSubmitEditing={load} />
       {items === null ? (
         <><Skeleton kind="row" /><Skeleton kind="row" /><Skeleton kind="row" /></>
+      ) : failed ? (
+        <View style={s.card}>
+          <Text style={s.empty}>Couldn&apos;t load — check your connection.</Text>
+          <View style={{ marginTop: space.s3 }}>
+            <Button title="Retry" variant="secondary" onPress={load} />
+          </View>
+        </View>
       ) : (
         <FlatList data={items} keyExtractor={b => b.id}
           ListEmptyComponent={<Text style={s.empty}>No businesses yet — try widening the city.</Text>}
