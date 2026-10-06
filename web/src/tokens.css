@@ -116,7 +116,9 @@ select.input::-ms-expand { display: none; }
 .msg-me { align-self: flex-end; background: var(--color-primary); color: #fff; }
 .msg-them { align-self: flex-start; background: var(--color-surface); box-shadow: var(--shadow-sm); }
 .chat-box { display: flex; gap: 8px; padding: 12px 0; }
-.msg-row { display: flex; align-items: center; gap: 4px; }
+.msg-row { display: flex; align-items: center; gap: 4px; justify-content: flex-start; }
+.msg-row.me { justify-content: flex-end; }
+.menu-panel.pop { top: calc(100% + 4px); min-width: 180px; }
 .msg-dots { background: none; border: 0; cursor: pointer; padding: 6px;
   display: inline-flex; align-items: center; opacity: .55; }
 .msg-dots:hover { opacity: 1; }

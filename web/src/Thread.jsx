@@ -105,22 +105,25 @@ export default function Thread() {
             <div className="card">No messages yet — say hello.</div>
           ) : msgs.map((m) => {
             const mine = m.senderId === me;
+            const showDots = !!m.body || mine;
             return (
-              <div key={m.id} className="msg-row">
+              <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
                 <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>
                   {m.body || 'Photo'}
                 </div>
+                {showDots ? (
                 <div className="menu-wrap">
                   <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
                     <DotsIcon size={18} color="var(--color-body-text)" />
                   </button>
                   {menuId === m.id && (
-                    <div className="menu-panel" onClick={() => setMenuId(null)}>
+                    <div className="menu-panel pop" onClick={() => setMenuId(null)}>
                       {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
                       {mine ? <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button> : null}
                     </div>
                   )}
                 </div>
+                ) : null}
               </div>
             );
           })}
