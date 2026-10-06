@@ -28,27 +28,36 @@ export default function Support() {
   return (
     <div>
       <Nav />
-      <div className="page" style={{ maxWidth: 720 }}>
+      <div className="page" style={{ maxWidth: 560 }}>
+        <h1 style={{ textAlign: 'center', marginBottom: 4 }}>Customer support</h1>
+        <p style={{ color: 'var(--color-body-text)', textAlign: 'center', fontSize: 13, marginTop: 0 }}>
+          Mon–Fri, 9:00–17:00 WAT · replies within one business day.
+        </p>
         <div className="card">
-          <h1>Customer support</h1>
-          <p style={{ color: 'var(--color-body-text)' }}>
-            Support hours: Mon–Fri, 9:00–17:00 WAT. Typical reply within one business day.
+          <p style={{ color: 'var(--color-body-text)', fontSize: 14, marginTop: 0 }}>
+            For bugs or anything the FAQ doesn&apos;t cover: support@newera.shop ·{' '}
+            <Link to="/faq">Check the FAQ first</Link>
           </p>
-          <p style={{ color: 'var(--color-body-text)' }}>
-            For bugs or anything the FAQ doesn&apos;t cover: support@newera.shop
-          </p>
-          <Link to="/faq" className="btn btn-secondary">Check the FAQ first</Link>
         </div>
-        <div className="card" style={{ marginTop: 8 }}>
-          <h3 style={{ marginTop: 0 }}>Message support</h3>
+        <div className="card" style={{ marginTop: 8, minHeight: 320, display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ marginTop: 0, textAlign: 'center' }}>Message support</h3>
           {!accountId() ? (
-            <Link to="/auth?next=/support" className="btn">Sign in to message</Link>
+            <div style={{ textAlign: 'center' }}>
+              <Link to="/auth?next=/support" className="btn">Sign in to message</Link>
+            </div>
           ) : (
             <>
-              {msgs === null ? <p>Loading…</p> : msgs.map((m) => (
-                <div key={m.id} className={`msg ${m.fromAdmin ? 'msg-them' : 'msg-me'}`} style={{ marginBottom: 6 }}>{m.body}</div>
-              ))}
-              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
+                {msgs === null ? <p>Loading…</p> : msgs.length === 0 ? (
+                  <p style={{ color: 'var(--color-body-text)', textAlign: 'center', fontSize: 14 }}>
+                    No messages yet — tell us what you need help with.
+                  </p>
+                ) : msgs.map((m) => (
+                  <div key={m.id} className={`msg ${m.fromAdmin ? 'msg-them' : 'msg-me'}`}
+                    style={{ alignSelf: m.fromAdmin ? 'flex-start' : 'flex-end' }}>{m.body}</div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
                 <input className="input" placeholder="What do you need help with?" value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') send(); }} style={{ flex: 1 }} />
