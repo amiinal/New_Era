@@ -29,6 +29,9 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
       )}
       <View style={s.body}>
         <Text style={s.title} numberOfLines={2}>{item.title}</Text>
+        {!!item.description && (
+          <Text style={s.desc} numberOfLines={2}>{item.description}</Text>
+        )}
         <Text style={s.price}>
           {item.price ? `${symFor(item.currency)}${item.price}` : 'Price on request'}
           {'  '}
@@ -53,6 +56,7 @@ const themed = (p: Palette) => StyleSheet.create({
   empty: { backgroundColor: p.line },
   body: { padding: space.s4 - 4 },
   title: { fontSize: 16, fontWeight: '600', color: p.ink },
+  desc: { fontSize: 13, color: p.bodyText, marginTop: 2 },
   price: { fontSize: 14, color: p.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
   avail: { fontSize: 12, color: p.bodyText },
   dot: { width: 8, height: 8, borderRadius: 4 },

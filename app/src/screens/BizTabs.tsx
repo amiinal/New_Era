@@ -117,7 +117,7 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
           <Pressable key={r.id} style={({ pressed }) => [s.card, r.unread > 0 && s.fresh, pressed && s.pressed]}
             onPress={() => onThread(r.id, name)}>
             <View style={s.row}>
-              <Avatar name={name} size={48} online={r.customer.online} />
+              <Avatar name={name} size={56} online={r.customer.online} />
               <View style={{ flex: 1 }}>
                 <Text style={[s.t, r.unread > 0 && s.tNew]} numberOfLines={1}>{name}</Text>
                 <Text style={s.micro} numberOfLines={1}>

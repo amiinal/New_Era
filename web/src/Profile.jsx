@@ -137,9 +137,9 @@ export default function Profile() {
               Show contact phone to businesses
             </label>
           )}
-          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <button className="btn" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
-            <button className="btn btn-secondary" onClick={() => signOut(navigate)}>Sign out</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+            <button className="btn" style={{ width: '100%' }} onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+            <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => signOut(navigate)}>Sign out</button>
           </div>
         </div>
         {mode === 'business' ? (

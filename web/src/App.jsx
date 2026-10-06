@@ -98,6 +98,7 @@ function Storefront() {
               <div className="lcard">
                 {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} /> : null}
                 <h3>{l.title}</h3>
+                {l.description ? <p className="ldesc">{l.description}</p> : null}
                 <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
               </div>
             </Link>

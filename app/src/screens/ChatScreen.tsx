@@ -3,7 +3,7 @@ import {
   ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { MoreHorizontal, MoreVertical } from 'lucide-react-native';
+import { MoreHorizontal, MoreVertical, Send } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
 import { api, Business, Message, Peer } from '../api';
 import { useAuth } from '../auth';
@@ -117,7 +117,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={s.head}>
         <Pressable onPress={openPeer} hitSlop={8}>
-          <Avatar name={peer?.name || '?'} size={36} online={peer?.online} />
+          <Avatar name={peer?.name || '?'} size={44} online={peer?.online} />
         </Pressable>
         <Pressable onPress={openPeer} style={{ flex: 1 }} hitSlop={8}>
           <Text style={s.peer} numberOfLines={1}>{peer?.name || 'Chat'}</Text>
@@ -156,7 +156,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
               <View style={[s.row, mine && s.rowMe]}>
                 {!mine && (
                   <Pressable onPress={openPeer} hitSlop={8}>
-                    <Avatar name={peer?.name || '?'} size={32} online={peer?.online} />
+                    <Avatar name={peer?.name || '?'} size={40} online={peer?.online} />
                   </Pressable>
                 )}
                 <View style={[s.col, mine && s.colMe]}>
@@ -185,6 +185,9 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
       <View style={s.box}>
         <TextInput style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
           onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
+        <Pressable onPress={send} style={({ pressed }) => [s.sendBtn, pressed && s.pressed]} hitSlop={8}>
+          <Send size={20} color="#fff" />
+        </Pressable>
       </View>
       {nudge && (
         <View style={s.nudge}>
@@ -207,7 +210,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background },
+  root: { flex: 1, backgroundColor: p.chatBg },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.s3, backgroundColor: p.surface, paddingHorizontal: space.s4, paddingVertical: space.s3 },
   peer: { ...type.h3, color: p.ink, flex: 1 },
   presence: { ...type.micro, color: p.bodyText },
@@ -237,7 +240,12 @@ const themed = (p: Palette) => StyleSheet.create({
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
   text: { fontSize: 16, color: p.ink },
   dots: { padding: space.s1, alignSelf: 'center' },
-  box: { flexDirection: 'row', padding: space.s3, backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
+  box: { flexDirection: 'row', gap: space.s2, alignItems: 'center', padding: space.s3, backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
+  sendBtn: {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: C.cta,
+    alignItems: 'center', justifyContent: 'center', ...shadow.cta,
+  },
+  pressed: { opacity: 0.85 },
   nudge: {
     backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line,
     padding: space.s3, alignItems: 'center',

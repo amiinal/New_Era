@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { accountId, api, API } from './lib.js';
-import { DotsIcon } from './icons.jsx';
+import { DotsIcon, SendIcon } from './icons.jsx';
 
 const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
 
 function PeerAvatar({ peer, size }) {
-  const s = size || 36;
+  const s = size || 44;
   const logo = peer?.kind === 'business' ? img(peer.logoKey) : null;
   const inner = logo
     ? <img src={logo} alt="" style={{ width: s, height: s, borderRadius: '50%', objectFit: 'cover' }} />
@@ -206,7 +206,7 @@ export default function Thread() {
             const showDots = !!m.body || mine;
             return (
               <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
-                {!mine ? <PeerAvatar peer={peer} size={28} /> : null}
+                {!mine ? <PeerAvatar peer={peer} size={36} /> : null}
                 <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>
                   {m.body || 'Photo'}
                 </div>

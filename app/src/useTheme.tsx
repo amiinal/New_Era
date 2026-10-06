@@ -14,6 +14,7 @@ const dark: Partial<Palette> = {
   bodyText: C.darkBodyText,
   line: C.darkLine,
   primary: C.primaryOnDark,
+  chatBg: C.darkSurface,
 };
 
 type Mode = 'system' | 'light' | 'dark';

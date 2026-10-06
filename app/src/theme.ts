@@ -17,6 +17,7 @@ export const C = {
   lineStrong: '#8B8F9B',
   surface: '#FFFFFF',
   background: '#F7F7F9',
+  chatBg: '#E8EAF6', // light indigo chat wash (mockup)
   // dark
   darkBackground: '#121317',
   darkSurface: '#1C1F26',

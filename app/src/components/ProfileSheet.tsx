@@ -87,11 +87,17 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
             </Pressable>
           ) : null
         ))}
-        <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
+        <View style={s.btnWrap}>
+          <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
+        </View>
         <View style={{ height: space.s3 }} />
-        <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
+        <View style={s.btnWrap}>
+          <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
+        </View>
         <View style={{ height: space.s3 }} />
-        <Button title="Close" variant="secondary" onPress={onClose} />
+        <View style={s.btnWrap}>
+          <Button title="Close" variant="secondary" onPress={onClose} />
+        </View>
       </ScrollView>
       </View>
       {settings && <Settings onClose={() => setSettings(false)} onHelp={() => setHelp(true)} />}
@@ -108,6 +114,7 @@ const themed = (p: Palette) => StyleSheet.create({
   cardInner: {
     padding: space.s5, alignItems: 'center', flexGrow: 1,
   },
+  btnWrap: { alignSelf: 'stretch' },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   av: { width: 96, height: 96, borderRadius: 48 },
   header: { width: '100%', height: 110, borderRadius: 12, marginBottom: space.s2 },

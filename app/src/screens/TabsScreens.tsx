@@ -100,7 +100,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
       {mine.map(t => (
         <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
           <View style={s.row}>
-            <Avatar name={t.business.name} size={48} online={t.online} />
+            <Avatar name={t.business.name} size={56} online={t.online} />
             <View style={{ flex: 1 }}>
               <Text style={[s.t, t.unread > 0 && s.tNew]}>{t.business.name}</Text>
               <Text style={s.micro} numberOfLines={1}>
