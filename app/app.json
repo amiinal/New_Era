@@ -20,7 +20,8 @@
       "softwareKeyboardLayoutMode": "resize"
     },
     "extra": {
-      "apiUrl": "http://10.227.202.142:4000"
+      "apiUrl": "http://10.227.202.142:4000",
+      "siteUrl": "https://newera.shop"
     },
     "plugins": [
       "expo-secure-store"

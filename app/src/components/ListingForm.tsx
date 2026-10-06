@@ -97,7 +97,14 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
         <ScrollView style={s.root}>
           <Text style={s.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
           <ScrollView horizontal style={s.strip}>
-            {photos.map((u, j) => <Image key={j} source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={s.thumb} />)}
+            {photos.map((u, j) => (
+              <View key={j} style={s.thumbWrap}>
+                <Image source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={s.thumb} />
+                <Pressable onPress={() => setPhotos(photos.filter((_, k) => k !== j))} style={s.rm} hitSlop={8}>
+                  <Text style={s.rmT}>✕</Text>
+                </Pressable>
+              </View>
+            ))}
             {photos.length < 5 && (
               <Pressable onPress={openCam} style={s.addBtn}><Text style={[s.addT, { color: link }]}>Capture</Text></Pressable>
             )}
@@ -140,6 +147,12 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   strip: { flexDirection: 'row', marginBottom: space.s4 },
   thumb: { width: 96, height: 96, borderRadius: radius.md, marginRight: space.s2 },
+  thumbWrap: { position: 'relative' },
+  rm: {
+    position: 'absolute', top: 4, right: 12, width: 24, height: 24, borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,.55)', alignItems: 'center', justifyContent: 'center',
+  },
+  rmT: { color: '#fff', fontSize: 12, fontWeight: '700' },
   addBtn: {
     width: 96, height: 96, borderRadius: radius.md, borderWidth: 1, borderColor: p.lineStrong,
     alignItems: 'center', justifyContent: 'center', marginRight: space.s2,

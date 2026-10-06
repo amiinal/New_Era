@@ -6,6 +6,11 @@ export const API_URL =
   (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
   'http://10.0.2.2:4000';
 
+// Public storefront links (QR + share). Overridable per build.
+export const SITE_URL =
+  (Constants.expoConfig?.extra as { siteUrl?: string } | undefined)?.siteUrl ??
+  'https://newera.shop';
+
 export type Account = {
   id: string; email: string | null; phone: string | null;
   country: string; lastMode: 'customer' | 'business';

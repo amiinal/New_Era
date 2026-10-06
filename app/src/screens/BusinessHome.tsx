@@ -76,7 +76,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
             </View>
           </>
         )}
-        {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
+        {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} onAddMore={() => { setOnboard(false); onAutoDone?.(); onManage(); }} />}
       </View>
     );
   }

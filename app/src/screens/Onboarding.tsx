@@ -1,12 +1,13 @@
-import { Check } from 'lucide-react-native';
+import { Check, X } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import QRCode from 'react-native-qrcode-svg';
 import { Share } from 'react-native';
-import { api } from '../api';
+import { api, SITE_URL } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
@@ -17,7 +18,9 @@ const CATEGORIES = ['Food service', 'Bakery', 'Salon', 'Tailor', 'Catering', 'Fa
 
 // ONB-1..11: interactive wizard — every step is a real action.
 // Basics → first listing → certificates (optional) → you're live.
-export function Onboarding({ onDone }: { onDone: () => void }) {
+// Exitable before the end (progress so far is kept); onAddMore routes
+// straight into listings management from the live screen.
+export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMore?: () => void }) {
   const { account } = useAuth();
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
@@ -39,6 +42,15 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   };
   const pickLogo = pickInto(setLogo);
   const pickCover = pickInto(setCover);
+
+  // Leaving early keeps whatever is already created — resume anytime
+  // from Business home.
+  const exit = () => {
+    Alert.alert('Leave setup?', 'Your progress so far is kept.', [
+      { text: 'Keep going', style: 'cancel' },
+      { text: 'Exit', onPress: onDone },
+    ]);
+  };
 
   const create = async () => {
     if (!name.trim() || !city.trim()) {
@@ -67,10 +79,17 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
   return (
     <Modal visible animationType="slide">
       <ScrollView style={s.root}>
-        <View style={s.prog}>
-          {[0, 1, 2, 3].map(j => (
-            <View key={j} style={[s.seg, j <= step && s.segOn]} />
-          ))}
+        <View style={s.topRow}>
+          <View style={[s.prog, { flex: 1 }]}>
+            {[0, 1, 2, 3].map(j => (
+              <View key={j} style={[s.seg, j <= step && s.segOn]} />
+            ))}
+          </View>
+          {step < 3 ? (
+            <Pressable onPress={exit} style={s.exit} hitSlop={8}>
+              <X size={20} color={p.bodyText} />
+            </Pressable>
+          ) : null}
         </View>
         <Text style={s.micro}>Step {step + 1} of 4 · {
           ['Business details', 'First listing', 'Certificates (optional)', "You're live"][step]
@@ -111,7 +130,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
         {step === 2 && biz && (
           <CertStep businessId={biz.id} onDone={() => setStep(3)} />
         )}
-        {step === 3 && biz && <LiveStep slug={biz.slug} onDone={onDone} />}
+        {step === 3 && biz && <LiveStep slug={biz.slug} onDone={onDone} onAddMore={onAddMore} />}
       </ScrollView>
     </Modal>
   );
@@ -153,10 +172,22 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
   );
 }
 
-function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
+function LiveStep({ slug, onDone, onAddMore }: { slug: string; onDone: () => void; onAddMore?: () => void }) {
   const { p } = useTheme();
   const s = themed(p);
-  const link = `https://newera.shop/s/${slug}`;
+  const link = `${SITE_URL}/s/${slug}`;
+  const share = async () => {
+    try {
+      await Share.share({ message: link });
+    } catch {
+      await Clipboard.setStringAsync(link);
+      Alert.alert('Link copied', 'Sharing is unavailable here — paste it anywhere.');
+    }
+  };
+  const copy = async () => {
+    await Clipboard.setStringAsync(link);
+    Alert.alert('Link copied', 'Paste it anywhere — it works without the app.');
+  };
   return (
     <>
       <Text style={s.h1}>You&apos;re live!</Text>
@@ -164,9 +195,11 @@ function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
       <View style={{ alignItems: 'center', marginVertical: space.s5 }}>
         <QRCode value={link} size={180} />
       </View>
-      <Button title="Share link" onPress={() => Share.share({ message: link })} />
+      <Button title="Share link" onPress={share} />
       <View style={{ height: space.s3 }} />
-      <Button title="Add 2 more items to appear in Discover" variant="secondary" onPress={onDone} />
+      <Button title="Copy link" variant="secondary" onPress={copy} />
+      <View style={{ height: space.s3 }} />
+      <Button title="Add 2 more items to appear in Discover" variant="secondary" onPress={onAddMore ?? onDone} />
       <View style={{ height: space.s3 }} />
       <Button title="Done" variant="tertiary" onPress={onDone} />
     </>
@@ -175,6 +208,8 @@ function LiveStep({ slug, onDone }: { slug: string; onDone: () => void }) {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: space.s3 },
+  exit: { padding: space.s1 },
   prog: { flexDirection: 'row', gap: 4, marginBottom: space.s2 },
   seg: { flex: 1, height: 4, borderRadius: 2, backgroundColor: p.line },
   segOn: { backgroundColor: C.cta },
