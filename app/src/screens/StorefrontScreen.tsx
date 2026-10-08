@@ -26,7 +26,7 @@ export function StorefrontScreen({
   const [sent, setSent] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [view, setView] = useState(false);
-  const [full, setFull] = useState<string | null>(null);
+  const [full, setFull] = useState<{ uris: string[]; at: number } | null>(null);
   const { width } = useWindowDimensions();
   // Uniform grid rule: 2 columns on phones, 3 once the column is wide.
   // Cells stay equal — no stretched orphans.
@@ -118,10 +118,10 @@ export function StorefrontScreen({
       <View style={s.grid}>
         {listings.map(item => {
           const label = `About: ${item.title} · ${item.price ?? 'Price on request'}`;
-          const full = () => item.photos[0] && setFull(img(item.photos[0]));
+          const viewAll = () => item.photos[0] && setFull({ uris: item.photos.map(u => img(u)), at: 0 });
           return (
             <View key={item.id} style={[s.cell, wide && s.cellWide]}>
-              <ListingCard item={item} onPress={full} onPhoto={full}
+              <ListingCard item={item} onPress={() => onListing(item.id)} onPhoto={viewAll}
                 onMessage={() => onChat(b.id, item.id, label)} />
             </View>
           );
@@ -146,7 +146,7 @@ export function StorefrontScreen({
         </>
       )}
       <Pressable onPress={onBack}><Text style={s.link}>Discover more businesses</Text></Pressable>
-      <FullImage uri={full} onClose={() => setFull(null)} />
+      {full && <FullImage uris={full.uris} index={full.at} onClose={() => setFull(null)} />}
       {view && (
         <StatusViewer
           items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, b.name) }))}

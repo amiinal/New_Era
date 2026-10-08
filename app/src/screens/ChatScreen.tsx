@@ -224,17 +224,19 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
       {menu && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setMenu(null)}>
           <Pressable style={s.menuScrim} onPress={() => setMenu(null)}>
-            <View style={s.menuCard}>
-              {menu.kind === 'msg' ? (
-                <>
-                  {menu.msg.body ? <Text onPress={() => copy(menu.msg)} style={s.popItem}>Copy text</Text> : null}
-                  {menu.msg.senderId === account?.id ? (
-                    <Text onPress={() => delMsg(menu.msg)} style={[s.popItem, s.dangerItem]}>Delete message</Text>
-                  ) : null}
-                </>
-              ) : (
-                <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
-              )}
+            <View style={s.menuCol} pointerEvents="box-none">
+              <View style={s.menuCard}>
+                {menu.kind === 'msg' ? (
+                  <>
+                    {menu.msg.body ? <Text onPress={() => copy(menu.msg)} style={s.popItem}>Copy text</Text> : null}
+                    {menu.msg.senderId === account?.id ? (
+                      <Text onPress={() => delMsg(menu.msg)} style={[s.popItem, s.dangerItem]}>Delete message</Text>
+                    ) : null}
+                  </>
+                ) : (
+                  <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
+                )}
+              </View>
             </View>
           </Pressable>
         </Modal>
@@ -252,7 +254,12 @@ const themed = (p: Palette) => StyleSheet.create({
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
   kebabWrap: { position: 'relative', zIndex: 20, elevation: 20 },
-  menuScrim: { flex: 1, backgroundColor: 'transparent', alignItems: 'flex-end', justifyContent: 'flex-start', paddingTop: 110, paddingRight: space.s3 },
+  menuScrim: { flex: 1, backgroundColor: 'transparent', alignItems: 'center' },
+  menuCol: {
+    width: '100%', maxWidth: 900, flex: 1,
+    alignItems: 'flex-end', justifyContent: 'flex-start',
+    paddingTop: 110, paddingRight: space.s3,
+  },
   menuCard: {
     minWidth: 200, backgroundColor: p.surface, borderRadius: radius.md,
     paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.lg,
