@@ -214,13 +214,16 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
 }
 
 // Help center & FAQ (HLP-1): guides first, humans only for bugs.
+// Same questions as the website FAQ so both speak one language.
 const FAQ: [string, string][] = [
-  ['How do I appear in Discover?', 'Publish 3 or more items with photos, plus a category and location. New businesses get a fair-rotation boost.'],
-  ['How do chats work?', 'Customers message you from your storefront or listings. Reply fast — responsiveness lifts ranking.'],
-  ['What do the availability states mean?', 'In stock, Limited, Sold out, or Made to order. Keep them accurate; stale states sink ranking.'],
-  ['What are statuses?', 'Photo or text updates that expire after 24 hours — 5 per day. No likes, no counts.'],
-  ['What are certificates?', 'Optional self-reported credentials on your storefront, labeled “not verified”. The verified badge with document review arrives in Phase 2.'],
-  ['Is my data public?', 'Only your business profile, listings, statuses, and area-level location. Exact addresses stay private unless you share them.'],
+  ['What is New Era?', 'New Era helps you discover businesses, products, and services and talk to businesses directly.'],
+  ['Do I need the app to browse?', 'No. You can browse businesses and storefronts on the web. You only need an account when you want to start a chat.'],
+  ['Can I create a store for my business?', 'Yes. You can create your storefront, add your products or services, and share your store with customers.'],
+  ['Can customers contact me without installing New Era?', 'Yes. Customers who visit your shared storefront can start a chat on the web.'],
+  ['Do I need a business registration document?', 'No. A business does not need business documents to go live.'],
+  ['Is New Era only for products?', 'No. Businesses can list both products and services.'],
+  ['Can I share my store?', 'Yes. Every business gets a shareable storefront link.'],
+  ['How does New Era choose which businesses appear in Discover?', 'New Era focuses on relevance, location, freshness, availability, completeness, and responsiveness. Popularity metrics such as followers and likes are not used.'],
 ];
 
 export function Help({ onClose }: { onClose: () => void }) {
