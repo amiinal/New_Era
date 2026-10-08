@@ -31,9 +31,9 @@ export function AuthScreen() {
   useEffect(() => {
     getFlag('returning').then(v => setTab(v ? 'signin' : 'signup'));
   }, []);
-  if (!tab) return <View />;
   const { p, dark } = useTheme();
   const s = themed(p);
+  if (!tab) return <View />;
 
   const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
 
