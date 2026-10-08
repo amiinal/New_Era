@@ -22,7 +22,8 @@ export function Prohibited({ onClose }: { onClose: () => void }) {
   const s = themed(p);
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <ScrollView style={s.root} contentContainerStyle={s.inner}>
+      <ScrollView style={s.root} contentContainerStyle={s.colWrap}>
+      <View style={s.col}>
         <Text style={s.h1}>Prohibited items & conduct</Text>
         <Text style={s.micro}>
           These are never allowed on New Era. Listings that break the rules are
@@ -36,6 +37,7 @@ export function Prohibited({ onClose }: { onClose: () => void }) {
         ))}
         <View style={{ height: space.s4 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
+      </View>
       </ScrollView>
     </Modal>
   );
@@ -44,6 +46,8 @@ export function Prohibited({ onClose }: { onClose: () => void }) {
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   inner: { padding: space.s5 },
+  colWrap: { flexGrow: 1, alignItems: 'center' },
+  col: { width: '100%', maxWidth: 720, padding: space.s5 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s2 },
   micro: { ...type.micro, color: p.bodyText, marginBottom: space.s3 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginBottom: space.s2, ...shadow.md },

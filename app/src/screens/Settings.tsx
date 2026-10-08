@@ -233,7 +233,8 @@ export function Help({ onClose }: { onClose: () => void }) {
   const s = themed(p);
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <View style={s.root}>
+      <ScrollView style={s.root} contentContainerStyle={s.colWrap}>
+      <View style={s.col}>
         <Text style={s.h1}>Help center</Text>
         {FAQ.map(([q, a], j) => (
           <View key={j} style={s.itemWrap}>
@@ -251,6 +252,7 @@ export function Help({ onClose }: { onClose: () => void }) {
         <View style={{ height: space.s4 }} />
         <Button title="Close" variant="secondary" onPress={onClose} />
       </View>
+      </ScrollView>
       {rules && <Prohibited onClose={() => setRules(false)} />}
     </Modal>
   );
@@ -259,6 +261,8 @@ export function Help({ onClose }: { onClose: () => void }) {
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   inner: { padding: space.s5 },
+  colWrap: { flexGrow: 1, alignItems: 'center' },
+  col: { width: '100%', maxWidth: 720, padding: space.s5 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   sec: { ...type.h3, color: p.ink, marginTop: space.s4, marginBottom: space.s2 },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s2 },
