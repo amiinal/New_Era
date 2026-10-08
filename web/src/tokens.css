@@ -138,6 +138,16 @@ a:hover .lcard { transform: translateY(-2px); }
 .msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 15px; overflow-wrap: anywhere; }
 .msg-me { align-self: flex-end; background: var(--color-primary); color: #fff; }
 .msg-them { align-self: flex-start; background: var(--color-surface); box-shadow: var(--shadow-sm); }
+.msg-col { display: flex; flex-direction: column; max-width: 75%; }
+.msg-row.me .msg-col { align-items: flex-end; }
+.msg-stamp { font-size: 11px; color: var(--color-body-text); margin-top: 2px; }
+.msg-img { width: 200px; max-width: 100%; border-radius: 8px; margin-bottom: 4px; }
+.plus-btn { width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+  background: var(--color-surface); color: var(--color-primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 26px; line-height: 1; flex-shrink: 0; box-shadow: var(--shadow-sm);
+  transition: transform .15s ease; }
+.plus-btn:active { transform: scale(.92); }
 .chat-box { display: flex; gap: 8px; padding: 12px 0; align-items: center; }
 .send-btn { width: 48px; height: 48px; border-radius: 50%; border: 0; cursor: pointer;
   background: var(--color-cta); display: inline-flex; align-items: center; justify-content: center;

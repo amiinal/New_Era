@@ -5,7 +5,7 @@ import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { api, img, Listing } from '../api';
-import { radius, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
 import { Palette, useTheme } from '../useTheme';
 
@@ -96,7 +96,8 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
           </View>
         </View>
       ) : (
-        <ScrollView style={s.root}>
+        <View style={s.wrap}>
+          <ScrollView style={s.card} contentContainerStyle={s.inner}>
           <Text style={s.h1}>{initial ? 'Edit listing' : 'New listing'}</Text>
           <ScrollView horizontal style={s.strip}>
             {photos.map((u, j) => (
@@ -140,7 +141,8 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
           <Button title={busy ? 'Saving…' : initial ? 'Save changes' : 'Publish'} onPress={save} disabled={busy} />
           <View style={{ height: space.s3 }} />
           <Button title="Cancel" variant="secondary" onPress={onClose} />
-        </ScrollView>
+          </ScrollView>
+        </View>
       )}
     </Modal>
   );
@@ -148,6 +150,12 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  wrap: { flex: 1, backgroundColor: p.background, alignItems: 'center', paddingVertical: space.s5 },
+  card: {
+    width: '100%', maxWidth: 480, backgroundColor: p.surface,
+    borderRadius: radius.lg, padding: space.s5, ...shadow.md,
+  },
+  inner: { flexGrow: 1 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
   strip: { flexDirection: 'row', marginBottom: space.s4 },
   thumb: { width: 96, height: 96, borderRadius: radius.md, marginRight: space.s2 },

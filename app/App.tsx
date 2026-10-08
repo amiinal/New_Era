@@ -27,7 +27,7 @@ type Route =
   | { name: 'bizhome' } | { name: 'bupdates' } | { name: 'bchats' } | { name: 'blistings' } | { name: 'bdiscover' }
   | { name: 'store'; slug: string }
   | { name: 'listing'; id: string; from?: Route }
-  | { name: 'chat'; threadId: string; context: string };
+  | { name: 'chat'; threadId: string; context: string; from?: Route };
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
@@ -90,7 +90,7 @@ function Shell() {
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
     try {
       const t = await api.openThread(businessId, listingId);
-      setRoute({ name: 'chat', threadId: t.id, context: label ?? 'New conversation' });
+      setRoute({ name: 'chat', threadId: t.id, context: label ?? 'New conversation', from: route });
     } catch (e) {
       Alert.alert('Could not open chat', 'Check the API is running, then retry.');
     }
@@ -156,11 +156,11 @@ function Shell() {
           : route.name === 'listing'
           ? <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'bizhome' })} />
           : route.name === 'chat'
-          ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} onOpenStore={openStore} />
+          ? <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'bchats' })} onOpenStore={openStore} onBack={() => setRoute(route.from ?? { name: 'bchats' })} />
           : route.name === 'bupdates'
           ? <BizUpdates onStore={openStore} dRoutes={BIZ} dActive="bupdates" onDNav={goDrawer} />
           : route.name === 'bchats'
-          ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label })}
+          ? <BizInbox onThread={(tid, label) => setRoute({ name: 'chat', threadId: tid, context: label, from: route })}
               dRoutes={BIZ} dActive="bchats" onDNav={goDrawer} />
           : route.name === 'blistings'
           ? <BizListings dRoutes={BIZ} dActive="blistings" onDNav={goDrawer} />
@@ -207,7 +207,7 @@ function Shell() {
       {route.name === 'listing' && (
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'discover' })} />
       )}
-      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} />}
+      {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} onBack={() => setRoute(route.from ?? { name: 'chats' })} />}
       <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)} />
       <StatusBar style="auto" />
     </SafeAreaView>

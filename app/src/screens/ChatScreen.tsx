@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform,
+  ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { MoreHorizontal, MoreVertical, Send } from 'lucide-react-native';
+import { MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
-import { api, Business, Message, Peer } from '../api';
+import * as ImagePicker from 'expo-image-picker';
+import { api, Business, img, Message, Peer } from '../api';
 import { useAuth } from '../auth';
 import { getFlag, setFlag } from '../store';
 import { C, radius, shadow, space, type } from '../theme';
@@ -18,8 +19,13 @@ import { PeerSheet } from '../components/PeerSheet';
 // Step 6: thread with listing context (CHT-3). Native keyboard via TextInput.
 // Long-press (or ⋯) a message for copy/delete; header ⋯ deletes the chat.
 // Avatars are live: business opens the storefront, customer opens their card.
-export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
-  threadId: string; context?: string; onExit?: () => void; onOpenStore?: (slug: string) => void;
+const fmtTime = (iso: string) => {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch { return ''; }
+};
+export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
+  threadId: string; context?: string; onExit?: () => void; onOpenStore?: (slug: string) => void; onBack?: () => void;
 }) {
   const { account, mode } = useAuth();
   const [msgs, setMsgs] = useState<Message[] | null>(null);
@@ -76,6 +82,17 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
     await api.sendMessage(threadId, { body });
     load();
   };
+  const attach = async () => {
+    const r = await ImagePicker.launchImageLibraryAsync({ quality: 0.6 });
+    if (r.canceled || !r.assets[0]) return;
+    try {
+      const key = await api.uploadPhoto(r.assets[0].uri, `chat/${threadId}/${Date.now()}.jpg`);
+      await api.sendMessage(threadId, { imageKey: key });
+      load();
+    } catch {
+      Alert.alert('Could not send photo', 'Check your connection, then retry.');
+    }
+  };
   const copy = async (m: Message) => {
     if (m.body) await Clipboard.setStringAsync(m.body);
     setMenuMsg(null);
@@ -116,6 +133,11 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
   return (
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={s.head}>
+        {onBack ? (
+          <Pressable onPress={onBack} hitSlop={8} style={s.backBtn}>
+            <Text style={s.backT}>‹</Text>
+          </Pressable>
+        ) : null}
         <Pressable onPress={openPeer} hitSlop={8}>
           <Avatar name={peer?.name || '?'} size={44} online={peer?.online} />
         </Pressable>
@@ -123,7 +145,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
           <Text style={s.peer} numberOfLines={1}>{peer?.name || 'Chat'}</Text>
           <Text style={s.presence}>{peer ? (peer.online ? 'Online now' : 'Offline') : ''}</Text>
         </Pressable>
-        <View>
+        <View style={s.kebabWrap}>
           <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
             <MoreVertical size={20} color={p.bodyText} />
           </Pressable>
@@ -163,7 +185,12 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
                   <View style={s.bubbleRow}>
                     <Pressable onPress={toggle} onLongPress={() => setMenuMsg(item)} delayLongPress={400}
                       style={[s.bubble, mine ? s.me : s.them]}>
-                      <Text style={[s.text, mine && { color: '#fff' }]}>{item.body}</Text>
+                      {!!item.imageKey && (
+                        <Image source={{ uri: img(item.imageKey) }} style={s.msgImg} />
+                      )}
+                      {!!item.body && (
+                        <Text style={[s.text, mine && { color: '#fff' }]}>{item.body}</Text>
+                      )}
                     </Pressable>
                     <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
                       <MoreHorizontal size={16} color={p.bodyText} />
@@ -177,12 +204,16 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
                       ) : null}
                     </View>
                   )}
+                  <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
                 </View>
               </View>
             );
           }} />
       )}
       <View style={s.box}>
+        <Pressable onPress={attach} style={s.plusBtn} hitSlop={8}>
+          <Plus size={22} color={p.primary} />
+        </Pressable>
         <TextInput style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
           onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
         <Pressable onPress={send} style={({ pressed }) => [s.sendBtn, pressed && s.pressed]} hitSlop={8}>
@@ -211,10 +242,13 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore }: {
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.chatBg },
-  head: { flexDirection: 'row', alignItems: 'center', gap: space.s3, backgroundColor: p.surface, paddingHorizontal: space.s4, paddingVertical: space.s3 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: space.s2, backgroundColor: p.surface, paddingHorizontal: space.s3, paddingVertical: space.s3 },
+  backBtn: { padding: space.s1 },
+  backT: { fontSize: 26, color: p.primary, fontWeight: '600', lineHeight: 28 },
   peer: { ...type.h3, color: p.ink, flex: 1 },
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
+  kebabWrap: { position: 'relative', zIndex: 20, elevation: 20 },
   headPop: {
     position: 'absolute', top: 32, right: 0, backgroundColor: p.surface,
     borderRadius: radius.md, paddingHorizontal: space.s4, paddingVertical: space.s3,
@@ -235,12 +269,18 @@ const themed = (p: Palette) => StyleSheet.create({
     paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.md,
   },
   popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
+  stamp: { fontSize: 11, color: p.bodyText, marginTop: 2 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, ...shadow.sm },
+  msgImg: { width: 200, height: 150, borderRadius: 8, marginBottom: 4 },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
   text: { fontSize: 16, color: p.ink },
   dots: { padding: space.s1, alignSelf: 'center' },
   box: { flexDirection: 'row', gap: space.s2, alignItems: 'center', padding: space.s3, backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
+  plusBtn: {
+    width: 48, height: 48, borderRadius: 24, backgroundColor: p.background,
+    alignItems: 'center', justifyContent: 'center',
+  },
   sendBtn: {
     width: 48, height: 48, borderRadius: 24, backgroundColor: C.cta,
     alignItems: 'center', justifyContent: 'center', ...shadow.cta,

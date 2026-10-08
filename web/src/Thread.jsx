@@ -5,6 +5,12 @@ import { DotsIcon, SendIcon } from './icons.jsx';
 
 const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
 
+const fmtTime = (iso) => {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch { return ''; }
+};
+
 function PeerAvatar({ peer, size }) {
   const s = size || 44;
   const logo = peer?.kind === 'business' ? img(peer.logoKey) : null;
@@ -93,6 +99,23 @@ export default function Thread() {
     } catch {
       alert('Could not send — check the API is running, then retry.');
     }
+  };
+  const attach = (file) => {
+    if (!file) return;
+    const fr = new FileReader();
+    fr.onload = async () => {
+      try {
+        const base64 = String(fr.result).split(',')[1] || '';
+        const { key } = await api('/uploads/inline', {
+          method: 'POST', body: JSON.stringify({ name: file.name || 'photo.jpg', data: base64 }),
+        });
+        await api(`/threads/${threadId}/messages`, { method: 'POST', body: JSON.stringify({ imageKey: key }) });
+        load();
+      } catch {
+        alert('Could not send photo — retry.');
+      }
+    };
+    fr.readAsDataURL(file);
   };
   const copy = async (m) => {
     if (m.body) await navigator.clipboard?.writeText(m.body);
@@ -207,8 +230,16 @@ export default function Thread() {
             return (
               <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
                 {!mine ? <PeerAvatar peer={peer} size={36} /> : null}
-                <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>
-                  {m.body || 'Photo'}
+                <div className="msg-col">
+                  {m.imageKey ? (
+                    <img src={img(m.imageKey)} alt="" className="msg-img" />
+                  ) : null}
+                  {m.body ? (
+                    <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>{m.body}</div>
+                  ) : !m.imageKey ? (
+                    <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>Photo</div>
+                  ) : null}
+                  <div className="msg-stamp">{fmtTime(m.createdAt)}</div>
                 </div>
                 {showDots ? (
                 <div className="menu-wrap">
@@ -228,10 +259,17 @@ export default function Thread() {
           })}
         </div>
         <div className="chat-box" style={caution ? { display: 'none' } : undefined}>
+          <label className="plus-btn" title="Attach photo">
+            +
+            <input type="file" accept="image/*" hidden
+              onChange={(e) => { attach(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
           <input className="input" placeholder="Type a message…" value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') send(); }} style={{ flex: 1 }} />
-          <button className="btn" onClick={send}>Send</button>
+          <button className="send-btn" onClick={send} aria-label="Send">
+            <SendIcon size={20} color="#fff" />
+          </button>
         </div>
         {nudge ? (
           <div className="card" style={{ textAlign: 'center', marginBottom: 8 }}>
