@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { api, img, Listing, symFor } from '../api';
 import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
@@ -18,6 +19,7 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
   const [item, setItem] = useState<Listing | null | undefined>(undefined);
   const [page, setPage] = useState(0);
   const { width } = useWindowDimensions();
+  const galRef = useRef<FlatList>(null);
   const { p } = useTheme();
   const s = themed(p);
   useEffect(() => { api.listing(id).then(setItem).catch(() => setItem(null)); }, [id]);
@@ -26,6 +28,12 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
 
   const a = AVAIL[item.availability];
   const price = item.price ? `${symFor(item.currency)}${item.price}` : 'Price on request';
+  const imgW = width - 32;
+  const go = (j: number) => {
+    const n = Math.max(0, Math.min(item.photos.length - 1, j));
+    setPage(n);
+    galRef.current?.scrollToIndex({ index: n, animated: true });
+  };
   return (
     <ScrollView style={s.root}>
       <Pressable onPress={onBack} hitSlop={8} style={s.back}>
@@ -33,17 +41,30 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
       </Pressable>
       {item.photos.length > 0 ? (
         <View>
-          <FlatList data={item.photos} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
+          <FlatList ref={galRef} data={item.photos} horizontal pagingEnabled showsHorizontalScrollIndicator={false}
             keyExtractor={(_, j) => String(j)}
+            getItemLayout={(_, j) => ({ length: imgW, offset: imgW * j, index: j })}
             onMomentumScrollEnd={e => setPage(Math.round(e.nativeEvent.contentOffset.x / e.nativeEvent.layoutMeasurement.width))}
             renderItem={({ item: uri }) => (
               <Image source={{ uri: img(uri) }} resizeMode="contain"
-                style={{ width: width - 32, height: 280, borderRadius: 16, backgroundColor: p.background }} />
+                style={{ width: imgW, height: 280, borderRadius: 16, backgroundColor: p.background }} />
             )} />
           {item.photos.length > 1 && (
-            <View style={s.dots}>
-              {item.photos.map((_, j) => <View key={j} style={[s.dot, j === page && s.dotOn]} />)}
-            </View>
+            <>
+              <Pressable onPress={() => go(page - 1)} style={[s.arrow, s.arrowL]} hitSlop={8}>
+                <ChevronLeft size={22} color={p.ink} />
+              </Pressable>
+              <Pressable onPress={() => go(page + 1)} style={[s.arrow, s.arrowR]} hitSlop={8}>
+                <ChevronRight size={22} color={p.ink} />
+              </Pressable>
+              <View style={s.dots}>
+                {item.photos.map((_, j) => (
+                  <Pressable key={j} onPress={() => go(j)} hitSlop={8}>
+                    <View style={[s.dot, j === page && s.dotOn]} />
+                  </Pressable>
+                ))}
+              </View>
+            </>
           )}
         </View>
       ) : (
@@ -86,6 +107,12 @@ const themed = (p: Palette) => StyleSheet.create({
   dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginTop: 8 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: p.line },
   dotOn: { width: 18, backgroundColor: C.cta },
+  arrow: {
+    position: 'absolute', top: 120, width: 40, height: 40, borderRadius: 20,
+    backgroundColor: p.surface, alignItems: 'center', justifyContent: 'center', ...shadow.md,
+  },
+  arrowL: { left: 20 },
+  arrowR: { right: 20 },
   card: { backgroundColor: p.surface, borderRadius: 16, margin: space.s4, padding: space.s3, ...shadow.md },
   h1: { ...type.h1, fontSize: 20, color: p.ink },
   price: { fontSize: 15, color: p.ink, fontVariant: ['tabular-nums'], marginTop: space.s1 },

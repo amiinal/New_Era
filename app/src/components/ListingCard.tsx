@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { MessageCircle } from 'lucide-react-native';
 import { img, Listing, symFor } from '../api';
 import { C, radius, shadow, space } from '../theme';
 import { Palette, useTheme } from '../useTheme';
@@ -38,11 +39,12 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
           <View style={[s.dot, { backgroundColor: a.color }]} />
           <Text style={s.avail}> {a.label}</Text>
         </Text>
-        {!!onMessage && (
-          <Pressable onPress={onMessage} style={s.msgBtn}>
-            <Text style={s.msgT}>Message</Text>
-          </Pressable>
-        )}
+      {!!onMessage && (
+        <Pressable onPress={onMessage} style={({ pressed }) => [s.msgBtn, pressed && s.pressed]}>
+          <MessageCircle size={16} color="#fff" />
+          <Text style={s.msgT}>Message</Text>
+        </Pressable>
+      )}
       </View>
     </Pressable>
   );
@@ -62,7 +64,7 @@ const themed = (p: Palette) => StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4 },
   msgBtn: {
     marginTop: 8, height: 36, borderRadius: 8, backgroundColor: C.cta,
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6,
   },
   msgT: { color: '#fff', fontSize: 13, fontWeight: '600' },
 });

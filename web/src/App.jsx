@@ -15,6 +15,7 @@ import Admin from './Admin.jsx';
 import Nav from './Nav.jsx';
 import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
+import { ChatIcon } from './icons.jsx';
 import { initTheme, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -36,7 +37,12 @@ function MessageButton({ businessId, listingId, label }) {
       alert(String(e.message || '').includes('400') ? 'This is your own store — open it in the app instead.' : 'Could not open chat — retry.');
     }
   };
-  return <button className="btn" onClick={go}>{label || 'Message'}</button>;
+  return (
+    <button className="btn msg-btn" onClick={go}>
+      <ChatIcon size={18} color="#fff" />
+      {label || 'Message'}
+    </button>
+  );
 }
 
 function Storefront() {
@@ -129,6 +135,7 @@ function ListingDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [l, setL] = useState(null);
+  const [idx, setIdx] = useState(0);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
   useEffect(() => {
@@ -139,13 +146,30 @@ function ListingDetail() {
   }, [id]);
   if (l === null) return (<div><Nav /><div className="card" style={{ margin: 24 }}>Loading…</div></div>);
   if (l === false) return (<div><Nav /><div className="card" style={{ margin: 24 }}>Listing not found.</div></div>);
+  const n = l.photos.length;
+  const at = n === 0 ? 0 : ((idx % n) + n) % n;
   return (
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
         <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
-        {l.photos[0] ? <img src={img(l.photos[0])} alt={l.title} className="detail-img" /> : null}
-      <h1>{l.title}</h1>
+        {n > 0 ? (
+          <div className="gal">
+            <img src={img(l.photos[at])} alt={l.title} className="detail-img" style={{ marginTop: 16 }} />
+            {n > 1 ? (
+              <>
+                <button className="gal-arrow left" onClick={() => setIdx(at - 1)} aria-label="Previous photo">‹</button>
+                <button className="gal-arrow right" onClick={() => setIdx(at + 1)} aria-label="Next photo">›</button>
+                <div className="gal-dots">
+                  {l.photos.map((_, j) => (
+                    <button key={j} className={`gal-dot ${j === at ? 'on' : ''}`} onClick={() => setIdx(j)} aria-label={`Photo ${j + 1}`} />
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+        <h1>{l.title}</h1>
       <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · {AVAIL[l.availability][0]}</p>
       {l.description ? <p style={{ color: 'var(--color-ink)' }}>{l.description}</p> : null}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

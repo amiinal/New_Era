@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Platform,
+  ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
@@ -33,8 +33,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   const [draft, setDraft] = useState('');
   const [peer, setPeer] = useState<Peer | null>(null);
   const [peerCard, setPeerCard] = useState(false);
-  const [menuMsg, setMenuMsg] = useState<Message | null>(null);
-  const [headMenu, setHeadMenu] = useState(false);
+  const [menu, setMenu] = useState<{ kind: 'msg'; msg: Message } | { kind: 'head' } | null>(null);
   const [nudge, setNudge] = useState(false);
   const [caution, setCaution] = useState<{ biz: Business; cross: boolean } | null>(null);
   const { p } = useTheme();
@@ -95,10 +94,10 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   };
   const copy = async (m: Message) => {
     if (m.body) await Clipboard.setStringAsync(m.body);
-    setMenuMsg(null);
+    setMenu(null);
   };
   const delMsg = async (m: Message) => {
-    setMenuMsg(null);
+    setMenu(null);
     try {
       await api.deleteMessage(threadId, m.id);
       load();
@@ -107,7 +106,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
     }
   };
   const delChat = () => {
-    setHeadMenu(false);
+    setMenu(null);
     Alert.alert('Delete conversation?', 'Gone for both sides. This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -146,14 +145,9 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
           <Text style={s.presence}>{peer ? (peer.online ? 'Online now' : 'Offline') : ''}</Text>
         </Pressable>
         <View style={s.kebabWrap}>
-          <Pressable onPress={() => setHeadMenu(m => !m)} style={s.kebab} hitSlop={8}>
+          <Pressable onPress={() => setMenu({ kind: 'head' })} style={s.kebab} hitSlop={8}>
             <MoreVertical size={20} color={p.bodyText} />
           </Pressable>
-          {headMenu && (
-            <View style={s.headPop}>
-              <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
-            </View>
-          )}
         </View>
       </View>
       {!!context && (
@@ -172,8 +166,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
         <FlatList data={msgs} keyExtractor={m => m.id} contentContainerStyle={s.list}
           renderItem={({ item }) => {
             const mine = item.senderId === account?.id;
-            const open = menuMsg?.id === item.id;
-            const toggle = () => setMenuMsg(open ? null : item);
+            const toggle = () => setMenu({ kind: 'msg', msg: item });
             return (
               <View style={[s.row, mine && s.rowMe]}>
                 {!mine && (
@@ -183,7 +176,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
                 )}
                 <View style={[s.col, mine && s.colMe]}>
                   <View style={s.bubbleRow}>
-                    <Pressable onPress={toggle} onLongPress={() => setMenuMsg(item)} delayLongPress={400}
+                    <Pressable onPress={toggle} onLongPress={() => setMenu({ kind: 'msg', msg: item })} delayLongPress={400}
                       style={[s.bubble, mine ? s.me : s.them]}>
                       {!!item.imageKey && (
                         <Image source={{ uri: img(item.imageKey) }} style={s.msgImg} />
@@ -196,14 +189,6 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
                       <MoreHorizontal size={16} color={p.bodyText} />
                     </Pressable>
                   </View>
-                  {open && (
-                    <View style={s.pop}>
-                      {item.body ? <Text onPress={() => copy(item)} style={s.popItem}>Copy text</Text> : null}
-                      {mine ? (
-                        <Text onPress={() => delMsg(item)} style={[s.popItem, s.dangerItem]}>Delete message</Text>
-                      ) : null}
-                    </View>
-                  )}
                   <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
                 </View>
               </View>
@@ -236,6 +221,24 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
         <CautionSheet business={caution.biz} crossBorder={caution.cross}
           onAck={ackCaution} onBack={() => { setCaution(null); onExit?.(); }} />
       )}
+      {menu && (
+        <Modal visible transparent animationType="fade" onRequestClose={() => setMenu(null)}>
+          <Pressable style={s.menuScrim} onPress={() => setMenu(null)}>
+            <View style={s.menuCard}>
+              {menu.kind === 'msg' ? (
+                <>
+                  {menu.msg.body ? <Text onPress={() => copy(menu.msg)} style={s.popItem}>Copy text</Text> : null}
+                  {menu.msg.senderId === account?.id ? (
+                    <Text onPress={() => delMsg(menu.msg)} style={[s.popItem, s.dangerItem]}>Delete message</Text>
+                  ) : null}
+                </>
+              ) : (
+                <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
+              )}
+            </View>
+          </Pressable>
+        </Modal>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -249,10 +252,10 @@ const themed = (p: Palette) => StyleSheet.create({
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
   kebabWrap: { position: 'relative', zIndex: 20, elevation: 20 },
-  headPop: {
-    position: 'absolute', top: 32, right: 0, backgroundColor: p.surface,
-    borderRadius: radius.md, paddingHorizontal: space.s4, paddingVertical: space.s3,
-    minWidth: 180, zIndex: 10, ...shadow.md,
+  menuScrim: { flex: 1, backgroundColor: 'transparent', alignItems: 'flex-end', justifyContent: 'flex-start', paddingTop: 110, paddingRight: space.s3 },
+  menuCard: {
+    minWidth: 200, backgroundColor: p.surface, borderRadius: radius.md,
+    paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.lg,
   },
   danger: { ...type.body, color: C.error },
   ctx: { backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line, padding: 8 },
@@ -264,10 +267,6 @@ const themed = (p: Palette) => StyleSheet.create({
   col: { maxWidth: '85%' },
   colMe: { alignItems: 'flex-end' },
   bubbleRow: { flexDirection: 'row', gap: 4, alignItems: 'center' },
-  pop: {
-    marginTop: 4, minWidth: 160, backgroundColor: p.surface, borderRadius: radius.md,
-    paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.md,
-  },
   popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
   stamp: { fontSize: 11, color: p.bodyText, marginTop: 2 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, ...shadow.sm },
