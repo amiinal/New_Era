@@ -3,12 +3,20 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { accountId, api, getMode, setMode, signOut } from './lib.js';
 import { ChatIcon, HelpIcon, LogoutIcon, MenuIcon, SettingsIcon, ShieldIcon, SwitchIcon, UserIcon } from './icons.jsx';
 
-// Shared topnav: Discover · About · FAQ centered, plus a hamburger once
-// signed in (mode switch, Profile, Settings, Customer support, My chats).
-// The Admin entry only renders for ADMIN_EMAILS — everyone else never
-// sees it (and the API 403s them anyway).
+// Shared topnav: Discover · How It Works · For Businesses · About · FAQ.
+// Signed out: Log In + Start Your Store. Signed in: hamburger menu.
+// The Admin entry only renders for ADMIN_EMAILS.
+const PAGES = [
+  ['/discover', 'Discover'],
+  ['/how-it-works', 'How It Works'],
+  ['/for-businesses', 'For Businesses'],
+  ['/about', 'About'],
+  ['/faq', 'FAQ'],
+];
+
 export default function Nav() {
   const [open, setOpen] = useState(false);
+  const [menu, setMenu] = useState(false);
   const [mode, setModeState] = useState(getMode());
   const [admin, setAdmin] = useState(false);
   const [unread, setUnread] = useState(0);
@@ -16,6 +24,7 @@ export default function Nav() {
   const { pathname } = useLocation();
   const signed = !!accountId();
   const active = (to) => pathname === to || (to !== '/' && pathname.startsWith(to + '/'));
+
   useEffect(() => {
     if (!signed) return;
     api('/admin/maintenance').then(() => setAdmin(true)).catch(() => {});
@@ -26,11 +35,7 @@ export default function Nav() {
     const t = setInterval(checkUnread, 30000);
     return () => clearInterval(t);
   }, []);
-  // Re-check on open too, so a stale first probe can never hide the entry.
-  const toggle = () => {
-    setOpen(!open);
-    if (!open && signed) api('/admin/maintenance').then(() => setAdmin(true)).catch(() => setAdmin(false));
-  };
+
   const flip = async () => {
     const next = mode === 'business' ? 'customer' : 'business';
     try {
@@ -40,25 +45,31 @@ export default function Nav() {
       alert('Could not switch — retry.');
     }
   };
+  // Re-check on open too, so a stale first probe can never hide the entry.
+  const toggle = () => {
+    setOpen(!open);
+    if (!open && signed) api('/admin/maintenance').then(() => setAdmin(true)).catch(() => setAdmin(false));
+  };
+
   return (
     <div className="topnav">
       <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
       <span className="links">
-        {[
-          ['/discover', 'Discover'],
-          ['/about', 'About'],
-          ['/faq', 'FAQ'],
-          ['/chat', 'Chats'],
-        ].map(([to, label]) => (
-          <Link key={to} to={to} className={`nav-link ${active(to) ? 'on' : ''}`}>
-            {label}
-            {to === '/chat' && unread > 0 ? <span className="nav-badge">{unread > 9 ? '9+' : unread}</span> : null}
-          </Link>
+        {PAGES.map(([to, label]) => (
+          <Link key={to} to={to} className={`nav-link ${active(to) ? 'on' : ''}`}>{label}</Link>
         ))}
+        {signed ? (
+          <Link to="/chat" className={`nav-link ${active('/chat') ? 'on' : ''}`}>
+            Chats{unread > 0 ? <span className="nav-badge">{unread > 9 ? '9+' : unread}</span> : null}
+          </Link>
+        ) : null}
       </span>
       <span className="sp"></span>
       {!signed ? (
-        <Link to="/auth" className="btn" style={{ height: 32, lineHeight: '32px', padding: '0 12px', fontSize: 12 }}>Sign in</Link>
+        <span className="nav-cta">
+          <Link to="/auth" className="nav-login">Log In</Link>
+          <Link to="/for-businesses" className="btn" style={{ height: 36, lineHeight: '36px', padding: '0 14px', fontSize: 13 }}>Start Your Store</Link>
+        </span>
       ) : (
         <div className="menu-wrap">
           <button className="menu-btn" onClick={toggle} aria-label="Menu">
@@ -79,6 +90,25 @@ export default function Nav() {
           )}
         </div>
       )}
+      <div className="menu-wrap mobile-only">
+        <button className="menu-btn" onClick={() => setMenu(!menu)} aria-label="Pages">
+          <MenuIcon size={22} color="var(--color-primary)" />
+        </button>
+        {menu && (
+          <div className="menu-panel" onClick={() => setMenu(false)}>
+            {PAGES.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
+            {!signed ? (
+              <>
+                <Link to="/chat">Chats</Link>
+                <Link to="/auth">Log In</Link>
+                <Link to="/for-businesses">Start Your Store</Link>
+              </>
+            ) : (
+              <Link to="/chat">My chats</Link>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

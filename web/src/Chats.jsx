@@ -29,9 +29,10 @@ export default function Chats() {
   if (!accountId()) {
     return (
       <div className="page">
+        <Back />
         <div className="card" style={{ maxWidth: 480 }}>
-          <h2>Sign in to chat</h2>
-          <p style={{ color: 'var(--color-body-text)' }}>Chat with businesses without installing the app.</p>
+          <h2>A message can start something.</h2>
+          <p style={{ color: 'var(--color-body-text)' }}>Sign in to chat with businesses without installing the app.</p>
           <Link to="/auth?next=/chat" className="btn">Sign in</Link>
         </div>
       </div>
@@ -47,7 +48,10 @@ export default function Chats() {
           <div className="card">Loading…</div>
         ) : rows.length === 0 ? (
           <div className="card">
-            No chats yet. <Link to="/discover">Discover businesses</Link> and say hello.
+            <h2 style={{ marginTop: 0 }}>A message can start something.</h2>
+            <p style={{ color: 'var(--color-body-text)' }}>
+              No chats yet. <Link to="/discover">Discover businesses</Link> and say hello.
+            </p>
           </div>
         ) : rows.map((t) => (
           <Link to={`/chat/${t.id}`} key={t.id} className="thread-row">

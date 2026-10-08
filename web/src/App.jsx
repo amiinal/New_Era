@@ -5,6 +5,13 @@ import Auth from './Auth.jsx';
 import Discover from './Discover.jsx';
 import Chats from './Chats.jsx';
 import Thread from './Thread.jsx';
+import Home from './Home.jsx';
+import HowItWorks from './HowItWorks.jsx';
+import ForBusinesses from './ForBusinesses.jsx';
+import Install from './Install.jsx';
+import Privacy from './Privacy.jsx';
+import Terms from './Terms.jsx';
+import Safety from './Safety.jsx';
 import About from './About.jsx';
 import Faq from './Faq.jsx';
 import Profile from './Profile.jsx';
@@ -188,26 +195,6 @@ function ListingDetail() {
   );
 }
 
-function Home() {
-  return (
-    <div>
-      <Nav />
-      <div className="page" style={{ maxWidth: 720 }}>
-        <div className="card">
-          <h1>Find businesses near you</h1>
-          <p style={{ color: 'var(--color-body-text)' }}>
-            Discover local shops and services, message them directly — no install needed.
-          </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link to="/discover" className="btn">Discover businesses</Link>
-            <Link to="/chat" className="btn btn-secondary">My chats</Link>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   useEffect(() => { initTheme(); }, []);
   const [paused, setPaused] = useState(null);
@@ -239,6 +226,12 @@ function Shell({ paused }) {
         <Route path="/" element={<Home />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/discover" element={<Discover />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/for-businesses" element={<ForBusinesses />} />
+        <Route path="/install" element={<Install />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/safety" element={<Safety />} />
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<Faq />} />
         <Route path="/profile" element={<Profile />} />
