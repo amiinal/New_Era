@@ -1,20 +1,17 @@
 // Auth state: OTP sign-in (Step 2) + optional password 2nd step.
-// SecureStore is the seam: swap `memory` for expo-secure-store when installed.
-import React, { createContext, useContext, useState } from 'react';
+// Session persists on-device (SecureStore / localStorage) and is
+// validated on launch — relaunching restores you where you left off.
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { Account, api, setAccountId } from './api';
-
-const memory = new Map<string, string>();
-const store = {
-  get: async (k: string) => memory.get(k) ?? null,
-  set: async (k: string, v: string) => { memory.set(k, v); },
-  del: async (k: string) => { memory.delete(k); },
-};
+import { delFlag, getFlag, setFlag } from './store';
 
 type Ctx = {
   account: Account | null;
   pendingTo: string;
   mode: 'customer' | 'business';
+  restoring: boolean;
+  restored: boolean;
   signIn: (to: string, code: string, country: string) => Promise<{ needsPassword: boolean; accountId?: string }>;
   completePassword: (accountId: string, password: string) => Promise<void>;
   applySession: (token: string, account: Account) => Promise<void>;
@@ -28,6 +25,29 @@ export const useAuth = () => useContext(AuthCtx);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [account, setAccount] = useState<Account | null>(null);
   const [pendingTo, setPendingTo] = useState('');
+  const [restoring, setRestoring] = useState(true);
+  const [restored, setRestored] = useState(false);
+
+  // Launch: validate the saved session, if any.
+  useEffect(() => {
+    (async () => {
+      try {
+        const id = await getFlag('session');
+        if (id) {
+          setAccountId(id);
+          try {
+            setAccount(await api.me());
+            setRestored(true);
+          } catch {
+            setAccountId(null);
+            await delFlag('session');
+          }
+        }
+      } finally {
+        setRestoring(false);
+      }
+    })();
+  }, []);
 
   // OTP first. Accounts with a password stop here and ask for it next.
   const signIn = async (to: string, code: string, country: string) => {
@@ -36,17 +56,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       : { phone: to, code, country };
     const r = await api.verify(body);
     if ('needsPassword' in r) return { needsPassword: true, accountId: r.accountId };
-    await store.set('token', r.token);
-    setAccountId(r.account.id);
-    setAccount(r.account);
+    await applySession(r.token, r.account);
     return { needsPassword: false };
   };
   const completePassword = async (accountId: string, password: string) => {
     const { token, account: acc } = await api.passwordLogin({ accountId, password });
     await applySession(token, acc);
   };
+  const applySession = async (token: string, acc: Account) => {
+    await setFlag('session', acc.id);
+    setRestored(false);
+    setAccountId(acc.id);
+    setAccount(acc);
+    void token;
+  };
   const signOut = async () => {
-    await store.del('token');
+    await delFlag('session');
+    await delFlag('lastRoute');
+    setRestored(false);
     setAccountId(null);
     setAccount(null);
     setPendingTo('');
@@ -62,10 +89,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refresh = async () => {
     try { setAccount(await api.me()); } catch { /* keep stale */ }
   };
-  const applySession = async (token: string, acc: Account) => {
-    await store.set('token', token);
-    setAccountId(acc.id);
-    setAccount(acc);
-  };
-  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, completePassword, applySession, signOut, setAppMode, refresh }}>{children}</AuthCtx.Provider>;
+  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', restoring, restored, signIn, completePassword, applySession, signOut, setAppMode, refresh }}>{children}</AuthCtx.Provider>;
 }

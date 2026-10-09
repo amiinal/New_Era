@@ -22,3 +22,12 @@ export async function setFlag(key: string, value: string): Promise<void> {
     mem.set(key, value);
   }
 }
+
+export async function delFlag(key: string): Promise<void> {
+  try {
+    if (Platform.OS === 'web') { window.localStorage.removeItem(key); return; }
+    await SecureStore.deleteItemAsync(key);
+  } catch {
+    mem.delete(key);
+  }
+}

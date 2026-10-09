@@ -31,7 +31,7 @@ type Route =
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
-  const { account, mode, setAppMode } = useAuth();
+  const { account, mode, setAppMode, restoring, restored } = useAuth();
   const { p } = useTheme();
   const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
@@ -48,6 +48,7 @@ function Shell() {
   const [authIntent, setAuthIntent] = useState<{ mode: 'customer' | 'business' } | null>(null);
   const [pendingChat, setPendingChat] = useState<{ businessId: string; listingId?: string; label: string; from: Route } | null>(null);
   const [pendingRoute, setPendingRoute] = useState<Route | null>(null);
+  const [restoreDone, setRestoreDone] = useState(false);
 
   useEffect(() => {
     getFlag('role:guest').then(v => {
@@ -77,11 +78,27 @@ function Shell() {
     return () => { live = false; clearInterval(t); };
   }, [account?.id]);
 
-  // Post-auth landing: intents from the role-first flow win; legacy
-  // accounts without a role flag fall back to the one-time picker.
+  // Post-auth landing: restored sessions resume the last screen;
+  // fresh intents from the role-first flow win; legacy accounts without
+  // a role flag fall back to the one-time picker.
   useEffect(() => {
     if (!account) return;
     (async () => {
+      if (restored && !restoreDone) {
+        setRestoreDone(true);
+        setRoleChecked(true);
+        if (!(await getFlag(`role:${account.id}`))) {
+          await setFlag(`role:${account.id}`, account.lastMode);
+        }
+        const saved = await getFlag('lastRoute');
+        if (saved) {
+          try {
+            const r = JSON.parse(saved) as Route;
+            if (r && typeof r.name === 'string') setRoute(r);
+          } catch { /* start fresh */ }
+        }
+        return;
+      }
       if (authIntent) {
         const it = authIntent;
         setAuthIntent(null);
@@ -119,8 +136,13 @@ function Shell() {
   }, [account?.id]);
 
   useEffect(() => {
-    if (!account) { setRoleChecked(false); setNeedRole(false); }
+    if (!account) { setRoleChecked(false); setNeedRole(false); setRestoreDone(false); }
   }, [account]);
+
+  // Remember where you left off (restored on next launch).
+  useEffect(() => {
+    if (account) setFlag('lastRoute', JSON.stringify(route)).catch(() => {});
+  }, [route]);
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
     // Guests verify first, then land straight in the conversation.
@@ -146,6 +168,7 @@ function Shell() {
     }
   };
   // No account: welcome role pick → guest browsing, or pending auth.
+  if (restoring) return null;
   if (!account) {
     if (!guestChecked || authIntent) {
       if (!guestChecked) return null;

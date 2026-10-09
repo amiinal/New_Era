@@ -1,15 +1,17 @@
 import { Compass, Store } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
+import { bgImage } from '../background';
 
 // ONB role entry: fresh users pick customer vs business once, so business
 // users go straight to storefront creation instead of via Discover.
 export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business') => void }) {
-  const { p } = useTheme();
+  const { p, dark } = useTheme();
   const s = themed(p);
   return (
+    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="contain">
     <View style={s.root}>
       <View style={s.card}>
         <Text style={s.h1}>What brings you to New Era?</Text>
@@ -31,11 +33,13 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
         <Text style={s.foot}>You can use both modes with one account.</Text>
       </View>
     </View>
+    </ImageBackground>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
+  bg: { flex: 1, backgroundColor: p.background },
+  root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
