@@ -10,6 +10,8 @@ import { Skeleton } from '../components/Skeleton';
 import { Palette, useTheme } from '../useTheme';
 
 // Step 5: country + city search, browseable without account (wall at chat).
+// Mirrors the website Discover: same headings, categories, and filters.
+const CATEGORIES = ['Fashion', 'Beauty', 'Food', 'Home', 'Electronics', 'Services'];
 export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSelling, onSignIn }: {
   onOpen: (slug: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
@@ -21,13 +23,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const link = p.primary;
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
+  const [category, setCategory] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
 
-  const load = async () => {
+  const load = async (withCat?: string) => {
+    const cat = withCat !== undefined ? withCat : category;
     try {
-      setItems(await api.discover({ country: account?.country ?? 'NG', ...(city ? { city } : {}), ...(q ? { q } : {}) }));
+      setItems(await api.discover({
+        country: account?.country ?? 'NG',
+        ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cat ? { category: cat } : {}),
+      }));
       setFailed(false);
     } catch { setItems([]); setFailed(true); }
   };
@@ -48,17 +55,25 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
           <Text onPress={onStartSelling} style={[s.switch, { color: link }]}>Start selling</Text>
         ) : undefined
       } />
-      <TextInput style={s.input} placeholder="Search businesses…" placeholderTextColor={p.bodyText} value={q}
-        onChangeText={setQ} onSubmitEditing={load} returnKeyType="search" />
+      <Text style={s.h1}>What are you looking for?</Text>
+      <Text style={s.sub}>Find products, services, and businesses near you.</Text>
+      <TextInput style={s.input} placeholder="What are you looking for?" placeholderTextColor={p.bodyText} value={q}
+        onChangeText={setQ} onSubmitEditing={() => load()} returnKeyType="search" />
       <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="City (optional)" placeholderTextColor={p.bodyText}
-        value={city} onChangeText={setCity} onSubmitEditing={load} />
+        value={city} onChangeText={setCity} onSubmitEditing={() => load()} />
+      <View style={s.chips}>
+        {['', ...CATEGORIES].map(c => (
+          <Text key={c || 'all'} onPress={() => { setCategory(c); load(c); }}
+            style={[s.chip, category === c && s.chipOn]}>{c || 'All'}</Text>
+        ))}
+      </View>
       {items === null ? (
         <><Skeleton kind="row" /><Skeleton kind="row" /><Skeleton kind="row" /></>
       ) : failed ? (
         <View style={s.card}>
           <Text style={s.empty}>Couldn&apos;t load — check your connection.</Text>
           <View style={{ marginTop: space.s3 }}>
-            <Button title="Retry" variant="secondary" onPress={load} />
+            <Button title="Retry" variant="secondary" onPress={() => load()} />
           </View>
         </View>
       ) : (
@@ -81,6 +96,15 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
+  h1: { ...type.h1, fontSize: 22, color: p.ink, marginBottom: space.s1 },
+  sub: { ...type.bodySm, color: p.bodyText, marginBottom: space.s4 },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginTop: space.s3 },
+  chip: {
+    paddingVertical: space.s2, paddingHorizontal: space.s4, borderWidth: 1,
+    borderColor: p.lineStrong, borderRadius: 18, color: p.bodyText, overflow: 'hidden',
+    fontSize: 14,
+  },
+  chipOn: { borderColor: p.primary, color: p.primary, fontWeight: '700' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,

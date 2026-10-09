@@ -244,7 +244,7 @@ a:hover .lcard { transform: translateY(-2px); }
   margin-left: 6px; vertical-align: 1px; }
 
 /* Centered auth card (mirrors the app) */
-.auth-bg { background-size: contain; background-position: center; background-repeat: no-repeat;
+.auth-bg { background-size: cover; background-position: center; background-repeat: no-repeat;
   background-color: var(--color-background); }
 .auth-wrap { display: flex; justify-content: center; padding: 24px; }
 .auth-card { width: 100%; max-width: 420px; }

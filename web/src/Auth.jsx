@@ -6,8 +6,9 @@ import { bgForSite } from './lib.js';
 import { COUNTRIES } from './countries.js';
 
 // Code sign-in + explicit country, mirroring the app: fresh visitors see
-// Sign up first, returning visitors see Sign in. Password accounts get a
-// 2nd step with forgot/reset.
+// Sign up first, returning visitors see Sign in. Email only (phone sign-up
+// removed for MVP — PRD decision log). Password accounts get a 2nd step
+// with forgot/reset.
 export default function Auth() {
   const [tab, setTab] = useState(localStorage.getItem('returning') ? 'signin' : 'signup');
   const [to, setTo] = useState('');
@@ -22,7 +23,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const next = params.get('next') || '/discover';
   const fresh = tab === 'signup';
-  const contactBody = () => (to.includes('@') ? { email: to.trim() } : { phone: to.trim() });
+  const contactBody = () => ({ email: to.trim() });
 
   const done = (j) => {
     setTokens(j.token, j.refreshToken);
@@ -111,7 +112,7 @@ export default function Auth() {
         </p>
         {stage === 'contact' && (
           <>
-            <input className="input" placeholder="email or phone" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
+            <input className="input" placeholder="Email address" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
             <label className="lbl">Country (explicit, never inferred)</label>
             <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%' }}>
               {COUNTRIES.map((c) => (
