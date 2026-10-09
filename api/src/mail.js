@@ -9,7 +9,10 @@ export async function sendMail({ to, subject, html }) {
   }
 
   if (provider === 'zeptomail') {
-    const res = await fetch('https://api.zeptomail.com/v1.1/email', {
+    // Zoho CPaaS endpoint (new). Override per data-center if Zoho tells
+    // you otherwise, e.g. https://cpaas.zoho.eu/v1.1/email
+    const url = process.env.ZEPTOMAIL_URL || 'https://cpaas.zoho.com/v1.1/email';
+    const res = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
