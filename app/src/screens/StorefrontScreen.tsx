@@ -159,7 +159,7 @@ export function StorefrontScreen({
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'transparent' },
+  root: { flex: 1, backgroundColor: p.background },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   cover: { width: '100%', height: 220 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4, ...shadow.md },

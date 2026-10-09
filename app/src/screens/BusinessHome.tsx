@@ -151,7 +151,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
 }
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'transparent' },
+  root: { flex: 1, backgroundColor: p.background },
   col: { flexGrow: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   head: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },

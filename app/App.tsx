@@ -1,10 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, ImageBackground, Platform, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { ThemeProvider } from './src/useTheme';
-import { bgImage } from './src/background';
 import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
 import { RoleSelect } from './src/screens/RoleSelect';
@@ -34,7 +33,7 @@ type Route =
 function Shell() {
   const { account, mode, setAppMode } = useAuth();
   const { p } = useTheme();
-  const bg = { backgroundColor: 'transparent' };
+  const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
   const [roleChecked, setRoleChecked] = useState(false);
   const [needRole, setNeedRole] = useState(false);
@@ -231,34 +230,18 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <Backdrop>
-          <AuthProvider>
-            <Shell />
-          </AuthProvider>
-        </Backdrop>
+        <AuthProvider>
+          <Shell />
+        </AuthProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
 
-// App-wide branded backdrop (light/dark × mobile/desktop). Screens keep
-// solid cards but transparent roots so the art shows through.
-function Backdrop({ children }: { children: React.ReactNode }) {
-  const { p, dark } = useTheme();
-  return (
-    <ImageBackground source={bgImage(dark)} style={styles.backdrop} resizeMode="contain">
-      <SafeAreaView style={[styles.root, { backgroundColor: 'transparent' }]}>
-        {children}
-      </SafeAreaView>
-    </ImageBackground>
-  );
-}
-
 const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: C.background },
   root: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: C.background,
     ...(Platform.OS === 'web'
       ? { maxWidth: 900, width: '100%', alignSelf: 'center', height: '100vh' as unknown as number }
       : null),

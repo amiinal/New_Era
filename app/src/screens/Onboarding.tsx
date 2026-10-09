@@ -207,7 +207,7 @@ function LiveStep({ slug, onDone, onAddMore }: { slug: string; onDone: () => voi
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'transparent', padding: space.s5 },
+  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: space.s3 },
   exit: { padding: space.s1 },
   prog: { flexDirection: 'row', gap: 4, marginBottom: space.s2 },

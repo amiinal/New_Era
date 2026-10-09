@@ -145,7 +145,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'transparent' },
+  root: { flex: 1, backgroundColor: p.background },
   col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
   pressed: { opacity: 0.85 },
