@@ -1,9 +1,10 @@
 // Step 2: email/phone OTP + country + mode switch (ACC-1..ACC-8)
 // Optional password as 2nd step: OTP first, then password if set.
 // Change of email/phone is verified by code to the NEW address.
-// Local: OTP logged to console + GET /dev/otp. Token = base64(accountId) stub (JWT in beta).
+// Sessions: 15-min JWT access + 30-day rotating refresh (Step 11).
 import crypto from 'node:crypto';
 import { sendMail } from './mail.js';
+import { bearer, mintRefresh, REFRESH_MS, refreshHash, signAccess, verifyAccess } from './token.js';
 
 const codes = new Map(); // key -> { code, expires }
 const hits = new Map(); // ip -> timestamps (ACC-6 rate limit)
@@ -63,7 +64,29 @@ function takeCode(key, code) {
   return true;
 }
 
-const tokenFor = (id) => Buffer.from(id).toString('base64');
+// Mint a fresh session pair and remember the refresh side.
+async function issueSession(prisma, accountId) {
+  const { raw, hash } = mintRefresh();
+  await prisma.refreshToken.create({
+    data: { accountId, hash, expiresAt: new Date(Date.now() + REFRESH_MS) },
+  });
+  return { token: signAccess(accountId), refreshToken: raw };
+}
+
+// Resolve the caller from a Bearer access token (stub ids no longer work).
+async function authedAccount(req, reply, prisma) {
+  const sub = verifyAccess(bearer(req));
+  if (!sub) {
+    reply.code(401).send({ error: 'sign in again' });
+    return null;
+  }
+  const acc = await prisma.account.findUnique({ where: { id: sub } });
+  if (!acc) {
+    reply.code(401).send({ error: 'unknown account' });
+    return null;
+  }
+  return acc;
+}
 
 // Security mail, best-effort: console/Mailhog now, real inbox after
 // the domain is verified. Phone-only accounts have nowhere to send.
@@ -114,7 +137,7 @@ export function authRoutes(app, prisma) {
       return { needsPassword: true, accountId: account.id, hasPassword: true };
     }
     signInMail(account, req, 'code');
-    return { token: tokenFor(account.id), account: safe(account) };
+    return { ...(await issueSession(prisma, account.id)), account: safe(account) };
   });
 
   // 2nd step: password for accounts that set one.
@@ -127,7 +150,32 @@ export function authRoutes(app, prisma) {
       return reply.code(401).send({ error: 'wrong password' });
     }
     signInMail(acc, req, 'password');
-    return { token: tokenFor(acc.id), account: safe(acc) };
+    return { ...(await issueSession(prisma, acc.id)), account: safe(acc) };
+  });
+
+  // Rotate: trade a live refresh token for a fresh pair (single use).
+  app.post('/auth/refresh', async (req, reply) => {
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
+    const { refreshToken } = req.body || {};
+    if (!refreshToken) return reply.code(401).send({ error: 'sign in again' });
+    const rec = await prisma.refreshToken.findUnique({ where: { hash: refreshHash(refreshToken) } });
+    if (!rec || rec.expiresAt < new Date()) {
+      if (rec) await prisma.refreshToken.delete({ where: { id: rec.id } }).catch(() => {});
+      return reply.code(401).send({ error: 'sign in again' });
+    }
+    await prisma.refreshToken.delete({ where: { id: rec.id } });
+    const acc = await prisma.account.findUnique({ where: { id: rec.accountId } });
+    if (!acc) return reply.code(401).send({ error: 'sign in again' });
+    return { ...(await issueSession(prisma, acc.id)), account: safe(acc) };
+  });
+
+  // This device is done — drop its refresh token.
+  app.post('/auth/logout', async (req, reply) => {
+    const { refreshToken } = req.body || {};
+    if (refreshToken) {
+      await prisma.refreshToken.delete({ where: { hash: refreshHash(refreshToken) } }).catch(() => {});
+    }
+    return { ok: true };
   });
 
   // Forgot password: code to the account's email/phone, then reset.
@@ -162,27 +210,24 @@ export function authRoutes(app, prisma) {
       where: { id: acc.id },
       data: { passwordHash: hashPassword(String(password)) },
     });
+    // New password signs every other device out.
+    await prisma.refreshToken.deleteMany({ where: { accountId: acc.id } });
     signInMail(updated, req, 'password reset');
-    return { token: tokenFor(updated.id), account: safe(updated) };
+    return { ...(await issueSession(prisma, updated.id)), account: safe(updated) };
   });
 
   const me = async (req, reply) => {
-    const id = req.headers['x-account-id'];
-    if (!id) return reply.code(401).send({ error: 'x-account-id required (stub auth)' });
-    const acc = await prisma.account.findUnique({ where: { id } });
-    if (acc) prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
-    return acc ? safe(acc) : acc;
+    const acc = await authedAccount(req, reply, prisma);
+    if (!acc) return acc;
+    prisma.account.update({ where: { id: acc.id }, data: { lastSeenAt: new Date() } }).catch(() => {});
+    return safe(acc);
   };
 
   const authedRow = async (req, reply) => {
-    const id = req.headers['x-account-id'];
-    if (!id) {
-      reply.code(401).send({ error: 'x-account-id required (stub auth)' });
-      return null;
-    }
-    const row = await prisma.account.findUnique({ where: { id } });
-    if (row) prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
-    return row;
+    const acc = await authedAccount(req, reply, prisma);
+    if (!acc) return null;
+    prisma.account.update({ where: { id: acc.id }, data: { lastSeenAt: new Date() } }).catch(() => {});
+    return acc;
   };
 
   app.get('/me', async (req, reply) => me(req, reply));
@@ -223,7 +268,9 @@ export function authRoutes(app, prisma) {
       where: { id: acc.id },
       data: { passwordHash: hashPassword(String(password)) },
     });
-    return { ok: true, account: safe(updated) };
+    // New password signs every other device out, then signs this one back in.
+    await prisma.refreshToken.deleteMany({ where: { accountId: acc.id } });
+    return { ok: true, account: safe(updated), ...(await issueSession(prisma, acc.id)) };
   });
 
   // Change email: code goes to the NEW address, then confirm swaps it.

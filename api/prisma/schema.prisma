@@ -37,6 +37,7 @@ model Account {
   events        Event[]
   support       SupportMessage[]
   reads         ThreadRead[]
+  refresh       RefreshToken[]
 }
 
 model Business {
@@ -195,4 +196,16 @@ model ThreadRead {
   at        DateTime @default(now())
 
   @@unique([threadId, accountId])
+}
+
+// JWT refresh tokens (sha256 stored): rotation + logout-everywhere.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  hash      String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([accountId])
 }

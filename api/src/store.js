@@ -4,17 +4,18 @@
 import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
+import { bearer, verifyAccess } from './token.js';
 
 const IMG_DIR = join(process.cwd(), '..', 'Docs', 'images');
 const MIME = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp' };
 
 const authed = async (req, reply, prisma) => {
-  const id = req.headers['x-account-id'];
-  if (!id) { reply.code(401).send({ error: 'x-account-id required' }); return null; }
-  const acc = await prisma.account.findUnique({ where: { id } });
+  const sub = verifyAccess(bearer(req));
+  if (!sub) { reply.code(401).send({ error: 'sign in again' }); return null; }
+  const acc = await prisma.account.findUnique({ where: { id: sub } });
   if (!acc) { reply.code(401).send({ error: 'unknown account' }); return null; }
   // Presence: every authed hit refreshes the online dot (2min window).
-  prisma.account.update({ where: { id }, data: { lastSeenAt: new Date() } }).catch(() => {});
+  prisma.account.update({ where: { id: sub }, data: { lastSeenAt: new Date() } }).catch(() => {});
   return acc;
 };
 

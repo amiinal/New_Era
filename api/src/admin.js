@@ -2,6 +2,7 @@
 // only signed-in accounts whose email is listed there may call these.
 // Never linked in the public nav — the team opens /admin directly.
 import { sendMail } from './mail.js';
+import { bearer, verifyAccess } from './token.js';
 
 const admins = () =>
   String(process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
@@ -9,9 +10,9 @@ const admins = () =>
 export const adminEmails = () => admins();
 
 async function guard(req, reply, prisma) {
-  const id = req.headers['x-account-id'];
-  if (!id) { reply.code(401).send({ error: 'sign in first' }); return null; }
-  const acc = await prisma.account.findUnique({ where: { id } });
+  const sub = verifyAccess(bearer(req));
+  if (!sub) { reply.code(401).send({ error: 'sign in first' }); return null; }
+  const acc = await prisma.account.findUnique({ where: { id: sub } });
   if (!acc?.email || !admins().includes(acc.email.toLowerCase())) {
     reply.code(403).send({ error: 'admin only — ask to be added to ADMIN_EMAILS' });
     return null;

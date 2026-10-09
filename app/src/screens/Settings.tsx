@@ -14,7 +14,7 @@ import { Prohibited } from '../components/Prohibited';
 // password), appearance, help, support contact for bugs/important issues,
 // sign out, version.
 export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () => void }) {
-  const { account, refresh, signOut } = useAuth();
+  const { account, refresh, signOut, applySession } = useAuth();
   const { p, mode, setMode } = useTheme();
   const [chat, setChat] = useState(false);
   const [panel, setPanel] = useState<'password' | 'email' | 'phone' | null>(null);
@@ -40,6 +40,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
     setBusy(true);
     try {
       const r = await api.setPassword({ password: next, ...(account?.hasPassword ? { current } : {}) });
+      await applySession(r.token, r.refreshToken, r.account);
       await refresh();
       setCurrent('');
       setNext('');

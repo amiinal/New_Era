@@ -92,7 +92,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
     if (newPassword.length < 8) { Alert.alert('Password too short', 'Use 8 or more characters.'); return; }
     try {
       const r = await api.resetPassword({ email: to.trim(), code: resetCode, password: newPassword });
-      await applySession(r.token, r.account);
+      await applySession(r.token, r.refreshToken, r.account);
       await setFlag('returning', '1');
     } catch (e) {
       const m = String((e as Error).message || '');

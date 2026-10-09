@@ -15,8 +15,8 @@ app.get('/health', async () => ({ ok: true, stack: 'fastify+pg+r2' }));
 // Browser calls (Vite :5173) need CORS. No plugin — plain headers.
 app.addHook('onRequest', (req, reply, done) => {
   reply.header('Access-Control-Allow-Origin', '*');
-  reply.header('Access-Control-Allow-Headers', 'content-type, x-account-id');
-  reply.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
+  reply.header('Access-Control-Allow-Headers', 'content-type, authorization');
+  reply.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   if (req.method === 'OPTIONS') return reply.code(204).send();
   done();
 });

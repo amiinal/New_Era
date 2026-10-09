@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import Back from './Back.jsx';
-import { accountId, api, initTheme, signOut } from './lib.js';
+import { accountId, api, initTheme, setTokens, signOut } from './lib.js';
 
 // Website settings: password, appearance, help, sign out.
 function PasswordCard() {
@@ -21,6 +21,7 @@ function PasswordCard() {
         method: 'POST',
         body: JSON.stringify({ password: next, ...(has ? { current } : {}) }),
       });
+      setTokens(r.token, r.refreshToken);
       setHas(r.account.hasPassword);
       setCurrent('');
       setNext('');

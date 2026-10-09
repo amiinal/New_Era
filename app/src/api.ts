@@ -62,25 +62,79 @@ export type Storefront = {
   certificates: Certificate[];
 };
 
-let accountId: string | null = null; // stub auth (Step 2); JWT before beta
-export const setAccountId = (id: string | null) => { accountId = id; };
+import { delFlag, getFlag, setFlag } from './store';
 
-async function req<T>(path: string, init?: RequestInit): Promise<T> {
+// JWT access (15min, memory) + refresh (30d, persisted). Expired access
+// is silently rotated once per call; a dead refresh means sign in again.
+let access: string | null = null;
+let refresh: string | null = null;
+
+export const setTokens = async (a: string | null, r: string | null) => {
+  access = a;
+  refresh = r;
+  if (r) await setFlag('refresh', r);
+  else await delFlag('refresh');
+};
+export const getRefresh = () => refresh;
+
+async function raw<T>(path: string, init?: RequestInit): Promise<{ status: number; body: T }> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       'content-type': 'application/json',
-      ...(accountId ? { 'x-account-id': accountId } : {}),
+      ...(access ? { authorization: `Bearer ${access}` } : {}),
       ...init?.headers,
     },
   });
-  if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json() as { error?: string }).error ?? ''; } catch { /* non-JSON */ }
-    throw new Error(`${res.status}${detail ? ' ' + detail : ''} ${path}`);
-  }
-  return res.json() as Promise<T>;
+  let body = {} as T;
+  try { body = await res.json() as T; } catch { /* non-JSON */ }
+  return { status: res.status, body };
 }
+
+async function req<T>(path: string, init?: RequestInit, retried = false): Promise<T> {
+  let r = await raw<T>(path, init);
+  if (r.status === 401 && !retried && refresh && !path.startsWith('/auth/')) {
+    try {
+      const rot = await raw<{ token: string; refreshToken: string; account: Account }>(
+        '/auth/refresh',
+        { method: 'POST', body: JSON.stringify({ refreshToken: refresh }) },
+      );
+      if (rot.status === 200 && rot.body.token) {
+        await setTokens(rot.body.token, rot.body.refreshToken);
+        r = await raw<T>(path, init);
+      }
+    } catch { /* fall through to the 401 below */ }
+  }
+  if (r.status === 401) throw new Error(`401 ${(r.body as { error?: string }).error || 'sign in again'} ${path}`);
+  if (r.status < 200 || r.status >= 300) {
+    const detail = (r.body as { error?: string }).error ?? '';
+    throw new Error(`${r.status}${detail ? ' ' + detail : ''} ${path}`);
+  }
+  return r.body;
+}
+
+// Saved refresh token for launch restore (null when signed out).
+export const loadRefresh = async () => {
+  refresh = await getFlag('refresh');
+  return refresh;
+};
+
+// Trade the saved refresh token for a live pair. Null when it's dead.
+export const refreshSession = async (): Promise<{ token: string; refreshToken: string; account: Account } | null> => {
+  if (!refresh) return null;
+  try {
+    const r = await raw<{ token: string; refreshToken: string; account: Account }>(
+      '/auth/refresh',
+      { method: 'POST', body: JSON.stringify({ refreshToken: refresh }) },
+    );
+    if (r.status === 200 && r.body.token) {
+      await setTokens(r.body.token, r.body.refreshToken);
+      return r.body;
+    }
+  } catch { /* dead — sign in again */ }
+  await setTokens(null, null);
+  return null;
+};
 
 /** Currency symbol for the business's own currency (PRD §7, never converted). */
 export const symFor = (c: string) => ({ NGN: '₦', GHS: 'GH₵', KES: 'KSh' } as Record<string, string>)[c] ?? '';
@@ -93,15 +147,17 @@ export const api = {
   requestCode: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
-    req<{ token: string; account: Account } | { needsPassword: true; accountId: string }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
+    req<{ token: string; refreshToken: string; account: Account } | { needsPassword: true; accountId: string }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   passwordLogin: (body: { accountId: string; password: string }) =>
-    req<{ token: string; account: Account }>('/auth/password', { method: 'POST', body: JSON.stringify(body) }),
+    req<{ token: string; refreshToken: string; account: Account }>('/auth/password', { method: 'POST', body: JSON.stringify(body) }),
   forgotPassword: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/password/forgot', { method: 'POST', body: JSON.stringify(body) }),
   resetPassword: (body: { email?: string; phone?: string; code: string; password: string }) =>
-    req<{ token: string; account: Account }>('/auth/password/reset', { method: 'POST', body: JSON.stringify(body) }),
+    req<{ token: string; refreshToken: string; account: Account }>('/auth/password/reset', { method: 'POST', body: JSON.stringify(body) }),
   setPassword: (body: { password: string; current?: string }) =>
-    req<{ ok: boolean; account: Account }>('/me/password', { method: 'POST', body: JSON.stringify(body) }),
+    req<{ ok: boolean; account: Account; token: string; refreshToken: string }>('/me/password', { method: 'POST', body: JSON.stringify(body) }),
+  logout: (refreshToken: string | null) =>
+    req<{ ok: boolean }>('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) }).catch(() => ({ ok: false })),
   requestEmailChange: (email: string) =>
     req<{ sent: boolean; devCode?: string }>('/me/email/request', { method: 'POST', body: JSON.stringify({ email }) }),
   confirmEmailChange: (body: { email: string; code: string }) =>

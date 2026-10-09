@@ -3,8 +3,8 @@
 // validated on launch — relaunching restores you where you left off.
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { Account, api, setAccountId } from './api';
-import { delFlag, getFlag, setFlag } from './store';
+import { Account, api, getRefresh, refreshSession, setTokens } from './api';
+import { delFlag } from './store';
 
 type Ctx = {
   account: Account | null;
@@ -14,7 +14,7 @@ type Ctx = {
   restored: boolean;
   signIn: (to: string, code: string, country: string) => Promise<{ needsPassword: boolean; accountId?: string }>;
   completePassword: (accountId: string, password: string) => Promise<void>;
-  applySession: (token: string, account: Account) => Promise<void>;
+  applySession: (token: string, refreshToken: string, account: Account) => Promise<void>;
   signOut: () => Promise<void>;
   setAppMode: (mode: 'customer' | 'business') => Promise<void>;
   refresh: () => Promise<void>;
@@ -28,20 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [restoring, setRestoring] = useState(true);
   const [restored, setRestored] = useState(false);
 
-  // Launch: validate the saved session, if any.
+  // Launch: trade the saved refresh token for a live session, if any.
   useEffect(() => {
     (async () => {
       try {
-        const id = await getFlag('session');
-        if (id) {
-          setAccountId(id);
-          try {
-            setAccount(await api.me());
-            setRestored(true);
-          } catch {
-            setAccountId(null);
-            await delFlag('session');
-          }
+        const s = await refreshSession();
+        if (s) {
+          setAccount(s.account);
+          setRestored(true);
         }
       } finally {
         setRestoring(false);
@@ -56,25 +50,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       : { phone: to, code, country };
     const r = await api.verify(body);
     if ('needsPassword' in r) return { needsPassword: true, accountId: r.accountId };
-    await applySession(r.token, r.account);
+    await applySession(r.token, r.refreshToken, r.account);
     return { needsPassword: false };
   };
   const completePassword = async (accountId: string, password: string) => {
-    const { token, account: acc } = await api.passwordLogin({ accountId, password });
-    await applySession(token, acc);
+    const { token, refreshToken, account: acc } = await api.passwordLogin({ accountId, password });
+    await applySession(token, refreshToken, acc);
   };
-  const applySession = async (token: string, acc: Account) => {
-    await setFlag('session', acc.id);
+  const applySession = async (token: string, refreshToken: string, acc: Account) => {
+    await setTokens(token, refreshToken);
     setRestored(false);
-    setAccountId(acc.id);
     setAccount(acc);
-    void token;
   };
   const signOut = async () => {
-    await delFlag('session');
+    try { await api.logout(getRefresh()); } catch { /* already out */ }
+    await setTokens(null, null);
     await delFlag('lastRoute');
     setRestored(false);
-    setAccountId(null);
     setAccount(null);
     setPendingTo('');
   };

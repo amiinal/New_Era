@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Nav from './Nav.jsx';
-import { API } from './lib.js';
+import { API, setTokens } from './lib.js';
 import { bgForSite } from './lib.js';
 import { COUNTRIES } from './countries.js';
 
@@ -25,7 +25,7 @@ export default function Auth() {
   const contactBody = () => (to.includes('@') ? { email: to.trim() } : { phone: to.trim() });
 
   const done = (j) => {
-    localStorage.setItem('accountId', j.account.id);
+    setTokens(j.token, j.refreshToken);
     localStorage.setItem('returning', '1');
     localStorage.setItem('mode', j.account.lastMode || 'customer');
     navigate(next, { replace: true });
