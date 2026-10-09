@@ -59,6 +59,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   if (!biz) {
     return (
       <View style={s.root}>
+        <View style={s.col}>
         {failed ? (
           <>
             <Text style={s.h1}>Couldn&apos;t load your business</Text>
@@ -77,12 +78,13 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
           </>
         )}
         {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} onAddMore={() => { setOnboard(false); onAutoDone?.(); onManage(); }} />}
+        </View>
       </View>
     );
   }
 
   return (
-    <ScrollView style={s.root}>
+    <ScrollView style={s.root} contentContainerStyle={s.col}>
       <View style={s.head}>
         <Pressable onPress={() => setMenu(true)}>
           <Menu size={24} color={p.ink} />
@@ -149,7 +151,8 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
 }
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  root: { flex: 1, backgroundColor: p.background },
+  col: { flexGrow: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   head: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },

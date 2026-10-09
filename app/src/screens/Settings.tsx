@@ -106,7 +106,8 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
 
   return (
     <Modal visible animationType="slide" onRequestClose={onClose}>
-      <ScrollView style={s.root} contentContainerStyle={s.inner}>
+      <ScrollView style={s.root} contentContainerStyle={s.colWrap}>
+      <View style={s.col}>
         <Text style={s.h1}>Settings</Text>
 
         <Text style={s.sec}>Account</Text>
@@ -207,6 +208,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <View style={{ height: space.s2 }} />
         <Button title="Close" variant="tertiary" onPress={onClose} />
         <Text style={[s.micro, { textAlign: 'center', marginTop: space.s4 }]}>New Era · MVP beta · v1.0.0</Text>
+      </View>
       </ScrollView>
       {chat && <SupportChat onClose={() => setChat(false)} />}
     </Modal>

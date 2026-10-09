@@ -33,6 +33,7 @@ export function UpdatesScreen({
 
   return (
     <View style={s.root}>
+      <View style={s.col}>
       <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       {!sf && !failed && <Skeleton kind="card" />}
       {!sf && failed && (
@@ -68,6 +69,7 @@ export function UpdatesScreen({
           businessName={sf.business.name} businessId={sf.business.id}
           onClose={() => { setView(false); load(); }} onMessage={onMessage} />
       )}
+      </View>
     </View>
   );
 }
@@ -96,6 +98,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
 
   return (
     <View style={s.root}>
+      <View style={s.col}>
       <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
       {mine.map(t => (
         <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
@@ -136,12 +139,14 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
           </View>
         </View>
       )}
+      </View>
     </View>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  root: { flex: 1, backgroundColor: p.background },
+  col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
   pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },

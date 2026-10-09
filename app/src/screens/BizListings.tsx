@@ -52,7 +52,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
   };
 
   return (
-    <ScrollView style={s.root}>
+    <ScrollView style={s.root} contentContainerStyle={s.col}>
       <TabHead title="Listings" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} right={<Button title="+ Add" onPress={() => setForm('add')} />} />
       {failed ? (
         <View style={s.rowCard}>
@@ -134,7 +134,8 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
 }
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  root: { flex: 1, backgroundColor: p.background },
+  col: { flexGrow: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   micro: { ...type.micro, color: p.bodyText },
   rowCard: {
     flexDirection: 'row', gap: space.s3, alignItems: 'center',

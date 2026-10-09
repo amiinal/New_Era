@@ -39,6 +39,7 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
 
   return (
     <View style={s.root}>
+      <View style={s.col}>
       <TabHead title="Updates" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
       {failed && !biz ? (
         <Pressable onPress={load} style={s.card}>
@@ -74,8 +75,9 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
         <StatusViewer
           items={statuses.map(s => ({ ...s, label: statusLabel(s, biz.name) }))}
           businessName={biz.name} businessId={biz.id}
-          onClose={() => setView(false)} onMessage={() => setView(false)} />
+          onClose={() => { setView(false); load(); }} onMessage={() => setView(false)} />
       )}
+      </View>
     </View>
   );
 }
@@ -103,6 +105,7 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
 
   return (
     <View style={s.root}>
+      <View style={s.col}>
       <TabHead title="Inbox" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
       {failed ? (
         <View style={s.card}>
@@ -131,12 +134,14 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
           </Pressable>
         );
       })}
+      </View>
     </View>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  root: { flex: 1, backgroundColor: p.background },
+  col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
   pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },

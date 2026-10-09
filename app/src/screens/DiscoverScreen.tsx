@@ -36,6 +36,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
 
   return (
     <View style={s.root}>
+      <View style={s.col}>
       <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} routes={dRoutes} active={dActive} onNav={onDNav} right={
         hasBiz !== null && mode === 'customer' ? (
           <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
@@ -57,7 +58,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
           </View>
         </View>
       ) : (
-        <FlatList data={items} keyExtractor={b => b.id}
+        <FlatList data={items} keyExtractor={b => b.id} style={{ flex: 1 }}
           ListEmptyComponent={<Text style={s.empty}>No businesses yet — try widening the city.</Text>}
           renderItem={({ item }) => (
             <Pressable onPress={() => onOpen(item.slug)}
@@ -67,12 +68,14 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
             </Pressable>
           )} />
       )}
+      </View>
     </View>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s4 },
+  root: { flex: 1, backgroundColor: p.background },
+  col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
