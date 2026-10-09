@@ -14,7 +14,11 @@ import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
 import { Palette, useTheme } from '../useTheme';
 
-const CATEGORIES = ['Food service', 'Bakery', 'Salon', 'Tailor', 'Catering', 'Fashion', 'Electronics', 'Other'];
+const CATEGORIES = [
+  'Food service', 'Bakery', 'Salon', 'Barbershop', 'Tailor', 'Fashion',
+  'Beauty', 'Catering', 'Electronics', 'Home goods', 'Photography',
+  'Graphic Design', 'Other',
+];
 
 // ONB-1..11: interactive wizard — every step is a real action.
 // Basics → first listing → certificates (optional) → you're live.
@@ -25,6 +29,7 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
   const [step, setStep] = useState(0);
   const [name, setName] = useState('');
   const [category, setCategory] = useState('Food service');
+  const [customCategory, setCustomCategory] = useState('');
   const [city, setCity] = useState('');
   const [area, setArea] = useState('');
   const [nationwide, setNationwide] = useState(false);
@@ -64,7 +69,9 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
       let coverKey: string | undefined;
       if (cover) coverKey = await api.uploadPhoto(cover, `business/tmp/cover-${Date.now()}.jpg`);
       const b = await api.createBusiness({
-        name: name.trim(), category, country: account?.country ?? 'NG', city: city.trim(),
+        name: name.trim(),
+        category: category === 'Other' ? (customCategory.trim() || 'Other') : category,
+        country: account?.country ?? 'NG', city: city.trim(),
         area: area.trim() || undefined,
         deliveryArea: nationwide ? undefined : area.trim() || undefined,
         nationwide, logoKey, coverKey,
@@ -104,6 +111,10 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
                 <Text key={c} onPress={() => setCategory(c)} style={[s.opt, category === c && s.optOn]}>{c}</Text>
               ))}
             </View>
+            {category === 'Other' ? (
+              <TextInput style={s.input} placeholder="Type your category" placeholderTextColor={p.bodyText}
+                value={customCategory} onChangeText={setCustomCategory} maxLength={40} />
+            ) : null}
             <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
             <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
             <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>

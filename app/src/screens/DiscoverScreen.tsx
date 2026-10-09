@@ -84,6 +84,9 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
               style={({ pressed }) => [s.card, pressed && s.pressed]}>
               <Text style={s.name}>{item.name}</Text>
               <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
+              {(item.matchedListings?.length ?? 0) > 0 ? (
+                <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
+              ) : null}
             </Pressable>
           )} />
       )}

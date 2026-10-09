@@ -26,6 +26,7 @@ export type Business = {
   id: string; ownerId: string; name: string; slug: string; category: string;
   country: string; city: string; area: string | null; deliveryArea: string | null;
   logoKey: string | null; coverKey: string | null; bio: string | null;
+  matchedListings?: string[];
 };
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';

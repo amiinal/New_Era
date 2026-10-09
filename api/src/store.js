@@ -52,19 +52,36 @@ export function storeRoutes(app, prisma) {
     const where = { country, hidden: false, suspended: false, ...(city ? { city } : {}), ...(category ? { category } : {}) };
     const all = await prisma.business.findMany({
       where,
-      include: { listings: { select: { photos: true } } },
+      include: { listings: { select: { title: true, description: true, photos: true } } },
       take: 50,
     });
     // DIS-7 eligibility: 3+ items with photos, category, location.
-    let list = all.filter(b => b.listings.length >= 3 && b.category && (b.city || b.area));
-    if (q) {
-      const needle = String(q).toLowerCase();
-      list = list
-        .map(b => ({ b, hit: `${b.name} ${b.category}`.toLowerCase().includes(needle) ? 1 : 0 }))
-        .filter(r => r.hit)
-        .map(r => r.b);
-    }
-    return list.map(({ listings: _drop, ...b }) => b);
+    const eligible = all.filter(b => b.listings.length >= 3 && b.category && (b.city || b.area));
+    const withMatches = (list) => list.map(b => {
+      const { listings: _drop, ...rest } = b;
+      return { ...rest, matchedListings: [] };
+    });
+    if (!q) return withMatches(eligible);
+    // Query matches names, categories, AND listing titles/descriptions —
+    // "dresses" finds the tailor who sells them, not just names.
+    const needles = String(q).toLowerCase().split(/\s+/).filter(Boolean);
+    return eligible
+      .map(b => {
+        const nameHit = needles.some(n => `${b.name} ${b.category}`.toLowerCase().includes(n));
+        const matched = [];
+        for (const l of b.listings) {
+          if (matched.length >= 3) break;
+          const text = `${l.title} ${l.description || ''}`.toLowerCase();
+          if (needles.some(n => text.includes(n))) matched.push(l.title);
+        }
+        return { b, nameHit, matched };
+      })
+      .filter(r => r.nameHit || r.matched.length > 0)
+      .sort((x, y) => (y.matched.length - x.matched.length) || (Number(y.nameHit) - Number(x.nameHit)))
+      .map(r => {
+        const { listings: _drop, ...rest } = r.b;
+        return { ...rest, matchedListings: r.matched };
+      });
   });
 
   // WEB-1: public storefront bundle (profile + listings + collections +

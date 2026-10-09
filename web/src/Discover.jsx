@@ -70,6 +70,11 @@ export default function Discover() {
                   <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: 0 }}>
                     {b.category} · {b.city}, {b.country}
                   </p>
+                  {(b.matchedListings?.length ?? 0) > 0 ? (
+                    <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '4px 0 0' }}>
+                      Matches: {b.matchedListings.join(' · ')}
+                    </p>
+                  ) : null}
                 </div>
               </Link>
             ))}
