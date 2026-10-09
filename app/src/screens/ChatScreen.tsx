@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, FlatList, Image, ImageBackground, KeyboardAvoidingView, Modal, Platform,
+  ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
 import { MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
@@ -9,7 +9,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { api, Business, img, Message, Peer } from '../api';
 import { useAuth } from '../auth';
 import { getFlag, setFlag } from '../store';
-import { bgImage } from '../background';
 import { C, radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
@@ -37,7 +36,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   const [menu, setMenu] = useState<{ kind: 'msg'; msg: Message } | { kind: 'head' } | null>(null);
   const [nudge, setNudge] = useState(false);
   const [caution, setCaution] = useState<{ biz: Business; cross: boolean } | null>(null);
-  const { p, dark } = useTheme();
+  const { p } = useTheme();
   const s = themed(p);
 
   const load = async () => {
@@ -131,7 +130,6 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   };
 
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
     <KeyboardAvoidingView style={s.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={s.head}>
         {onBack ? (
@@ -244,13 +242,11 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
         </Modal>
       )}
     </KeyboardAvoidingView>
-    </ImageBackground>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  bg: { flex: 1 },
-  root: { flex: 1, backgroundColor: 'transparent' },
+  root: { flex: 1, backgroundColor: p.chatBg },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.s2, backgroundColor: p.surface, paddingHorizontal: space.s3, paddingVertical: space.s3 },
   backBtn: { padding: space.s1 },
   backT: { fontSize: 26, color: p.primary, fontWeight: '600', lineHeight: 28 },

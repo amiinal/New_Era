@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import { API } from './lib.js';
+import { bgForSite } from './lib.js';
 import { COUNTRIES } from './countries.js';
 
 // Code sign-in + explicit country, mirroring the app: fresh visitors see
@@ -97,6 +98,7 @@ export default function Auth() {
   return (
     <div>
       <Nav />
+      <div className="auth-bg" style={{ backgroundImage: `url(${bgForSite()})` }}>
       <div className="auth-wrap">
       <div className="card auth-card">
         <h2 style={{ textAlign: 'center', marginBottom: 4 }}>{title}</h2>
@@ -151,6 +153,7 @@ export default function Auth() {
             <div style={{ marginTop: 8 }}><button className="btn" style={{ width: '100%' }} onClick={submitReset}>Reset & sign in</button></div>
           </>
         )}
+      </div>
       </div>
       </div>
     </div>

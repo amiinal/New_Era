@@ -94,7 +94,7 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background },
+  root: { flex: 1, backgroundColor: 'transparent' },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8, color: p.bodyText },
   back: { paddingHorizontal: space.s4, paddingTop: space.s3 },
   backT: { ...type.body, color: p.primary, fontWeight: '600' },

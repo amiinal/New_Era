@@ -35,7 +35,7 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
 }
 
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
+  root: { flex: 1, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },

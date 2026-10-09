@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
-import { bgImage } from '../background';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
@@ -109,8 +108,7 @@ export function AuthScreen() {
     : stage === 'code' ? 'Enter code'
     : fresh ? 'Create Account' : 'Welcome back';
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
-      <View style={s.root}>
+    <View style={s.root}>
       <View style={s.card}>
         <Text style={s.h1}>{title}</Text>
         <Text style={s.sub}>
@@ -198,13 +196,11 @@ export function AuthScreen() {
           </>
         )}
       </View>
-      </View>
-    </ImageBackground>
+    </View>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  bg: { flex: 1 },
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: {
     width: '100%', maxWidth: 420, backgroundColor: p.surface,

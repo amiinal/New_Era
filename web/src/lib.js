@@ -8,6 +8,16 @@ export function signOut(navigate) {
   if (navigate) navigate('/');
 }
 
+// Branded sign-in backdrop: pastel pair for light, navy/orbital for dark,
+// fitted to show the full art top and bottom.
+export function bgForSite() {
+  const mode = localStorage.getItem('theme') || 'system';
+  const dark = mode === 'dark'
+    || (mode === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+  const wide = window.innerWidth > 640;
+  return `/bg/${dark ? 'dark' : 'light'}-${wide ? 'desktop' : 'mobile'}.png`;
+}
+
 // Customer/business mode (ACC-3): server is source of truth, mirrored here.
 export const getMode = () => localStorage.getItem('mode') || 'customer';
 
