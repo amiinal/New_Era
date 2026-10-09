@@ -16,10 +16,11 @@ import { StatusViewer, statusLabel } from '../components/StatusViewer';
 
 // Step 3/4/9: header + listings grid + certificates + report. No login needed.
 export function StorefrontScreen({
-  slug, onListing, onChat, onBack,
+  slug, onListing, onChat, onBack, onSignIn,
 }: {
   slug: string; onListing: (id: string) => void;
   onChat: (businessId: string, listingId?: string, label?: string) => void; onBack: () => void;
+  onSignIn?: () => void;
 }) {
   const [sf, setSf] = useState<Storefront | null | undefined>(undefined);
   const [menu, setMenu] = useState(false);
@@ -39,6 +40,7 @@ export function StorefrontScreen({
     setMenu(false);
     if (!account) {
       Alert.alert('Sign in to report', 'We need your account so the team can follow up.');
+      onSignIn?.();
       return;
     }
     setReporting(true);

@@ -41,6 +41,20 @@ function Shell() {
   const [paused, setPaused] = useState(false);
   const [pausedMessage, setPausedMessage] = useState('');
   const [hasUnread, setHasUnread] = useState(false);
+  // Role-first entry: guests browse as customers; auth happens at chat
+  // (customer, resumed after) or immediately (business → onboarding).
+  const [guestRole, setGuestRole] = useState<'customer' | null>(null);
+  const [guestChecked, setGuestChecked] = useState(false);
+  const [authIntent, setAuthIntent] = useState<{ mode: 'customer' | 'business' } | null>(null);
+  const [pendingChat, setPendingChat] = useState<{ businessId: string; listingId?: string; label: string; from: Route } | null>(null);
+  const [pendingRoute, setPendingRoute] = useState<Route | null>(null);
+
+  useEffect(() => {
+    getFlag('role:guest').then(v => {
+      setGuestRole(v === 'customer' ? 'customer' : null);
+      setGuestChecked(true);
+    });
+  }, []);
 
   // Kill switch: paused app shows the notice (reads stay, writes 503).
   useEffect(() => {
@@ -63,31 +77,58 @@ function Shell() {
     return () => { live = false; clearInterval(t); };
   }, [account?.id]);
 
-  // Fresh accounts pick customer vs business once — business skips
-  // Discover and lands straight on storefront creation.
+  // Post-auth landing: intents from the role-first flow win; legacy
+  // accounts without a role flag fall back to the one-time picker.
   useEffect(() => {
-    if (!account) {
-      setRoleChecked(false);
-      setNeedRole(false);
-      setBizAuto(false);
-      return;
-    }
-    if (account.lastMode === 'business') {
-      setFlag(`role:${account.id}`, 'business').catch(() => {});
-      setNeedRole(false);
+    if (!account) return;
+    (async () => {
+      if (authIntent) {
+        const it = authIntent;
+        setAuthIntent(null);
+        await setFlag(`role:${account.id}`, it.mode);
+        if (it.mode === 'business') {
+          await setAppMode('business');
+          setBizAuto(true);
+          setRoute({ name: 'bizhome' });
+        } else {
+          setRoute({ name: 'discover' });
+        }
+      } else if (!(await getFlag(`role:${account.id}`))) {
+        if (account.lastMode === 'business') {
+          await setFlag(`role:${account.id}`, 'business');
+        } else {
+          setNeedRole(true);
+        }
+      }
       setRoleChecked(true);
-      return;
-    }
-    let live = true;
-    getFlag(`role:${account.id}`).then(v => {
-      if (!live) return;
-      setNeedRole(!v);
-      setRoleChecked(true);
-    });
-    return () => { live = false; };
+      if (pendingChat) {
+        const pc = pendingChat;
+        setPendingChat(null);
+        try {
+          const t = await api.openThread(pc.businessId, pc.listingId);
+          setRoute({ name: 'chat', threadId: t.id, context: pc.label, from: pc.from });
+        } catch {
+          Alert.alert('Could not open chat', 'Check the API is running, then retry.');
+        }
+      } else if (pendingRoute) {
+        const pr = pendingRoute;
+        setPendingRoute(null);
+        setRoute(pr);
+      }
+    })();
   }, [account?.id]);
 
+  useEffect(() => {
+    if (!account) { setRoleChecked(false); setNeedRole(false); }
+  }, [account]);
+
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
+    // Guests verify first, then land straight in the conversation.
+    if (!account) {
+      setPendingChat({ businessId, listingId, label: label ?? 'New conversation', from: route });
+      setAuthIntent({ mode: 'customer' });
+      return;
+    }
     try {
       const t = await api.openThread(businessId, listingId);
       setRoute({ name: 'chat', threadId: t.id, context: label ?? 'New conversation', from: route });
@@ -95,10 +136,27 @@ function Shell() {
       Alert.alert('Could not open chat', 'Check the API is running, then retry.');
     }
   };
-  if (!account) return <AuthScreen />;
-  if (!roleChecked) return null;
-  if (needRole) {
-    return (
+  const pickGuest = async (m: 'customer' | 'business') => {
+    await setFlag('role:guest', m);
+    if (m === 'business') {
+      setAuthIntent({ mode: 'business' });
+    } else {
+      setGuestRole('customer');
+      setRoute({ name: 'discover' });
+    }
+  };
+  // No account: welcome role pick → guest browsing, or pending auth.
+  if (!account) {
+    if (!guestChecked || authIntent) {
+      if (!guestChecked) return null;
+      return <AuthScreen onBack={() => setAuthIntent(null)} />;
+    }
+    if (!guestRole) {
+      return <RoleSelect onPick={pickGuest} />;
+    }
+  }
+  if (account && !roleChecked) return null;
+  if (account && needRole) {    return (
       <RoleSelect onPick={async m => {
         if (m === 'business') {
           setBizAuto(true);
@@ -125,9 +183,11 @@ function Shell() {
   }
 
   const openStore = (slug: string) => {
-    api.storefront(slug).then(sf =>
-      api.recordEvent('storefront_view', { businessId: sf.business.id }).catch(() => {}),
-    ).catch(() => {});
+    if (account) {
+      api.storefront(slug).then(sf =>
+        api.recordEvent('storefront_view', { businessId: sf.business.id }).catch(() => {}),
+      ).catch(() => {});
+    }
     setRoute({ name: 'store', slug });
   };
   const CUST: DrawerRoute[] = ['chats', 'updates', 'discover'];
@@ -186,23 +246,28 @@ function Shell() {
   return (
     <SafeAreaView style={styles.root}>
       {route.name === 'discover' && (
-        <DiscoverScreen onOpen={openStore} dRoutes={CUST} dActive="discover" onDNav={goDrawer} />
+        <DiscoverScreen onOpen={openStore} dRoutes={CUST} dActive="discover" onDNav={goDrawer}
+          onStartSelling={() => setAuthIntent({ mode: 'business' })}
+          onSignIn={() => setAuthIntent({ mode: 'customer' })} />
       )}
       {route.name === 'updates' && (
         <UpdatesScreen
           onMessage={(bid, label) => openChat(bid, undefined, label)}
           onOpen={slug => setRoute({ name: 'store', slug })}
-          dRoutes={CUST} dActive="updates" onDNav={goDrawer} />
+          dRoutes={CUST} dActive="updates" onDNav={goDrawer}
+          onSignIn={() => setAuthIntent({ mode: 'customer' })} />
       )}
       {route.name === 'chats' && (
         <ChatsScreen onOpenThread={(bid, label) => openChat(bid, undefined, label)}
-          dRoutes={CUST} dActive="chats" onDNav={goDrawer} />
+          dRoutes={CUST} dActive="chats" onDNav={goDrawer}
+          onSignIn={() => setAuthIntent({ mode: 'customer' })} />
       )}
       {route.name === 'store' && (
         <StorefrontScreen slug={route.slug}
           onListing={id => setRoute({ name: 'listing', id })}
           onChat={(bid, lid, label) => openChat(bid, lid, label)}
-          onBack={() => setRoute({ name: 'discover' })} />
+          onBack={() => setRoute({ name: 'discover' })}
+          onSignIn={() => { setPendingRoute({ name: 'store', slug: route.slug }); setAuthIntent({ mode: 'customer' }); }} />
       )}
       {route.name === 'listing' && (
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'discover' })} />

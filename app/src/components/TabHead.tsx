@@ -11,9 +11,10 @@ import { Palette, useTheme } from '../useTheme';
 
 // Static top-bar title. `drawer` adds the hamburger (sidebar) — business
 // tabs show hamburger only, customer tabs show hamburger + profile.
-export function TabHead({ title, right, drawer, avatar = true, routes, active, onNav }: {
+export function TabHead({ title, right, drawer, avatar = true, routes, active, onNav, onSignIn }: {
   title: string; right?: React.ReactNode; drawer?: 'business' | 'customer'; avatar?: boolean;
   routes?: DrawerRoute[]; active?: DrawerRoute; onNav?: (r: DrawerRoute) => void;
+  onSignIn?: () => void;
 }) {
   const { account, refresh } = useAuth();
   const [prof, setProf] = useState(false);
@@ -34,7 +35,7 @@ export function TabHead({ title, right, drawer, avatar = true, routes, active, o
         <View style={s.right}>
           {right}
           {avatar && drawer !== 'business' && (
-            <Pressable onPress={() => setProf(true)}>
+            <Pressable onPress={() => (account ? setProf(true) : onSignIn?.())}>
               {account?.avatarKey
                 ? <Image source={{ uri: img(account.avatarKey) }} style={s.me} />
                 : <Avatar name={account?.email ?? account?.phone ?? '?'} size={36} />}

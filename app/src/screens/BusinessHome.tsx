@@ -31,8 +31,8 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   const [onboard, setOnboard] = useState(false);
   const [menu, setMenu] = useState(false);
   const [edit, setEdit] = useState(false);
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const { p } = useTheme();
+  const s = themed(p);
   const link = p.primary;
 
   const loadBiz = async () => {
@@ -150,7 +150,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flexGrow: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   head: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },

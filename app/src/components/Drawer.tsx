@@ -5,6 +5,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
+import { useAuth } from '../auth';
 import { radius, shadow, space, type } from '../theme';
 import { Avatar } from './Avatar';
 import { BizProfile } from './BizProfile';
@@ -35,6 +36,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
   onClose: () => void;
 }) {
   const { p, dark } = useTheme();
+  const { account } = useAuth();
   const s = themed(p, dark);
   const activeC = p.primary;
   const [page, setPage] = useState<'menu' | 'profile' | 'cprofile' | 'settings' | 'help'>('menu');
@@ -69,7 +71,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
             );
           })}
           <View style={{ flex: 1 }} />
-          {mode === 'business' ? (
+          {account ? (mode === 'business' ? (
             <Pressable onPress={() => setPage('profile')} style={s.row}>
               <Store size={20} color={p.bodyText} />
               <Text style={s.label}>Business profile</Text>
@@ -79,7 +81,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
               <UserRound size={20} color={p.bodyText} />
               <Text style={s.label}>Profile</Text>
             </Pressable>
-          )}
+          )) : null}
           <Pressable onPress={() => setPage('settings')} style={s.row}>
             <SettingsIcon size={20} color={p.bodyText} />
             <Text style={s.label}>Settings</Text>

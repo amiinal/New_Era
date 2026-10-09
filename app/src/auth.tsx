@@ -19,7 +19,6 @@ type Ctx = {
   completePassword: (accountId: string, password: string) => Promise<void>;
   applySession: (token: string, account: Account) => Promise<void>;
   signOut: () => Promise<void>;
-  requestSwitch: (email: string) => Promise<void>;
   setAppMode: (mode: 'customer' | 'business') => Promise<void>;
   refresh: () => Promise<void>;
 };
@@ -60,12 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       Alert.alert('Could not switch mode', 'Check the API is running, then retry.');
     }
   };
-  // Switch accounts: sign out and prefill the sign-in form. Close-able
-  // by simply navigating back — nothing is lost.
-  const requestSwitch = async (email: string) => {
-    await signOut();
-    setPendingTo(email);
-  };
   const refresh = async () => {
     try { setAccount(await api.me()); } catch { /* keep stale */ }
   };
@@ -74,5 +67,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccountId(acc.id);
     setAccount(acc);
   };
-  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, completePassword, applySession, signOut, requestSwitch, setAppMode, refresh }}>{children}</AuthCtx.Provider>;
+  return <AuthCtx.Provider value={{ account, pendingTo, mode: account?.lastMode ?? 'customer', signIn, completePassword, applySession, signOut, setAppMode, refresh }}>{children}</AuthCtx.Provider>;
 }

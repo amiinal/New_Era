@@ -7,8 +7,8 @@ import { Palette, useTheme } from '../useTheme';
 // ONB role entry: fresh users pick customer vs business once, so business
 // users go straight to storefront creation instead of via Discover.
 export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business') => void }) {
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const { p } = useTheme();
+  const s = themed(p);
   return (
     <View style={s.root}>
       <View style={s.card}>
@@ -34,7 +34,7 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },

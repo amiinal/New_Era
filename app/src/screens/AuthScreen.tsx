@@ -16,7 +16,7 @@ const FIELD_BG = '#F2F3F5'; // soft pill fill (auth only)
 // users see Sign in (remembered on-device). Email-only OTP (phone sign-up
 // removed for MVP — see PRD decision log); country stays for Discover scope.
 // Accounts with a password ask for it after the code (2nd step).
-export function AuthScreen() {
+export function AuthScreen({ onBack }: { onBack?: () => void }) {
   const { signIn, completePassword, applySession, pendingTo } = useAuth();
   const [tab, setTab] = useState<'signup' | 'signin' | null>(null);
   const [to, setTo] = useState(pendingTo);
@@ -112,6 +112,9 @@ export function AuthScreen() {
     <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="contain">
     <View style={s.root}>
       <View style={s.card}>
+        {onBack ? (
+          <Text onPress={onBack} style={[s.link, { textAlign: 'left', marginBottom: space.s2 }]}>‹ Back</Text>
+        ) : null}
         <Text style={s.h1}>{title}</Text>
         <Text style={s.sub}>
           {stage === 'code' ? `We sent a 6-digit code to ${to.trim()}.`

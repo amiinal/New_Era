@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
-import { C, radius, shadow, space, type } from '../theme';
+import { radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
@@ -10,11 +10,12 @@ import { Skeleton } from '../components/Skeleton';
 import { Palette, useTheme } from '../useTheme';
 
 // Step 5: country + city search, browseable without account (wall at chat).
-export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
+export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSelling, onSignIn }: {
   onOpen: (slug: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+  onStartSelling?: () => void; onSignIn?: () => void;
 }) {
-  const { account, mode, setAppMode, refresh } = useAuth();
+  const { account, mode, setAppMode } = useAuth();
   const { p } = useTheme();
   const s = themed(p);
   const link = p.primary;
@@ -23,7 +24,6 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
-  const [prof, setProf] = useState(false);
 
   const load = async () => {
     try {
@@ -37,11 +37,15 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav }: {
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} routes={dRoutes} active={dActive} onNav={onDNav} right={
-        hasBiz !== null && mode === 'customer' ? (
-          <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
-            {hasBiz ? 'Business view' : 'Start selling'}
-          </Text>
+      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} right={
+        account ? (
+          hasBiz !== null && mode === 'customer' ? (
+            <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
+              {hasBiz ? 'Business view' : 'Start selling'}
+            </Text>
+          ) : undefined
+        ) : onStartSelling ? (
+          <Text onPress={onStartSelling} style={[s.switch, { color: link }]}>Start selling</Text>
         ) : undefined
       } />
       <TextInput style={s.input} placeholder="Search businesses…" placeholderTextColor={p.bodyText} value={q}

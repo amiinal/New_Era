@@ -30,8 +30,8 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   const [busy, setBusy] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const ref = useRef<CameraView>(null);
-  const { p, dark } = useTheme();
-  const s = themed(p, dark);
+  const { p } = useTheme();
+  const s = themed(p);
   const link = p.primary;
 
   const addUri = (uri: string) => {
@@ -148,7 +148,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
   );
 }
 
-const themed = (p: Palette, dark: boolean) => StyleSheet.create({
+const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
   wrap: { flex: 1, backgroundColor: p.background, alignItems: 'center', paddingVertical: space.s5 },
   card: {

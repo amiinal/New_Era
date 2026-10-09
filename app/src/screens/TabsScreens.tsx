@@ -14,11 +14,12 @@ import { Palette, useTheme } from '../useTheme';
 // Customer Updates: one card per business, avatar ring plays its stories.
 // Posting lives in business mode only — no add tile, no account switcher.
 export function UpdatesScreen({
-  onMessage, onOpen, dRoutes, dActive, onDNav,
+  onMessage, onOpen, dRoutes, dActive, onDNav, onSignIn,
 }: {
   onMessage: (businessId: string, label: string) => void;
   onOpen: (slug: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+  onSignIn?: () => void;
 }) {
   const [sf, setSf] = useState<Storefront | null>(null);
   const [failed, setFailed] = useState(false);
@@ -34,7 +35,7 @@ export function UpdatesScreen({
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
+      <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
       {!sf && !failed && <Skeleton kind="card" />}
       {!sf && failed && (
         <View style={s.card}>
@@ -76,9 +77,10 @@ export function UpdatesScreen({
 
 // Chats (Step 8 shell): real threads first, Mama's Kitchen demo to start
 // one when empty — same history in app and web (CHT-4).
-export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
+export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }: {
   onOpenThread: (businessId: string, label: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
+  onSignIn?: () => void;
 }) {
   const { account } = useAuth();
   const [rows, setRows] = useState<MyThread[] | null>(null);
@@ -99,7 +101,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav }: {
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} />
+      <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
       {mine.map(t => (
         <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
           <View style={s.row}>
