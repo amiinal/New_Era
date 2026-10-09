@@ -95,7 +95,23 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
       .catch(() => setBiz(null));
   };
   useEffect(() => { load(); }, []);
-  if (rows === null || !account) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
+  if (!account) {
+    return (
+      <View style={s.root}>
+        <View style={s.col}>
+          <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
+          <View style={s.card}>
+            <Text style={s.t}>Message a business to start chatting.</Text>
+            <Text style={s.micro}>Find something you like — sign-in pops up when you message.</Text>
+            <View style={{ marginTop: space.s3 }}>
+              <Button title="Discover businesses" onPress={() => onDNav('discover')} />
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
+  if (rows === null) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
   const mine = rows.filter(t => t.customerId === account.id);
 
   return (

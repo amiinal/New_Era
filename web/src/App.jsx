@@ -89,6 +89,9 @@ function Storefront() {
             <p style={{ color: 'var(--color-body-text)', fontSize: 12, margin: '4px 0 0' }}>
               {b.category} · {b.area ? `${b.area}, ` : ''}{b.city}
             </p>
+            {b.bio ? (
+              <p style={{ color: 'var(--color-ink)', fontSize: 14, margin: '8px 0 0' }}>{b.bio}</p>
+            ) : null}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
@@ -113,6 +116,10 @@ function Storefront() {
                 <h3>{l.title}</h3>
                 {l.description ? <p className="ldesc">{l.description}</p> : null}
                 <p>{l.price ? `${symFor(l.currency)}${l.price}` : 'Price on request'} · <span style={{ color: AVAIL[l.availability][1] }}>{AVAIL[l.availability][0]}</span></p>
+                <span onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  style={{ display: 'block', marginTop: 8 }}>
+                  <MessageButton businessId={b.id} listingId={l.id} label="Message" />
+                </span>
               </div>
             </Link>
           ))}

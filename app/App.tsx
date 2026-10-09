@@ -231,6 +231,7 @@ function Shell() {
       : route.name === 'bdiscover' ? 'bdiscover' : 'mybiz';
     return (
       <SafeAreaView style={[styles.root, bg]}>
+        <View style={{ flex: 1 }}>
         {route.name === 'store'
           ? <StorefrontScreen slug={route.slug}
           onListing={id => setRoute({ name: 'listing', id, from: route })}
@@ -252,6 +253,7 @@ function Shell() {
           : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })}
               dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer}
               autoStart={bizAuto} onAutoDone={() => setBizAuto(false)} />}
+        </View>
         <BizNav active={bizTab}
           chatsDot={hasUnread}
           onTab={t => setRoute(
@@ -268,6 +270,7 @@ function Shell() {
 
   return (
     <SafeAreaView style={styles.root}>
+      <View style={{ flex: 1 }}>
       {route.name === 'discover' && (
         <DiscoverScreen onOpen={openStore} dRoutes={CUST} dActive="discover" onDNav={goDrawer}
           onStartSelling={() => setAuthIntent({ mode: 'business' })}
@@ -296,6 +299,7 @@ function Shell() {
         <ListingScreen id={route.id} onChat={(bid, lid, label) => openChat(bid, lid, label)} onBack={() => setRoute(route.from ?? { name: 'discover' })} />
       )}
       {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} onBack={() => setRoute(route.from ?? { name: 'chats' })} />}
+      </View>
       <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)} />
       <StatusBar style="auto" />
     </SafeAreaView>
