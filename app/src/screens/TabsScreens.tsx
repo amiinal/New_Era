@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-import { api, MyThread, Storefront } from '../api';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { api, FeedStatus, MyThread, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
@@ -11,8 +11,9 @@ import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
 import { Palette, useTheme } from '../useTheme';
 
-// Customer Updates: one card per business, avatar ring plays its stories.
-// Posting lives in business mode only — no add tile, no account switcher.
+// Customer Updates: live feed of recent business statuses, one card per
+// business — avatar ring plays its stories. Posting lives in business
+// mode only — no add tile, no account switcher.
 export function UpdatesScreen({
   onMessage, onOpen, dRoutes, dActive, onDNav, onSignIn,
 }: {
@@ -21,23 +22,39 @@ export function UpdatesScreen({
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
   onSignIn?: () => void;
 }) {
-  const [sf, setSf] = useState<Storefront | null>(null);
+  const [items, setItems] = useState<FeedStatus[]>([]);
+  const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
-  const [view, setView] = useState(false);
+  const [viewBiz, setViewBiz] = useState<string | null>(null);
   const { p } = useTheme();
   const s = themed(p);
 
   const load = async () => {
-    try { setSf(await api.storefront('mamas-kitchen')); setFailed(false); } catch { setSf(null); setFailed(true); }
+    setLoading(true);
+    try { setItems(await api.updates()); setFailed(false); } catch { setItems([]); setFailed(true); }
+    finally { setLoading(false); }
   };
   useEffect(() => { load(); }, []);
 
+  // Newest-first feed, grouped so each business gets one card.
+  const groups = useMemo(() => {
+    const m = new Map<string, { biz: FeedStatus['business']; items: FeedStatus[] }>();
+    for (const it of items) {
+      const g = m.get(it.businessId);
+      if (g) g.items.push(it);
+      else m.set(it.businessId, { biz: it.business, items: [it] });
+    }
+    return [...m.values()];
+  }, [items]);
+  const viewing = viewBiz ? groups.find(g => g.biz.id === viewBiz) ?? null : null;
+
   return (
     <View style={s.root}>
-      <View style={s.col}>
+      <ScrollView style={s.root} contentContainerStyle={s.col}
+        bounces={false} overScrollMode="never">
       <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
-      {!sf && !failed && <Skeleton kind="card" />}
-      {!sf && failed && (
+      {loading && <Skeleton kind="card" />}
+      {!loading && failed && (
         <View style={s.card}>
           <Text style={s.t}>Couldn&apos;t load updates.</Text>
           <Text style={s.micro}>Check your connection, then retry.</Text>
@@ -46,33 +63,41 @@ export function UpdatesScreen({
           </View>
         </View>
       )}
-      {sf && sf.statuses.length === 0 && (
+      {!loading && !failed && groups.length === 0 && (
         <Text style={s.micro}>Nothing posted in the last 24 hours — check back soon.</Text>
       )}
-      {sf && sf.statuses.length > 0 && (
-        <Pressable onPress={() => setView(true)} style={s.card}>
+      {groups.map(g => (
+        <Pressable key={g.biz.id} onPress={() => setViewBiz(g.biz.id)} style={s.card}>
           <View style={s.row}>
-            <Avatar name={sf.business.name} size={48} ring={sf.statuses.length > 0} />
+            <Avatar name={g.biz.name} size={48} ring />
             <View style={{ flex: 1 }}>
-              <Text style={s.t}>{sf.business.name}</Text>
-              <Text style={s.micro}>{sf.statuses.length} updates · latest 5h ago</Text>
+              <Text style={s.t} onPress={() => onOpen(g.biz.slug)}>{g.biz.name}</Text>
+              <Text style={s.micro}>{g.items.length} update{g.items.length === 1 ? '' : 's'} · latest {ago(g.items[0].createdAt)}</Text>
             </View>
           </View>
           <View style={{ marginTop: space.s3 }}>
             <Button title="Message"
-              onPress={() => onMessage(sf.business.id, `Say hello to ${sf.business.name}`)} />
+              onPress={() => onMessage(g.biz.id, `Say hello to ${g.biz.name}`)} />
           </View>
         </Pressable>
-      )}
-      {view && sf && (
+      ))}
+      {viewing && (
         <StatusViewer
-          items={sf.statuses.map(s => ({ ...s, label: statusLabel(s, sf.business.name) }))}
-          businessName={sf.business.name} businessId={sf.business.id}
-          onClose={() => { setView(false); load(); }} onMessage={onMessage} />
+          items={viewing.items.map(s => ({ ...s, label: statusLabel(s, viewing.biz.name) }))}
+          businessName={viewing.biz.name} businessId={viewing.biz.id}
+          onClose={() => { setViewBiz(null); load(); }} onMessage={onMessage} />
       )}
-      </View>
+      </ScrollView>
     </View>
   );
+}
+
+function ago(iso: string): string {
+  const mins = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 60) return `${mins}m ago`;
+  const h = Math.round(mins / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
 }
 
 // Chats (Step 8 shell): real threads first, Mama's Kitchen demo to start

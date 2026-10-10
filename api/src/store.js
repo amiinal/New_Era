@@ -84,6 +84,18 @@ export function storeRoutes(app, prisma) {
       });
   });
 
+  // UPD-1: public updates feed — live statuses with their business,
+  // newest first. Hidden/suspended stores are excluded.
+  app.get('/updates', async req => {
+    const take = Math.min(Number(req.query.limit) || 30, 50);
+    return prisma.status.findMany({
+      where: { expiresAt: { gt: new Date() }, business: { hidden: false, suspended: false } },
+      orderBy: { createdAt: 'desc' },
+      take,
+      include: { business: { select: { id: true, name: true, slug: true, logoKey: true } } },
+    });
+  });
+
   // WEB-1: public storefront bundle (profile + listings + collections +
   // active statuses + certificates). No exact addresses beyond area (WEB-5).
   app.get('/storefront/:slug', async (req, reply) => {

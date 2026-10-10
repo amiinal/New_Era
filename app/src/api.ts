@@ -64,6 +64,9 @@ export type Status = {
   imageKey: string | null; text: string | null; bg: string | null;
   caption: string | null; expiresAt: string; createdAt: string;
 };
+export type FeedStatus = Status & {
+  business: { id: string; name: string; slug: string; logoKey: string | null };
+};
 export type Certificate = {
   id: string; title: string; issuer: string | null; year: number | null; photo: string;
 };
@@ -199,6 +202,7 @@ export const api = {
   discover: (q: { country: string; city?: string; q?: string; category?: string }) =>
     req<Business[]>(`/discover?${new URLSearchParams(q as Record<string, string>)}`),
   storefront: (slug: string) => req<Storefront>(`/storefront/${slug}`),
+  updates: () => req<FeedStatus[]>('/updates'),
   listing: (id: string) => req<Listing>(`/listings/${id}`),
   openThread: (businessId: string, listingId?: string) =>
     req<Thread>('/threads', { method: 'POST', body: JSON.stringify({ businessId, listingId }) }),
