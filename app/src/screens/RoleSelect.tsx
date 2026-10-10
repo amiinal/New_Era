@@ -3,16 +3,22 @@ import React from 'react';
 import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
 import { radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
-import { bgImage } from '../background';
+import { useBg } from '../background';
 
 // ONB role entry: fresh users pick customer vs business once, so business
 // users go straight to storefront creation instead of via Discover.
+// Fills the full height: brand top, choice card middle, reassurance bottom.
 export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business') => void }) {
   const { p, dark } = useTheme();
   const s = themed(p);
+  const bg = useBg(dark);
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
+    <ImageBackground source={bg} style={s.bg} resizeMode="cover">
     <View style={s.root}>
+      <View style={s.brand}>
+        <Text style={s.word}>New Era</Text>
+        <Text style={s.tag}>Found. Not just online.</Text>
+      </View>
       <View style={s.card}>
         <Text style={s.h1}>What brings you to New Era?</Text>
         <Text style={s.sub}>Discover businesses, or list your own — switch anytime later.</Text>
@@ -32,6 +38,7 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
         </Pressable>
         <Text style={s.foot}>You can use both modes with one account.</Text>
       </View>
+      <Text style={s.fillNote}>One account works everywhere on New Era.</Text>
     </View>
     </ImageBackground>
   );
@@ -39,7 +46,13 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
 
 const themed = (p: Palette) => StyleSheet.create({
   bg: { flex: 1, backgroundColor: p.background },
-  root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
+  root: {
+    flex: 1, alignItems: 'center', justifyContent: 'space-between',
+    padding: space.s5, paddingVertical: space.s7,
+  },
+  brand: { alignItems: 'center', marginTop: space.s4 },
+  word: { fontSize: 30, fontWeight: '700', color: p.ink },
+  tag: { ...type.bodySm, color: p.bodyText, marginTop: 2 },
   card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
@@ -52,5 +65,6 @@ const themed = (p: Palette) => StyleSheet.create({
   t: { ...type.body, color: p.ink, fontWeight: '600' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 2 },
   foot: { ...type.micro, color: p.bodyText, textAlign: 'center', marginTop: space.s2 },
+  fillNote: { ...type.micro, color: p.bodyText, textAlign: 'center' },
   icon: { ...type.body, color: p.primary },
 });

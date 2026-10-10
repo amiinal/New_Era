@@ -3,7 +3,7 @@ import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, Style
 import { Check, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
-import { bgImage } from '../background';
+import { useBg } from '../background';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
@@ -34,6 +34,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
   }, []);
   const { p, dark } = useTheme();
   const s = themed(p);
+  const bg = useBg(dark);
   if (!tab) return <View style={s.loading}><ActivityIndicator /></View>;
 
   const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
@@ -109,7 +110,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
     : stage === 'code' ? 'Enter code'
     : fresh ? 'Create Account' : 'Welcome back';
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
+    <ImageBackground source={bg} style={s.bg} resizeMode="cover">
     <View style={s.root}>
       <View style={s.card}>
         {onBack ? (
