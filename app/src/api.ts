@@ -2,11 +2,34 @@
 // app.json extra is the local-dev fallback (LAN IP for real devices,
 // 10.0.2.2 = host localhost from the Android emulator).
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 const extra = (Constants.expoConfig?.extra as { apiUrl?: string; siteUrl?: string } | undefined) ?? {};
 
+// Production API (Railway). Public web builds fall back to this when the
+// baked-in URL is a LAN/private address that can never work over the
+// internet (Pages exports bake app.json's LAN IP unless EXPO_PUBLIC_API_URL
+// is set in the dashboard). Local web (localhost/LAN host) and native
+// (Expo Go) keep the configured URL untouched.
+const PROD_API_URL = 'https://newera-production-59dc.up.railway.app';
+const isPrivateHost = (h: string) =>
+  h === 'localhost' || h === '127.0.0.1' || h === '[::1]' ||
+  /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(h);
+const isPrivateUrl = (u: string) => {
+  try {
+    return isPrivateHost(new URL(u).hostname);
+  } catch {
+    return /localhost|127\.0\.0\.1/.test(u);
+  }
+};
+const webHost = Platform.OS === 'web'
+  ? (globalThis as { location?: { hostname?: string } }).location?.hostname ?? ''
+  : '';
+const needsProdFallback = Platform.OS === 'web' && webHost !== '' && !isPrivateHost(webHost) &&
+  (!extra.apiUrl || isPrivateUrl(extra.apiUrl));
+
 export const API_URL =
-  process.env.EXPO_PUBLIC_API_URL || extra.apiUrl || 'http://10.0.2.2:4000';
+  process.env.EXPO_PUBLIC_API_URL || (needsProdFallback ? PROD_API_URL : extra.apiUrl) || 'http://10.0.2.2:4000';
 
 // Public storefront links (QR + share). Point at the live site in prod.
 export const SITE_URL =
