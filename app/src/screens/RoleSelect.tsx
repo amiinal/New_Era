@@ -47,13 +47,13 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
 const themed = (p: Palette) => StyleSheet.create({
   bg: { flex: 1, backgroundColor: p.background },
   root: {
-    flex: 1, alignItems: 'center', justifyContent: 'space-between',
+    flex: 1, justifyContent: 'space-between',
     padding: space.s5, paddingVertical: space.s7,
   },
-  brand: { alignItems: 'center', marginTop: space.s4 },
-  word: { fontSize: 30, fontWeight: '700', color: p.ink },
-  tag: { ...type.bodySm, color: p.bodyText, marginTop: 2 },
-  card: { width: '100%', maxWidth: 420, backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
+  brand: { alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 420, marginTop: space.s4 },
+  word: { fontSize: 30, fontWeight: '700', color: p.ink, textAlign: 'center' },
+  tag: { ...type.bodySm, color: p.bodyText, marginTop: 2, textAlign: 'center' },
+  card: { width: '100%', maxWidth: 420, alignSelf: 'center', backgroundColor: p.surface, borderRadius: 28, padding: space.s6, ...shadow.md },
   h1: { ...type.h1, fontSize: 24, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
   opt: {
@@ -65,6 +65,6 @@ const themed = (p: Palette) => StyleSheet.create({
   t: { ...type.body, color: p.ink, fontWeight: '600' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 2 },
   foot: { ...type.micro, color: p.bodyText, textAlign: 'center', marginTop: space.s2 },
-  fillNote: { ...type.micro, color: p.bodyText, textAlign: 'center' },
+  fillNote: { ...type.micro, color: p.bodyText, textAlign: 'center', alignSelf: 'center', width: '100%', maxWidth: 420 },
   icon: { ...type.body, color: p.primary },
 });

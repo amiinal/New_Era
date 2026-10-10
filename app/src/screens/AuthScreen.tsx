@@ -212,7 +212,7 @@ const themed = (p: Palette) => StyleSheet.create({
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: {
-    width: '100%', maxWidth: 420, backgroundColor: p.surface,
+    width: '100%', maxWidth: 420, alignSelf: 'center', backgroundColor: p.surface,
     borderRadius: 28, padding: space.s6, ...shadow.md,
   },
   h1: { ...type.h1, fontSize: 26, color: p.ink, textAlign: 'center' },
