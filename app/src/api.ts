@@ -1,15 +1,16 @@
-// Typed API client. Base URL comes from app.json extra (10.0.2.2 = host
-// localhost from the Android emulator; use your LAN IP on a real device).
+// Typed API client. Build env (EXPO_PUBLIC_*) wins for deploys;
+// app.json extra is the local-dev fallback (LAN IP for real devices,
+// 10.0.2.2 = host localhost from the Android emulator).
 import Constants from 'expo-constants';
 
-export const API_URL =
-  (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
-  'http://10.0.2.2:4000';
+const extra = (Constants.expoConfig?.extra as { apiUrl?: string; siteUrl?: string } | undefined) ?? {};
 
-// Public storefront links (QR + share). Overridable per build.
+export const API_URL =
+  process.env.EXPO_PUBLIC_API_URL || extra.apiUrl || 'http://10.0.2.2:4000';
+
+// Public storefront links (QR + share). Point at the live site in prod.
 export const SITE_URL =
-  (Constants.expoConfig?.extra as { siteUrl?: string } | undefined)?.siteUrl ??
-  'https://newera.shop';
+  process.env.EXPO_PUBLIC_SITE_URL || extra.siteUrl || 'https://newera.shop';
 
 export type Account = {
   id: string; email: string | null; phone: string | null;

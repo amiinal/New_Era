@@ -33,8 +33,10 @@ real chat inquiries. PRD v0.3 + Design v1.3 + build plan live in `Docs/`.
 ## Repo conventions (follow strictly)
 - One concern per commit, `git push` after every fix; NEVER commit `.env`,
   `node_modules/`, `Docs/images/uploads/`, `Docs/checks/`, phone screenshots.
-- Typecheck app before push: `node node_modules/typescript/bin/tsc --noEmit`
-  from `app/`; API: `node --check api/src/<file>` from root.
+- Typecheck app before push: `npm.cmd run typecheck` from `app/`
+  (8MB stack — TS 6.0 overflows the default 1MB stack on the deep
+  @sentry types; the script sets it, plain `tsc` crashes); API:
+  `node --check api/src/<file>` from root.
 - PowerShell 5.1: no `&&`/`||`, use `npm.cmd`/`npx.cmd` full paths, quote paths.
 - `npx`/`px`/`tsc` bare names resolve to wrong packages — always qualify.
 - Edit tool often reports false "not found" while actually applying: ALWAYS
