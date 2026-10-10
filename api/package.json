@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "start": "node src/index.js",
     "dev": "node src/index.js",
     "migrate": "prisma migrate dev",
     "seed": "node prisma/seed.js"
