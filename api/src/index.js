@@ -5,12 +5,22 @@ import { sendMail } from './mail.js';
 import { authRoutes } from './auth.js';
 import { storeRoutes } from './store.js';
 import { adminRoutes } from './admin.js';
+import { capture, initSentry } from './sentry.js';
+
+initSentry();
+process.on('unhandledRejection', (e) => capture(e));
+process.on('uncaughtException', (e) => capture(e));
 
 const app = Fastify({ logger: true });
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
 app.get('/health', async () => ({ ok: true, stack: 'fastify+pg+r2' }));
+
+// Every 500 + route throw lands in Sentry Issues.
+app.addHook('onError', async (req, reply, error) => {
+  capture(error);
+});
 
 // Browser calls (Vite :5173) need CORS. No plugin — plain headers.
 app.addHook('onRequest', (req, reply, done) => {

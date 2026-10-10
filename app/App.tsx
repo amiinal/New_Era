@@ -21,6 +21,9 @@ import { ChatsScreen, UpdatesScreen } from './src/screens/TabsScreens';
 import { BizInbox, BizUpdates } from './src/screens/BizTabs';
 import { BizListings } from './src/screens/BizListings';
 import { api } from './src/api';
+import { initSentry } from './src/sentry';
+
+initSentry();
 
 type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }

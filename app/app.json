@@ -21,7 +21,8 @@
     },
     "extra": {
       "apiUrl": "http://10.51.209.142:4000",
-      "siteUrl": "https://newera.shop"
+      "siteUrl": "https://newera.shop",
+      "sentryDsn": "https://681b1c8ab53cfb9039454552f0934843@o4512230555910144.ingest.de.sentry.io/4512230643794000"
     },
     "plugins": [
       "expo-secure-store",
