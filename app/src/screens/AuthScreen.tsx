@@ -8,6 +8,7 @@ import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
+import { LegalReader } from '../components/Legal';
 import { Palette, useTheme } from '../useTheme';
 
 const FIELD_BG = '#F2F3F5'; // soft pill fill (auth only)
@@ -28,6 +29,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
   const [password, setPassword] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [legal, setLegal] = useState<'terms' | 'privacy' | null>(null);
 
   useEffect(() => {
     getFlag('returning').then(v => setTab(v ? 'signin' : 'signup'));
@@ -201,8 +203,15 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
             </Text>
           </>
         )}
+        <Text style={s.legal}>
+          By continuing you agree to our{' '}
+          <Text style={s.link} onPress={() => setLegal('terms')}>Terms of Use</Text>
+          {' '}and{' '}
+          <Text style={s.link} onPress={() => setLegal('privacy')}>Privacy Policy</Text>.
+        </Text>
       </View>
     </View>
+    {legal && <LegalReader doc={legal} onClose={() => setLegal(null)} />}
     </ImageBackground>
   );
 }
@@ -235,5 +244,6 @@ const themed = (p: Palette) => StyleSheet.create({
   optSel: { backgroundColor: 'rgba(44,62,122,.06)' },
   tick: { ...type.body, color: p.primary, fontWeight: '700', paddingRight: space.s4 },
   swapLine: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s4 },
+  legal: { ...type.micro, color: p.bodyText, textAlign: 'center', marginTop: space.s5 },
   link: { color: p.primary, fontWeight: '600' },
 });

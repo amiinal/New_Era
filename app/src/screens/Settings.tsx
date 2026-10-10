@@ -7,6 +7,7 @@ import { COUNTRIES } from '../countries';
 import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
+import { LegalReader } from '../components/Legal';
 import { SupportChat } from '../components/SupportChat';
 import { Prohibited } from '../components/Prohibited';
 
@@ -29,6 +30,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
   const [newPhone, setNewPhone] = useState('');
   const [phoneCode, setPhoneCode] = useState('');
   const [phoneSent, setPhoneSent] = useState(false);
+  const [legal, setLegal] = useState<'terms' | 'privacy' | null>(null);
   const s = themed(p);
   const dial = COUNTRIES.find(c => c.code === (account?.country ?? 'NG'))?.dial ?? '';
   const toggle = (k: 'password' | 'email' | 'phone') => {
@@ -204,6 +206,16 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
           <Text style={s.chev}>›</Text>
         </Pressable>
 
+        <Text style={s.sec}>Legal</Text>
+        <Pressable onPress={() => setLegal('terms')} style={s.item}>
+          <Text style={s.itemT}>Terms of Use</Text>
+          <Text style={s.chev}>›</Text>
+        </Pressable>
+        <Pressable onPress={() => setLegal('privacy')} style={s.item}>
+          <Text style={s.itemT}>Privacy Policy</Text>
+          <Text style={s.chev}>›</Text>
+        </Pressable>
+
         <View style={{ height: space.s5 }} />
         <Button title="Sign out" variant="secondary" onPress={() => { signOut(); onClose(); }} />
         <View style={{ height: space.s2 }} />
@@ -212,6 +224,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
       </View>
       </ScrollView>
       {chat && <SupportChat onClose={() => setChat(false)} />}
+      {legal && <LegalReader doc={legal} onClose={() => setLegal(null)} />}
     </Modal>
   );
 }
