@@ -1,6 +1,6 @@
 import { Compass, Store } from 'lucide-react-native';
 import React from 'react';
-import { ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ImageBackground, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { useBg } from '../background';
@@ -45,10 +45,22 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  bg: { flex: 1, backgroundColor: p.background },
+  // Web lock: this screen renders outside the Shell's 100dvh container,
+  // so without an explicit viewport height the flex column collapses and
+  // `overflow: hidden` clips the card (desktop showed wallpaper only),
+  // while an unbounded page lets the wallpaper scroll (mobile drag).
+  // Native is unaffected (flex:1 fills the screen).
+  bg: {
+    flex: 1, backgroundColor: p.background, overflow: 'hidden',
+    ...(Platform.OS === 'web'
+      ? { height: '100dvh' as unknown as number, width: '100%' }
+      : null),
+  },
   root: {
     flex: 1, justifyContent: 'space-between', overflow: 'hidden',
     padding: space.s5, paddingVertical: space.s5,
+    width: '100%', maxWidth: 900, alignSelf: 'center',
+    ...(Platform.OS === 'web' ? { height: '100dvh' as unknown as number } : null),
   },
   brand: { alignItems: 'center', alignSelf: 'center', width: '100%', maxWidth: 420 },
   word: { fontSize: 28, fontWeight: '700', color: p.ink, textAlign: 'center' },
