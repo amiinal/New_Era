@@ -5,6 +5,12 @@ import { Boundary, initSentry } from './sentry.js';
 
 initSentry();
 
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Boundary fallback={
     <div className="page">
