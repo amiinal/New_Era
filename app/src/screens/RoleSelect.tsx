@@ -11,7 +11,7 @@ export function RoleSelect({ onPick }: { onPick: (mode: 'customer' | 'business')
   const { p, dark } = useTheme();
   const s = themed(p);
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="contain">
+    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
     <View style={s.root}>
       <View style={s.card}>
         <Text style={s.h1}>What brings you to New Era?</Text>

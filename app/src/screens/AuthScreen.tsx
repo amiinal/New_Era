@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
@@ -34,7 +34,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
   }, []);
   const { p, dark } = useTheme();
   const s = themed(p);
-  if (!tab) return <View />;
+  if (!tab) return <View style={s.loading}><ActivityIndicator /></View>;
 
   const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
 
@@ -109,7 +109,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
     : stage === 'code' ? 'Enter code'
     : fresh ? 'Create Account' : 'Welcome back';
   return (
-    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="contain">
+    <ImageBackground source={bgImage(dark)} style={s.bg} resizeMode="cover">
     <View style={s.root}>
       <View style={s.card}>
         {onBack ? (
@@ -208,6 +208,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
 
 const themed = (p: Palette) => StyleSheet.create({
   bg: { flex: 1, backgroundColor: p.background },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.s5 },
   card: {
     width: '100%', maxWidth: 420, backgroundColor: p.surface,

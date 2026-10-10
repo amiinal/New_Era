@@ -15,6 +15,19 @@ const TAGS = [
   '<meta name="apple-mobile-web-app-status-bar-style" content="default" />',
   '<link rel="manifest" href="/manifest.json" />',
   '<link rel="apple-touch-icon" href="/apple-touch-icon.png" />',
+  `<script>
+  (function () {
+    try {
+      var t = localStorage.getItem('theme') || 'system';
+      var dark = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.style.background = dark ? '#121317' : '#F7F7F9';
+      document.addEventListener('DOMContentLoaded', function () {
+        document.body.style.background = dark ? '#121317' : '#F7F7F9';
+        document.body.style.margin = '0';
+      });
+    } catch (e) {}
+  })();
+  </script>`,
 ];
 
 let html = fs.readFileSync(file, 'utf8');

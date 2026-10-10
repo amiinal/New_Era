@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { ThemeProvider } from './src/useTheme';
@@ -171,17 +171,35 @@ function Shell() {
     }
   };
   // No account: welcome role pick → guest browsing, or pending auth.
-  if (restoring) return null;
+  if (restoring || (!guestChecked && !account)) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
   if (!account) {
     if (!guestChecked || authIntent) {
-      if (!guestChecked) return null;
+      if (!guestChecked) {
+        return (
+          <View style={styles.loading}>
+            <ActivityIndicator />
+          </View>
+        );
+      }
       return <AuthScreen onBack={() => setAuthIntent(null)} />;
     }
     if (!guestRole) {
       return <RoleSelect onPick={pickGuest} />;
     }
   }
-  if (account && !roleChecked) return null;
+  if (account && !roleChecked) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
   if (account && needRole) {    return (
       <RoleSelect onPick={async m => {
         if (m === 'business') {
@@ -334,11 +352,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: C.background },
   root: {
     flex: 1,
-    backgroundColor: C.background,
+    backgroundColor: 'transparent',
     ...(Platform.OS === 'web'
-      ? { maxWidth: 900, width: '100%', alignSelf: 'center', height: '100vh' as unknown as number }
+      ? { maxWidth: 900, width: '100%', alignSelf: 'center', height: '100dvh' as unknown as number }
       : null),
   },
   paused: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
