@@ -1,0 +1,26 @@
+{
+  "cli": {
+    "version": ">= 16.0.0"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://newera-production-59dc.up.railway.app",
+        "EXPO_PUBLIC_SITE_URL": "https://getneweraapp.com"
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://newera-production-59dc.up.railway.app",
+        "EXPO_PUBLIC_SITE_URL": "https://getneweraapp.com"
+      }
+    }
+  }
+}

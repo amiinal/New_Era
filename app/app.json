@@ -14,6 +14,7 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.getneweraapp.app",
       "adaptiveIcon": {
         "backgroundColor": "#2C3E7A"
       },
