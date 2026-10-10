@@ -101,7 +101,7 @@ export const TERMS: LegalSection[] = [
   {
     h: '12. Contact',
     ps: [
-      'For questions about these terms, listings, account restrictions, or use of New Era, contact support@newera.shop.',
+      'For questions about these terms, listings, account restrictions, or use of New Era, contact support@getneweraapp.com.',
     ],
   },
 ];
@@ -161,7 +161,7 @@ export const PRIVACY: LegalSection[] = [
     h: '7. Your Privacy Rights',
     ps: [
       'Depending on applicable law and the circumstances, you may have the right to: request information about how your personal data is processed; request access to personal data held about you; request a copy of your personal data; ask for inaccurate or incomplete information to be corrected; request deletion of personal data where applicable; object to or request restrictions on certain processing; request transfer of personal data where the law provides that right; and raise a complaint with the relevant data protection authority.',
-      'To make a privacy request, email support@newera.shop and explain what you need. You may use a subject such as \u201cPrivacy Request: Access\u201d or \u201cPrivacy Request: Deletion\u201d.',
+      'To make a privacy request, email support@getneweraapp.com and explain what you need. You may use a subject such as \u201cPrivacy Request: Access\u201d or \u201cPrivacy Request: Deletion\u201d.',
       'New Era may need to verify your identity before responding. Requests will be handled in accordance with applicable law. Some information may be retained where legally required or where another lawful ground applies.',
       'Deleting the app from your device does not necessarily delete your account or information held by New Era. To request account or data deletion, contact support.',
     ],
@@ -170,7 +170,7 @@ export const PRIVACY: LegalSection[] = [
     h: '8. Children\u2019s Privacy',
     ps: [
       'New Era is not intended to be used in a way that violates laws protecting children\u2019s personal information. Information relating to children will be handled in accordance with applicable law.',
-      'If you believe a child\u2019s personal information has been provided to New Era inappropriately, contact support@newera.shop.',
+      'If you believe a child\u2019s personal information has been provided to New Era inappropriately, contact support@getneweraapp.com.',
     ],
   },
   {
