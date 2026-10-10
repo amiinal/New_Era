@@ -1,7 +1,7 @@
 // Minimal app-shell service worker: versioned cache, offline fallback.
 // Same-origin only — API traffic is never cached.
-const VERSION = 'newera-v1';
-const SHELL = ['/', '/index.html', '/manifest.webmanifest'];
+const VERSION = 'newera-app-v1';
+const SHELL = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
