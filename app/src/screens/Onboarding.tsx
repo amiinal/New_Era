@@ -1,14 +1,14 @@
 import { Check, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import {
-  Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
-} from 'react-native';
+import { Alert, Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import QRCode from 'react-native-qrcode-svg';
 import { Share } from 'react-native';
 import { api, SITE_URL } from '../api';
 import { useAuth } from '../auth';
+import { useBg } from '../background';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
@@ -37,8 +37,9 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
   const [cover, setCover] = useState<string | null>(null);
   const [biz, setBiz] = useState<{ id: string; slug: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const { p } = useTheme();
+  const { p, dark } = useTheme();
   const s = themed(p);
+  const bg = useBg(dark);
   const link = p.primary;
 
   const pickInto = (set: (u: string) => void) => async () => {
@@ -83,57 +84,73 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
     } finally { setBusy(false); }
   };
 
+  // Static shell: the wallpaper + progress header are pinned outside the
+  // scroll area, so the screen can't be dragged around — only the form
+  // body scrolls (bounce/overscroll off). fullScreen + onRequestClose
+  // stop the iOS swipe-down / Android-back silent dismiss; exit goes
+  // through the keep-progress confirm instead.
   return (
-    <Modal visible animationType="slide">
-      <ScrollView style={s.root}>
-        <View style={s.topRow}>
-          <View style={[s.prog, { flex: 1 }]}>
-            {[0, 1, 2, 3].map(j => (
-              <View key={j} style={[s.seg, j <= step && s.segOn]} />
-            ))}
-          </View>
-          {step < 3 ? (
-            <Pressable onPress={exit} style={s.exit} hitSlop={8}>
-              <X size={20} color={p.bodyText} />
-            </Pressable>
-          ) : null}
-        </View>
-        <Text style={s.micro}>Step {step + 1} of 4 · {
-          ['Business details', 'First listing', 'Certificates (optional)', "You're live"][step]
-        }</Text>
-        {step === 0 && (
-          <>
-            <Text style={s.h1}>Your business</Text>
-            <TextInput style={s.input} placeholder="Business name (required)" placeholderTextColor={p.bodyText} value={name} onChangeText={setName} />
-            <Text style={s.sec}>Category</Text>
-            <View style={s.wrap}>
-              {CATEGORIES.map(c => (
-                <Text key={c} onPress={() => setCategory(c)} style={[s.opt, category === c && s.optOn]}>{c}</Text>
-              ))}
+    <Modal visible animationType="slide" presentationStyle="fullScreen" onRequestClose={exit}>
+      <ImageBackground source={bg} style={s.bg} resizeMode="cover">
+        <SafeAreaView style={s.safe} edges={['top', 'bottom']}>
+          <View style={s.head}>
+            <View style={s.topRow}>
+              <View style={[s.prog, { flex: 1 }]}>
+                {[0, 1, 2, 3].map(j => (
+                  <View key={j} style={[s.seg, j <= step && s.segOn]} />
+                ))}
+              </View>
+              {step < 3 ? (
+                <Pressable onPress={exit} style={s.exit} hitSlop={8}>
+                  <X size={20} color={p.bodyText} />
+                </Pressable>
+              ) : null}
             </View>
-            {category === 'Other' ? (
-              <TextInput style={s.input} placeholder="Type your category" placeholderTextColor={p.bodyText}
-                value={customCategory} onChangeText={setCustomCategory} maxLength={40} />
-            ) : null}
-            <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
-            <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
-            <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>
-              <View style={s.box}>{nationwide ? <Check size={16} color={link} /> : null}</View>
-              <Text style={s.checkT}>Serve nationwide (online / delivery)</Text>
-            </Pressable>
-            <Pressable onPress={pickLogo} style={s.logoRow}>
-              {logo
-                ? <Image source={{ uri: logo }} style={s.logo} />
-                : <View style={[s.logo, s.logoEmpty]}><Text style={s.micro}>Logo (optional)</Text></View>}
-            </Pressable>
-            <Pressable onPress={pickCover} style={s.logoRow}>
-              {cover
-                ? <Image source={{ uri: cover }} style={[s.logo, { width: 192, borderRadius: 12 }]} />
-                : <View style={[s.logo, s.logoEmpty, { width: 192, borderRadius: 12 }]}><Text style={s.micro}>Header image (optional)</Text></View>}
-            </Pressable>
-            <Button title={busy ? 'Creating…' : 'Continue'} onPress={create} disabled={busy} />
-          </>
-        )}
+            <Text style={s.micro}>Step {step + 1} of 4 · {
+              ['Business details', 'First listing', 'Certificates (optional)', "You're live"][step]
+            }</Text>
+          </View>
+          <ScrollView
+            style={s.scroll}
+            contentContainerStyle={s.content}
+            bounces={false}
+            overScrollMode="never"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+          {step === 0 && (
+            <>
+              <Text style={s.h1}>Your business</Text>
+              <TextInput style={s.input} placeholder="Business name (required)" placeholderTextColor={p.bodyText} value={name} onChangeText={setName} />
+              <Text style={s.sec}>Category</Text>
+              <View style={s.wrap}>
+                {CATEGORIES.map(c => (
+                  <Text key={c} onPress={() => setCategory(c)} style={[s.opt, category === c && s.optOn]}>{c}</Text>
+                ))}
+              </View>
+              {category === 'Other' ? (
+                <TextInput style={s.input} placeholder="Type your category" placeholderTextColor={p.bodyText}
+                  value={customCategory} onChangeText={setCustomCategory} maxLength={40} />
+              ) : null}
+              <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
+              <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
+              <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>
+                <View style={s.box}>{nationwide ? <Check size={16} color={link} /> : null}</View>
+                <Text style={s.checkT}>Serve nationwide (online / delivery)</Text>
+              </Pressable>
+              <Pressable onPress={pickLogo} style={s.logoRow}>
+                {logo
+                  ? <Image source={{ uri: logo }} style={s.logo} />
+                  : <View style={[s.logo, s.logoEmpty]}><Text style={s.micro}>Logo (optional)</Text></View>}
+              </Pressable>
+              <Pressable onPress={pickCover} style={s.logoRow}>
+                {cover
+                  ? <Image source={{ uri: cover }} style={[s.logo, { width: 192, borderRadius: 12 }]} />
+                  : <View style={[s.logo, s.logoEmpty, { width: 192, borderRadius: 12 }]}><Text style={s.micro}>Header image (optional)</Text></View>}
+              </Pressable>
+              <Button title={busy ? 'Creating…' : 'Continue'} onPress={create} disabled={busy} />
+            </>
+          )}
         {step === 1 && biz && (
           <ListingForm businessId={biz.id} onClose={() => setStep(2)}
             onSaved={() => setStep(2)} />
@@ -142,7 +159,9 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
           <CertStep businessId={biz.id} onDone={() => setStep(3)} />
         )}
         {step === 3 && biz && <LiveStep slug={biz.slug} onDone={onDone} onAddMore={onAddMore} />}
-      </ScrollView>
+          </ScrollView>
+        </SafeAreaView>
+      </ImageBackground>
     </Modal>
   );
 }
@@ -218,7 +237,11 @@ function LiveStep({ slug, onDone, onAddMore }: { slug: string; onDone: () => voi
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: p.background, padding: space.s5 },
+  bg: { flex: 1, backgroundColor: p.background },
+  safe: { flex: 1 },
+  head: { paddingHorizontal: space.s5, paddingTop: space.s5 },
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: space.s5, paddingBottom: space.s6 },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: space.s3 },
   exit: { padding: space.s1 },
   prog: { flexDirection: 'row', gap: 4, marginBottom: space.s2 },
