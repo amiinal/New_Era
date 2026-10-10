@@ -37,7 +37,7 @@ export default function Support() {
         </p>
         <div className="card">
           <p style={{ color: 'var(--color-body-text)', fontSize: 14, marginTop: 0 }}>
-            For bugs or anything the FAQ doesn&apos;t cover: support@newera.shop ·{' '}
+            For bugs or anything the FAQ doesn&apos;t cover: support@getneweraapp.com ·{' '}
             <Link to="/faq">Check the FAQ first</Link>
           </p>
         </div>
