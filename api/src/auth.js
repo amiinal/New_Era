@@ -53,7 +53,10 @@ async function sendCode(key, { email } = {}) {
   const code = String(Math.floor(100000 + Math.random() * 900000));
   codes.set(key, { code, expires: Date.now() + 10 * 60_000 });
   console.log(`[otp] ${key} = ${code}`);
-  if (email) await sendMail({ to: email, subject: 'Your New Era code', html: `<p>Code: <b>${code}</b></p>` });
+  if (email) await sendMail({
+    to: email, subject: 'Your New Era code', html: `<p>Code: <b>${code}</b></p>`,
+    template: true, merge: { [process.env.ZEPTOMAIL_CODE_FIELD || 'code']: code },
+  });
   return code;
 }
 

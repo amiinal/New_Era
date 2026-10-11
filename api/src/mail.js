@@ -1,5 +1,8 @@
 // Single interface for Resend (primary) / ZeptoMail (budget) / console (local dev)
-export async function sendMail({ to, subject, html }) {
+// Template mode (OTP): pass { template: true, merge } and set
+// ZEPTOMAIL_TEMPLATE_KEY — the template owns subject/body, merge fills its
+// variables. Falls back to raw html when no key is configured.
+export async function sendMail({ to, subject, html, template, merge }) {
   const provider = process.env.EMAIL_PROVIDER || 'console';
 
   if (provider === 'resend') {
@@ -12,6 +15,26 @@ export async function sendMail({ to, subject, html }) {
     // Zoho CPaaS endpoint (new). Override per data-center if Zoho tells
     // you otherwise, e.g. https://cpaas.zoho.eu/v1.1/email
     const url = process.env.ZEPTOMAIL_URL || 'https://cpaas.zoho.com/v1.1/email';
+    const auth = process.env.ZEPTOMAIL_TOKEN || '';
+    const from = { address: process.env.ZEPTOMAIL_FROM };
+    if (template && process.env.ZEPTOMAIL_TEMPLATE_KEY) {
+      const tUrl = url.replace(/\/email\/?$/, '') + '/email/template';
+      const res = await fetch(tUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: auth,
+        },
+        body: JSON.stringify({
+          from: { ...from, name: 'New Era' },
+          to: [{ email_address: { address: to } }],
+          template_key: process.env.ZEPTOMAIL_TEMPLATE_KEY,
+          merge_info: merge || {},
+        }),
+      });
+      if (!res.ok) throw new Error(`zeptomail-template ${res.status}`);
+      return res.json();
+    }
     const res = await fetch(url, {
       method: 'POST',
       headers: {
