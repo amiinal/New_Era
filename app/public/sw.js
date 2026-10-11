@@ -1,6 +1,8 @@
 // Minimal app-shell service worker: versioned cache, offline fallback.
 // Same-origin only — API traffic is never cached.
-const VERSION = 'newera-app-v1';
+// Bump VERSION whenever stable-URL assets change (manifest, icons):
+// activate purges every older cache, so stuck files can't survive a deploy.
+const VERSION = 'newera-app-v2';
 const SHELL = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
