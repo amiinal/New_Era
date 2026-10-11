@@ -62,11 +62,15 @@ app.post('/uploads/presign', async (req, reply) => {
   return { uploadUrl: url, publicUrl: publicUrlFor(key) };
 });
 
-// Step 2/6 stub: mail via Resend/ZeptoMail/console
-app.post('/dev/send-test-mail', async (req) => {
-  const { to } = req.body || {};
-  await sendMail({ to: to || 'test@example.com', subject: 'New Era test', html: '<p>Hello from Step 0</p>' });
-  return { sent: true, provider: process.env.EMAIL_PROVIDER || 'console' };
-});
+// Local-dev only (same flag as /dev/otp): open mail relay in production
+// would let anyone send phishing from our domain.
+if (process.env.ENABLE_DEV_ROUTES === '1') {
+  // Step 2/6 stub: mail via Resend/ZeptoMail/console
+  app.post('/dev/send-test-mail', async (req) => {
+    const { to } = req.body || {};
+    await sendMail({ to: to || 'test@example.com', subject: 'New Era test', html: '<p>Hello from Step 0</p>' });
+    return { sent: true, provider: process.env.EMAIL_PROVIDER || 'console' };
+  });
+}
 
 app.listen({ port: PORT, host: '0.0.0.0' });

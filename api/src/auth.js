@@ -114,10 +114,15 @@ export function authRoutes(app, prisma) {
     return { sent: true, devCode: process.env.OTP_MODE === 'console' ? code : undefined };
   });
 
-  app.get('/dev/otp', async (req) => {
-    const to = req.query.to;
-    return { to, ...(codes.get(to) || {}) };
-  });
+  // Local-dev only: read a live OTP without email. NEVER enabled in
+  // production (gated by flag, not NODE_ENV) — an open reader here is
+  // account takeover for any address.
+  if (process.env.ENABLE_DEV_ROUTES === '1') {
+    app.get('/dev/otp', async (req) => {
+      const to = req.query.to;
+      return { to, ...(codes.get(to) || {}) };
+    });
+  }
 
   app.post('/auth/verify', async (req, reply) => {
     const { email, phone, code, country } = req.body || {};
