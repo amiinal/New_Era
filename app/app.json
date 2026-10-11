@@ -16,6 +16,7 @@
     "android": {
       "package": "com.getneweraapp.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundColor": "#2C3E7A"
       },
       "softwareKeyboardLayoutMode": "resize"
