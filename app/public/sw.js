@@ -2,7 +2,7 @@
 // Same-origin only — API traffic is never cached.
 // Bump VERSION whenever stable-URL assets change (manifest, icons):
 // activate purges every older cache, so stuck files can't survive a deploy.
-const VERSION = 'newera-app-v2';
+const VERSION = 'newera-app-v3';
 const SHELL = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', (e) => {
