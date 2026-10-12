@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { ThemeProvider } from './src/useTheme';
@@ -150,6 +150,63 @@ function Shell() {
   // Loop health: one app_open per launch (guests included).
   useEffect(() => {
     api.recordEvent('app_open', {}).catch(() => {});
+  }, []);
+
+  // In-app back: drill screens return to where they came from, other tabs
+  // return home. Only at home do we let the OS/browser exit the app.
+  const goBack = () => {
+    if (route.name === 'store') {
+      setRoute(mode === 'business' ? { name: 'bizhome' } : { name: 'discover' });
+      return true;
+    }
+    if (route.name === 'chat' || route.name === 'listing') {
+      setRoute(route.from ?? (mode === 'business' ? { name: 'bizhome' } : { name: 'discover' }));
+      return true;
+    }
+    const home: Route = mode === 'business' ? { name: 'bizhome' } : { name: 'discover' };
+    if (route.name !== home.name) {
+      setRoute(home);
+      return true;
+    }
+    return false;
+  };
+  const backRef = useRef(goBack);
+  backRef.current = goBack;
+  // Native hardware back (S22 gesture/button).
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => backRef.current());
+    return () => sub.remove();
+  }, []);
+  // Web: mirror the route into browser history so Back walks screens.
+  // First paint replaces (no duplicate entry); later moves push.
+  // A pop sets the route — suppress the push that would re-add it.
+  const firstRoute = useRef(true);
+  const suppressPush = useRef(false);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    if (firstRoute.current) {
+      firstRoute.current = false;
+      window.history.replaceState({ route }, '');
+      return;
+    }
+    if (suppressPush.current) {
+      suppressPush.current = false;
+      return;
+    }
+    window.history.pushState({ route }, '');
+  }, [route]);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const onPop = (e: PopStateEvent) => {
+      const r = (e.state as { route?: Route } | null)?.route;
+      if (r && typeof r.name === 'string') {
+        suppressPush.current = true;
+        setRoute(r);
+      }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, []);
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
