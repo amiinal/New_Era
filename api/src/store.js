@@ -22,6 +22,16 @@ const authed = async (req, reply, prisma) => {
 const ONLINE_MS = 120000;
 const isOnline = (d) => !!d && Date.now() - new Date(d).getTime() < ONLINE_MS;
 
+// Abuse guard for inbox/report routes (each hit can also email the team).
+const floodHits = new Map();
+const flooded = (ip, limit = 5) => {
+  const now = Date.now();
+  const arr = (floodHits.get(ip) || []).filter(t => now - t < 60_000);
+  arr.push(now);
+  floodHits.set(ip, arr);
+  return arr.length > limit;
+};
+
 // Only what the customer opted to share — nothing leaks by default.
 const publicContact = (c) => {
   if (!c) return null;
@@ -255,6 +265,9 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const t = await prisma.thread.findUnique({ where: { id: req.params.id } });
     if (!t) return reply.code(404).send({ error: 'unknown thread' });
+    if (t.customerId !== acc.id && !(await prisma.business.findFirst({ where: { id: t.businessId, ownerId: acc.id } }))) {
+      return reply.code(404).send({ error: 'unknown thread' });
+    }
     const { body, imageKey } = req.body || {};
     if (!body && !imageKey) return reply.code(400).send({ error: 'body or imageKey required (CHT-2: text+images)' });
     return prisma.message.create({ data: { threadId: t.id, senderId: acc.id, body: body || null, imageKey: imageKey || null } });
@@ -315,13 +328,15 @@ export function storeRoutes(app, prisma) {
 
   // TRU-1: report anything; triage happens in /admin (Step 9).
   app.post('/reports', async (req, reply) => {
+    if (flooded(req.ip)) return reply.code(429).send({ error: 'too many reports — wait a minute.' });
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const { targetType, targetId, reason, contact } = req.body || {};
     if (!targetType || !targetId || !reason) return reply.code(400).send({ error: 'targetType, targetId, reason required' });
     const created = await prisma.report.create({
       data: {
-        reporterId: acc.id, targetType, targetId, reason,
+        reporterId: acc.id, targetType: String(targetType).slice(0, 20), targetId: String(targetId).slice(0, 60),
+        reason: String(reason).slice(0, 500),
         contact: contact ? String(contact).slice(0, 120) : null,
       },
     });
@@ -336,6 +351,7 @@ export function storeRoutes(app, prisma) {
 
   // Support inbox: message the team (web Support page), read replies here.
   app.post('/support/messages', async (req, reply) => {
+    if (flooded(req.ip)) return reply.code(429).send({ error: 'too many messages — wait a minute.' });
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const { body } = req.body || {};

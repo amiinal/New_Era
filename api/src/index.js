@@ -11,7 +11,7 @@ initSentry();
 process.on('unhandledRejection', (e) => capture(e));
 process.on('uncaughtException', (e) => capture(e));
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, trustProxy: true });
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
@@ -51,15 +51,25 @@ app.get('/status', async () => {
   return { maintenance: on?.value === '1', message: message?.value || '' };
 });
 
-// Step 4 stub: presigned upload to R2 (app uploads direct)
+// Step 4 stub: presigned upload to R2 (app uploads direct). Authed, and the
+// key is fenced to our upload namespaces — open presigning would let anyone
+// store (or overwrite) arbitrary objects in the bucket.
 app.post('/uploads/presign', async (req, reply) => {
+  const { bearer, verifyAccess } = await import('./token.js');
+  const sub = verifyAccess(bearer(req));
+  if (!sub) return reply.code(401).send({ error: 'sign in again' });
   const { key, contentType } = req.body || {};
-  if (!key) return { error: 'key required, e.g. business/123/listing/456/feed.jpg' };
+  const clean = String(key || '').replace(/\\/g, '/');
+  if (!clean || clean.includes('..') || clean.length > 160 ||
+    !/^(business|support|account|chat)\//.test(clean)) {
+    return reply.code(400).send({ error: 'key must start with business/, support/, account/, or chat/' });
+  }
+  const type = ['image/jpeg', 'image/png', 'image/webp'].includes(contentType) ? contentType : 'image/jpeg';
   if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID) {
     return reply.code(400).send({ error: 'R2 not configured — use /uploads/inline' });
   }
-  const url = await getPresignedPut(key, contentType || 'image/jpeg');
-  return { uploadUrl: url, publicUrl: publicUrlFor(key) };
+  const url = await getPresignedPut(clean, type);
+  return { uploadUrl: url, publicUrl: publicUrlFor(clean) };
 });
 
 // Local-dev only (same flag as /dev/otp): open mail relay in production

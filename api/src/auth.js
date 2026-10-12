@@ -50,9 +50,10 @@ function checkPassword(pw, stored) {
 }
 
 async function sendCode(key, { email } = {}) {
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(crypto.randomInt(100000, 1000000));
   codes.set(key, { code, expires: Date.now() + 10 * 60_000 });
-  console.log(`[otp] ${key} = ${code}`);
+  // Never log the code itself — Railway logs are readable by the whole team.
+  console.log(`[otp] sent to ${key}`);
   if (email) await sendMail({
     to: email, subject: 'Your New Era code', html: `<p>Code: <b>${code}</b></p>`,
     template: true, merge: { [process.env.ZEPTOMAIL_CODE_FIELD || 'code']: code },
@@ -128,6 +129,7 @@ export function authRoutes(app, prisma) {
   }
 
   app.post('/auth/verify', async (req, reply) => {
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
     const { email, phone, code, country } = req.body || {};
     const cleanEmail = email ? String(email).trim().toLowerCase() : undefined;
     const cleanPhone = phone ? String(phone).trim().replace(/[\s-]/g, '') : undefined;
@@ -201,6 +203,7 @@ export function authRoutes(app, prisma) {
   });
 
   app.post('/auth/password/reset', async (req, reply) => {
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
     const { email, phone, code, password } = req.body || {};
     const to = norm(email, phone);
     if (!to || !code) return reply.code(400).send({ error: 'contact + code required' });
