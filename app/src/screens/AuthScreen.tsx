@@ -43,6 +43,14 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
 
   const request = async () => {
     if (!to.trim()) { Alert.alert('Enter email', 'We need somewhere to send the code.'); return; }
+    if (fresh) {
+      const c = await api.checkAccount(to.trim()).catch(() => null);
+      if (c?.exists) {
+        setTab('signin');
+        Alert.alert('Account exists', 'This email already has an account — sign in instead.');
+        return;
+      }
+    }
     try {
       const r = await api.requestCode({ email: to.trim() });
       setStage('code');

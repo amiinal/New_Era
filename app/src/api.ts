@@ -174,6 +174,8 @@ export const api = {
   status: () => req<{ maintenance: boolean; message: string }>('/status'),
   requestCode: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
+  checkAccount: (email: string) =>
+    req<{ exists: boolean }>('/auth/check', { method: 'POST', body: JSON.stringify({ email }) }),
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
     req<{ token: string; refreshToken: string; account: Account } | { needsPassword: true; accountId: string }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   passwordLogin: (body: { accountId: string; password: string }) =>

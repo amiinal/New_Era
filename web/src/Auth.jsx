@@ -35,6 +35,17 @@ export default function Auth() {
 
   const request = async () => {
     try {
+      if (fresh && to.trim()) {
+        const c = await fetch(`${API}/auth/check`, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: to.trim() }),
+        }).then((r) => r.json()).catch(() => null);
+        if (c?.exists) {
+          setTab('signin');
+          alert('This email already has an account — sign in instead.');
+          return;
+        }
+      }
       const r = await fetch(`${API}/auth/request-code`, {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify(contactBody()),

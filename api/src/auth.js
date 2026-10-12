@@ -118,6 +118,17 @@ export function authRoutes(app, prisma) {
     return { sent: true, devCode: process.env.OTP_MODE === 'console' ? code : undefined };
   });
 
+  // Signup nudge: does this email already own an account? Boolean only,
+  // throttled like every other auth probe — no details leak either way.
+  app.post('/auth/check', async (req, reply) => {
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
+    const { email } = req.body || {};
+    const to = email ? String(email).trim().toLowerCase() : '';
+    if (!to) return reply.code(400).send({ error: 'email required' });
+    const acc = await prisma.account.findUnique({ where: { email: to } });
+    return { exists: !!acc };
+  });
+
   // Local-dev only: read a live OTP without email. NEVER enabled in
   // production (gated by flag, not NODE_ENV) — an open reader here is
   // account takeover for any address.
