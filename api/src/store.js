@@ -382,7 +382,7 @@ export function storeRoutes(app, prisma) {
     if (!acc) return;
     const existing = await prisma.business.findFirst({ where: { ownerId: acc.id } });
     if (existing) return reply.code(400).send({ error: 'one business per account in v1 (ACC-8)' });
-    const { name, category, country, city, area, deliveryArea, nationwide, logoKey } = req.body || {};
+    const { name, category, country, city, area, deliveryArea, nationwide, logoKey, coverKey } = req.body || {};
     if (!name || !category || !country || !city) {
       return reply.code(400).send({ error: 'name, category, country, city required' });
     }
@@ -392,7 +392,7 @@ export function storeRoutes(app, prisma) {
         ownerId: acc.id, name: name.trim(), category, country, city,
         area: area || null,
         deliveryArea: nationwide ? 'Nationwide' : deliveryArea || null,
-        logoKey: logoKey || null, slug,
+        logoKey: logoKey || null, coverKey: coverKey || null, slug,
       },
     });
   });
