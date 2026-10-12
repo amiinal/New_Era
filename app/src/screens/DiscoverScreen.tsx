@@ -1,7 +1,9 @@
+import { X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { api, Business } from '../api';
+import { ActivityIndicator, FlatList, Image, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { api, Business, SITE_URL } from '../api';
 import { useAuth } from '../auth';
+import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { TabHead } from '../components/TabHead';
@@ -27,6 +29,16 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
+  // PWA nudge: mobile browsers visiting the web app get an install card.
+  // Never in the installed PWA (standalone), never on native builds.
+  const [installCard, setInstallCard] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const mm = (globalThis as { matchMedia?: (q: string) => { matches: boolean } }).matchMedia;
+    if (mm?.('(display-mode: standalone)').matches) return;
+    getFlag('hideInstallCard').then(v => { if (!v) setInstallCard(true); });
+  }, []);
+  const hideInstall = () => { setFlag('hideInstallCard', '1'); setInstallCard(false); };
 
   const load = async (withCat?: string) => {
     const cat = withCat !== undefined ? withCat : category;
@@ -57,6 +69,19 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       } />
       <Text style={s.h1}>What are you looking for?</Text>
       <Text style={s.sub}>Find products, services, and businesses near you.</Text>
+      {installCard && (
+        <View style={s.install}>
+          <Image source={require('../../assets/icon.png')} style={s.installMark} />
+          <View style={{ flex: 1 }}>
+            <Text style={s.installT}>Take New Era with you</Text>
+            <Text style={s.installS}>Install the app for the fastest experience.</Text>
+          </View>
+          <Text onPress={() => Linking.openURL(`${SITE_URL}/install`)} style={s.installGo}>Get the app</Text>
+          <Pressable onPress={hideInstall} hitSlop={8} style={s.installX}>
+            <X size={18} color={p.bodyText} />
+          </Pressable>
+        </View>
+      )}
       <TextInput style={s.input} placeholder="What are you looking for?" placeholderTextColor={p.bodyText} value={q}
         onChangeText={setQ} onSubmitEditing={() => load()} returnKeyType="search" />
       <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="City (optional)" placeholderTextColor={p.bodyText}
@@ -113,6 +138,16 @@ const themed = (p: Palette) => StyleSheet.create({
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
+  install: {
+    flexDirection: 'row', alignItems: 'center', gap: space.s3,
+    backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s3,
+    marginBottom: space.s3, ...shadow.sm,
+  },
+  installMark: { width: 36, height: 36, borderRadius: 8 },
+  installT: { ...type.body, color: p.ink, fontWeight: '600' },
+  installS: { ...type.micro, color: p.bodyText, marginTop: 2 },
+  installGo: { ...type.bodySm, color: p.primary, fontWeight: '700' },
+  installX: { padding: space.s1 },
   pressed: { opacity: 0.85 },
   name: { ...type.h3, color: p.ink },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
