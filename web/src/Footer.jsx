@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer-grid">
         <div>
-          <div className="logo logo-lockup"><img src="/icons/icon.svg" alt="" className="logo-mark" />New Era</div>
+          <div className="logo logo-lockup"><img src="/favicon.svg" alt="" className="logo-mark" />New Era</div>
           <p>Found. Not just online.</p>
         </div>
         <div>
