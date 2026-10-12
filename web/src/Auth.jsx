@@ -42,9 +42,9 @@ export default function Auth() {
       const j = await r.json().catch(() => ({}));
       if (!r.ok) { alert('Rate-limited, wait a minute'); return; }
       setStage('code');
-      alert(j.devCode ? `Your code: ${j.devCode}` : 'Code sent (check the API terminal)');
+      alert(j.devCode ? `Your code: ${j.devCode}` : 'Code sent — check your email.');
     } catch {
-      alert('Could not reach the API — is terminal 1 (node src/index.js) still running?');
+      alert('Could not reach New Era — check your connection, then retry.');
     }
   };
 
