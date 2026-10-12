@@ -126,6 +126,7 @@ function Shell() {
         setPendingChat(null);
         try {
           const t = await api.openThread(pc.businessId, pc.listingId);
+          api.recordEvent('chat_started', { businessId: pc.businessId, ...(pc.listingId ? { listingId: pc.listingId } : {}) }).catch(() => {});
           setRoute({ name: 'chat', threadId: t.id, context: pc.label, from: pc.from });
         } catch {
           Alert.alert('Could not open chat', 'Check the API is running, then retry.');
@@ -146,6 +147,10 @@ function Shell() {
   useEffect(() => {
     if (account) setFlag('lastRoute', JSON.stringify(route)).catch(() => {});
   }, [route]);
+  // Loop health: one app_open per launch (guests included).
+  useEffect(() => {
+    api.recordEvent('app_open', {}).catch(() => {});
+  }, []);
 
   const openChat = async (businessId: string, listingId?: string, label?: string) => {
     // Guests verify first, then land straight in the conversation.
@@ -156,6 +161,7 @@ function Shell() {
     }
     try {
       const t = await api.openThread(businessId, listingId);
+      api.recordEvent('chat_started', { businessId, ...(listingId ? { listingId } : {}) }).catch(() => {});
       setRoute({ name: 'chat', threadId: t.id, context: label ?? 'New conversation', from: route });
     } catch (e) {
       Alert.alert('Could not open chat', 'Check the API is running, then retry.');

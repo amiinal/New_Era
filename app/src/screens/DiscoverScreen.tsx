@@ -42,12 +42,14 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
 
   const load = async (withCat?: string) => {
     const cat = withCat !== undefined ? withCat : category;
+    const scope = {
+      country: account?.country ?? 'NG',
+      ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cat ? { category: cat } : {}),
+    };
     try {
-      setItems(await api.discover({
-        country: account?.country ?? 'NG',
-        ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cat ? { category: cat } : {}),
-      }));
+      setItems(await api.discover(scope));
       setFailed(false);
+      api.recordEvent('search', scope).catch(() => {});
     } catch { setItems([]); setFailed(true); }
   };
   useEffect(() => { load(); }, []);
