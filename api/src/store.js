@@ -474,12 +474,25 @@ export function storeRoutes(app, prisma) {
 
   // ANA-1: append-only events. ANA-3: free 7/30d insights (real counts;
   // view metrics accumulate from first use — no backfilled guesses).
+  // ANA-4 loop health: guests included (accountId null) — discovery happens
+  // logged-out. Allowlisted names + IP rate limit keep floods out.
+  const EVENTS_OK = new Set(['search', 'storefront_view', 'chat_started', 'app_open', 'visit',
+    'onboarding_step', 'first_listing', 'go_live', 'status_post', 'first_reply', 'nudge_reply']);
+  const evHits = new Map();
   app.post('/events', async (req, reply) => {
-    const acc = await authed(req, reply, prisma);
-    if (!acc) return;
+    const now = Date.now();
+    const arr = (evHits.get(req.ip) || []).filter(t => now - t < 60_000);
+    if (arr.length >= 30) return reply.code(429).send({ error: 'too many requests' });
+    arr.push(now);
+    evHits.set(req.ip, arr);
     const { name, props } = req.body || {};
-    if (!name) return reply.code(400).send({ error: 'name required' });
-    return prisma.event.create({ data: { accountId: acc.id, name, props: props || {} } });
+    if (!name || typeof name !== 'string' || !EVENTS_OK.has(name)) {
+      return reply.code(400).send({ error: 'unknown event' });
+    }
+    const sub = verifyAccess(bearer(req));
+    return prisma.event.create({
+      data: { accountId: sub || null, name, props: props && typeof props === 'object' ? props : {} },
+    });
   });
 
   app.get('/businesses/:id/insights', async (req, reply) => {

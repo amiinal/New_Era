@@ -149,14 +149,23 @@ export function adminRoutes(app, prisma) {
   // Analytics: signups + loop health for the beta.
   app.get('/admin/stats', async (req, reply) => {
     if (!await guard(req, reply, prisma)) return;
-    const [accounts, businesses, listings, threads, messages, reportsOpen, supportUnread] = await Promise.all([
+    const start14 = new Date();
+    start14.setHours(0, 0, 0, 0);
+    start14.setDate(start14.getDate() - 13);
+    const [accounts, businesses, listings, threads, messages, reportsOpen, supportUnread, evs, msgs] = await Promise.all([
       prisma.account.findMany({ select: { createdAt: true }, take: 5000 }),
       prisma.business.count(),
       prisma.listing.count(),
-      prisma.thread.count(),
+      prisma.thread.findMany({ select: { id: true, customerId: true, listingId: true } }),
       prisma.message.count(),
       prisma.report.count({ where: { resolved: false } }),
       prisma.supportMessage.count({ where: { fromAdmin: false, read: false } }),
+      prisma.event.findMany({
+        where: { createdAt: { gte: start14 } },
+        select: { name: true, accountId: true, createdAt: true },
+        take: 20000, orderBy: { createdAt: 'desc' },
+      }),
+      prisma.message.findMany({ select: { threadId: true, senderId: true }, take: 20000 }),
     ]);
     const days = [];
     for (let i = 13; i >= 0; i--) {
@@ -167,9 +176,42 @@ export function adminRoutes(app, prisma) {
       const n = accounts.filter(a => a.createdAt.toISOString().slice(0, 10) === key).length;
       days.push({ day: key.slice(5), n });
     }
+    // Loop health, bucketed from the same 14-day window.
+    const dayKey = (d) => d.toISOString().slice(0, 10);
+    const zeroDays = () => { const m = new Map(); for (let i = 13; i >= 0; i--) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i); m.set(dayKey(d), 0); } return m; };
+    const searches = zeroDays(), views = zeroDays();
+    const activeDays = new Map(); // accountId -> Set(day)
+    for (const e of evs) {
+      const k = dayKey(new Date(e.createdAt));
+      if (e.name === 'search' && searches.has(k)) searches.set(k, searches.get(k) + 1);
+      if (e.name === 'storefront_view' && views.has(k)) views.set(k, views.get(k) + 1);
+      if (e.accountId) {
+        if (!activeDays.has(e.accountId)) activeDays.set(e.accountId, new Set());
+        activeDays.get(e.accountId).add(k);
+      }
+    }
+    const byDay = (m) => [...m.entries()].map(([day, n]) => ({ day: day.slice(5), n }));
+    let returning = 0;
+    for (const set of activeDays.values()) if (set.size >= 2) returning++;
+    // Attribution: chats opened from a listing vs a profile; reply = the
+    // business side (any non-customer sender) wrote at least once.
+    const senders = new Map();
+    for (const m of msgs) {
+      if (!senders.has(m.threadId)) senders.set(m.threadId, new Set());
+      senders.get(m.threadId).add(m.senderId);
+    }
+    let replied = 0;
+    for (const t of threads) {
+      const s = senders.get(t.id);
+      if (s && [...s].some(id => id !== t.customerId)) replied++;
+    }
     return {
-      accounts: accounts.length, businesses, listings, threads, messages,
+      accounts: accounts.length, businesses, listings, threads: threads.length, messages,
       reportsOpen, supportUnread, signupsByDay: days,
+      searchesByDay: byDay(searches), viewsByDay: byDay(views),
+      chatsFromListing: threads.filter(t => t.listingId).length,
+      replyRate: threads.length ? Math.round((replied / threads.length) * 100) : 0,
+      returningVisitors: returning,
     };
   });
 
