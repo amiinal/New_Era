@@ -113,7 +113,7 @@ export default function Auth() {
         {stage === 'contact' && (
           <>
             <input className="input" placeholder="Email address" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
-            <label className="lbl">Country (explicit, never inferred)</label>
+            <label className="lbl">Country</label>
             <select className="input" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '100%' }}>
               {COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>{c.name}</option>
