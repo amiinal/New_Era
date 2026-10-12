@@ -168,16 +168,42 @@ function LookupPane() {
   );
 }
 
+function Bars({ rows }) {
+  const max = Math.max(1, ...rows.map((d) => d.n));
+  return (
+    <div className="card">
+      {rows.map((d) => (
+        <div key={d.day} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span style={{ width: 44, fontSize: 12, color: 'var(--color-body-text)' }}>{d.day}</span>
+          <div style={{
+            height: 16, borderRadius: 4, background: 'var(--color-primary)',
+            width: `${Math.max(2, (d.n / max) * 100)}%`, minWidth: d.n > 0 ? 8 : 2, opacity: d.n > 0 ? 1 : 0.2,
+          }} />
+          <span style={{ fontSize: 12 }}>{d.n}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AnalyticsPane() {
   const [s, setS] = useState(null);
   useEffect(() => { api('/admin/stats').then(setS).catch(() => setS(false)); }, []);
   if (s === null) return <div className="card">Loading…</div>;
   if (s === false) return <div className="card">Couldn&apos;t load stats.</div>;
-  const max = Math.max(1, ...s.signupsByDay.map((d) => d.n));
+  const searches = (s.searchesByDay || []).reduce((n, d) => n + d.n, 0);
+  const views = (s.viewsByDay || []).reduce((n, d) => n + d.n, 0);
   const cards = [
     ['Signups', s.accounts], ['Businesses', s.businesses], ['Listings', s.listings],
     ['Chats', s.threads], ['Messages', s.messages],
     ['Open reports', s.reportsOpen], ['Unread support', s.supportUnread],
+  ];
+  const loop = [
+    ['Searches · 14d', searches],
+    ['Storefront views · 14d', views],
+    ['Chats from listings', `${s.chatsFromListing ?? 0} / ${s.threads}`],
+    ['First-reply rate', `${s.replyRate ?? 0}%`],
+    ['Returning visitors · 14d', s.returningVisitors ?? 0],
   ];
   return (
     <>
@@ -189,19 +215,21 @@ function AnalyticsPane() {
           </div>
         ))}
       </div>
-      <h2>Signups — last 14 days</h2>
-      <div className="card">
-        {s.signupsByDay.map((d) => (
-          <div key={d.day} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-            <span style={{ width: 44, fontSize: 12, color: 'var(--color-body-text)' }}>{d.day}</span>
-            <div style={{
-              height: 16, borderRadius: 4, background: 'var(--color-primary)',
-              width: `${Math.max(2, (d.n / max) * 100)}%`, minWidth: d.n > 0 ? 8 : 2, opacity: d.n > 0 ? 1 : 0.2,
-            }} />
-            <span style={{ fontSize: 12 }}>{d.n}</span>
+      <h2>Loop health — last 14 days</h2>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+        {loop.map(([label, n]) => (
+          <div className="card" key={label}>
+            <div style={{ fontSize: 28, fontWeight: 700 }}>{n}</div>
+            <div style={{ fontSize: 13, color: 'var(--color-body-text)' }}>{label}</div>
           </div>
         ))}
       </div>
+      <h2>Signups — last 14 days</h2>
+      <Bars rows={s.signupsByDay} />
+      <h2>Searches — last 14 days</h2>
+      <Bars rows={s.searchesByDay || []} />
+      <h2>Storefront views — last 14 days</h2>
+      <Bars rows={s.viewsByDay || []} />
     </>
   );
 }

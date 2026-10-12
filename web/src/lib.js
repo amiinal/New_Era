@@ -93,6 +93,13 @@ export async function api(path, init, retried = false) {
   return r.body;
 }
 
+// Loop health (ANA-4): fire-and-forget, guests included (server allows
+// anonymous events with rate limits).
+export const recordEvent = (name, props) =>
+  api('/events', {
+    method: 'POST', body: JSON.stringify({ name, props: props || {} }),
+  }).catch(() => {});
+
 // Launch restore: trade the saved refresh token for a live session.
 export async function restoreSession() {
   const saved = localStorage.getItem('refresh');
@@ -122,5 +129,6 @@ export async function startThread(navigate, businessId, listingId) {
     method: 'POST',
     body: JSON.stringify({ businessId, ...(listingId ? { listingId } : {}) }),
   });
+  recordEvent('chat_started', { businessId, ...(listingId ? { listingId } : {}) });
   navigate(`/chat/${t.id}`);
 }

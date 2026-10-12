@@ -23,7 +23,7 @@ import Nav from './Nav.jsx';
 import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
 import { ChatIcon } from './icons.jsx';
-import { initTheme, restoreSession, startThread } from './lib.js';
+import { initTheme, recordEvent, restoreSession, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const img = (k) => (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`);
@@ -63,7 +63,10 @@ function Storefront() {
     fetch(`${API}/storefront/${slug}`).then((r) => {
       if (!r.ok) throw new Error('bad status');
       return r.json();
-    }).then(setSf).catch(() => setFailed(true));
+    }).then((sf) => {
+      setSf(sf);
+      recordEvent('storefront_view', { businessId: sf.business.id });
+    }).catch(() => setFailed(true));
   }, [slug]);
 
   if (failed) {
@@ -217,6 +220,7 @@ export default function App() {
 
 function Shell({ paused }) {
   const { pathname } = useLocation();
+  useEffect(() => { recordEvent('visit', {}); }, []);
   // Kill-switch gate: paused app + web show the notice (team keeps /admin).
   if (paused?.maintenance && pathname !== '/admin') {
     return (

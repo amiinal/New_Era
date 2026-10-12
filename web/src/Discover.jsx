@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import Back from './Back.jsx';
 import Footer from './Footer.jsx';
-import { api } from './lib.js';
+import { api, recordEvent } from './lib.js';
 import { COUNTRIES } from './countries.js';
 
 const CATEGORIES = ['Fashion', 'Beauty', 'Food', 'Home', 'Electronics', 'Services'];
@@ -25,6 +25,7 @@ export default function Discover() {
       if (q.trim()) params.set('q', q.trim());
       if (cat) params.set('category', cat);
       setItems(await api(`/discover?${params}`));
+      recordEvent('search', Object.fromEntries(params));
     } catch {
       setItems([]);
     }
