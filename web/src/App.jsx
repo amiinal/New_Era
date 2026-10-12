@@ -206,20 +206,27 @@ function ListingDetail() {
 }
 
 export default function App() {
-  useEffect(() => { initTheme(); restoreSession(); }, []);
+  useEffect(() => { initTheme(); }, []);
+  // restoreSession trades the saved refresh token for a live access token.
+  // Gate first paint on it — otherwise every reload flashes signed-out and
+  // drops the session back to the login wall.
+  const [ready, setReady] = useState(false);
+  useEffect(() => { restoreSession().finally(() => setReady(true)); }, []);
   const [paused, setPaused] = useState(null);
   useEffect(() => {
     fetch(`${API}/status`).then((r) => r.json()).then(setPaused).catch(() => setPaused({ maintenance: false }));
   }, []);
   return (
     <BrowserRouter>
-      <Shell paused={paused} />
+      <Shell paused={paused} ready={ready} />
     </BrowserRouter>
   );
 }
 
-function Shell({ paused }) {
+function Shell({ paused, ready }) {
   const { pathname } = useLocation();
+  useEffect(() => { recordEvent('visit', {}); }, []);
+  if (!ready) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
   useEffect(() => { recordEvent('visit', {}); }, []);
   // Kill-switch gate: paused app + web show the notice (team keeps /admin).
   if (paused?.maintenance && pathname !== '/admin') {

@@ -3,7 +3,7 @@
 // validated on launch — relaunching restores you where you left off.
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { Account, api, getRefresh, refreshSession, setTokens } from './api';
+import { Account, api, getRefresh, loadRefresh, refreshSession, setTokens } from './api';
 import { delFlag } from './store';
 
 type Ctx = {
@@ -29,9 +29,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [restored, setRestored] = useState(false);
 
   // Launch: trade the saved refresh token for a live session, if any.
+  // loadRefresh first — the in-memory token dies with the process.
   useEffect(() => {
     (async () => {
       try {
+        await loadRefresh();
         const s = await refreshSession();
         if (s) {
           setAccount(s.account);
