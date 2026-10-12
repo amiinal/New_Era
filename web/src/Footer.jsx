@@ -38,6 +38,7 @@ export default function Footer() {
           <Link to="/discover">Browser — Open New Era</Link>
         </div>
       </div>
+      <p className="copy">© 2026 New Era · Abuja, Nigeria</p>
     </footer>
   );
 }
