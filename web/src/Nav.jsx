@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { accountId, api, getMode, setMode, signOut } from './lib.js';
 import { ChatIcon, HelpIcon, LogoutIcon, MenuIcon, SettingsIcon, ShieldIcon, SwitchIcon, UserIcon } from './icons.jsx';
+import InstallBanner from './InstallBanner.jsx';
 
 // Shared topnav: Discover · How It Works · For Businesses · About · FAQ.
 // Signed out: Log In + Start Your Store. Signed in: hamburger menu.
@@ -52,7 +53,9 @@ export default function Nav() {
   };
 
   return (
-    <div className="topnav">
+    <>
+      <InstallBanner />
+      <div className="topnav">
       <Link to="/" className="logo logo-lockup" style={{ textDecoration: 'none' }}><img src="/favicon.svg" alt="" className="logo-mark" />New Era</Link>
       <span className="links">
         {PAGES.map(([to, label]) => (
@@ -110,5 +113,6 @@ export default function Nav() {
         )}
       </div>
     </div>
+    </>
   );
 }

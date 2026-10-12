@@ -128,6 +128,22 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
   font-size: 14px; margin-bottom: 8px; }
 .footer-grid a:hover { color: var(--color-primary); }
 .footer .copy { text-align: center; font-size: 12px; color: var(--color-body-text); margin: 24px 0 0; }
+
+/* Install nudge (UX guide §2): compact bar above the nav, never blocking. */
+.install-banner { display: flex; align-items: center; gap: 12px;
+  background: var(--color-surface); border-bottom: 1px solid var(--color-line);
+  padding: 8px 16px; }
+.install-mark { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+.install-text { display: flex; flex-direction: column; gap: 2px; font-size: 13px; flex: 1; min-width: 0; }
+.install-text span { color: var(--color-body-text); }
+.install-go { height: 36px; line-height: 36px; padding: 0 14px; font-size: 13px; white-space: nowrap; }
+.install-later { background: none; border: none; color: var(--color-body-text);
+  font-size: 13px; cursor: pointer; white-space: nowrap; }
+.install-x { background: none; border: none; color: var(--color-body-text);
+  font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+@media (max-width: 640px) {
+  .install-text span { display: none; }
+}
 @media (max-width: 640px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer { padding: 32px 16px; }
