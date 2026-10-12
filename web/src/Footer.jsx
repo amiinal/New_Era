@@ -39,7 +39,10 @@ export default function Footer() {
         </div>
       </div>
       <hr className="rule" />
-      <p className="copy">© 2026 New Era · Abuja, Nigeria</p>
+      <div className="copy-row">
+        <span>© 2026 New Era. All Rights Reserved.</span>
+        <span>Abuja, Nigeria</span>
+      </div>
     </footer>
   );
 }

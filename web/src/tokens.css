@@ -127,7 +127,10 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 .footer-grid a { display: block; color: var(--color-body-text); text-decoration: none;
   font-size: 14px; margin-bottom: 8px; }
 .footer-grid a:hover { color: var(--color-primary); }
-.footer .copy { text-align: center; font-size: 12px; color: var(--color-body-text); margin: 16px 0 0; }
+/* Footer bottom row: balanced ends aligned to the grid lines. */
+.copy-row { max-width: 1200px; margin: 16px auto 0; display: flex;
+  justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+  font-size: 12px; color: var(--color-body-text); }
 /* Full-bleed divider: negative margins cancel the footer padding. */
 .footer .rule { border: none; height: 1px; background: var(--color-line); margin: 24px -32px 0; }
 
