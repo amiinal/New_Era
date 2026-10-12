@@ -53,7 +53,7 @@ export default function Nav() {
 
   return (
     <div className="topnav">
-      <Link to="/" className="logo" style={{ textDecoration: 'none' }}>New Era</Link>
+      <Link to="/" className="logo logo-lockup" style={{ textDecoration: 'none' }}><img src="/icons/icon.svg" alt="" className="logo-mark" />New Era</Link>
       <span className="links">
         {PAGES.map(([to, label]) => (
           <Link key={to} to={to} className={`nav-link ${active(to) ? 'on' : ''}`}>{label}</Link>

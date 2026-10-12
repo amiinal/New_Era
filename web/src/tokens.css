@@ -90,6 +90,11 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 .topnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
   border-bottom: 1px solid var(--color-line); padding: 0 32px; position: sticky; top: 0; z-index: 5; }
 .topnav .logo { color: var(--color-primary); font-weight: 700; font-size: 18px; }
+/* Brand lockup: mark + wordmark. The navy SVG goes near-invisible on dark
+   surfaces, so it renders white there (filter, no second asset). */
+.logo-lockup { display: inline-flex; align-items: center; gap: 8px; }
+.logo-mark { width: 26px; height: 26px; display: block; }
+[data-theme="dark"] .logo-mark { filter: brightness(0) invert(1); }
 .topnav .links { display: flex; gap: 32px; margin: 0; font-size: 14px;
   position: absolute; left: 50%; transform: translateX(-50%); }
 .nav-link { position: relative; text-decoration: none; color: inherit;
