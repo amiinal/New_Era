@@ -127,7 +127,9 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 .footer-grid a { display: block; color: var(--color-body-text); text-decoration: none;
   font-size: 14px; margin-bottom: 8px; }
 .footer-grid a:hover { color: var(--color-primary); }
-.footer .copy { text-align: center; font-size: 12px; color: var(--color-body-text); margin: 24px 0 0; }
+.footer .copy { text-align: center; font-size: 12px; color: var(--color-body-text); margin: 16px 0 0; }
+/* Full-bleed divider: negative margins cancel the footer padding. */
+.footer .rule { border: none; height: 1px; background: var(--color-line); margin: 24px -32px 0; }
 
 /* Install nudge (UX guide §2): compact bar above the nav, never blocking. */
 .install-banner { display: flex; align-items: center; gap: 12px;
@@ -147,6 +149,7 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 @media (max-width: 640px) {
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .footer { padding: 32px 16px; }
+  .footer .rule { margin: 24px -16px 0; }
 }
 
 /* Homepage sections: generous whitespace, editorial rhythm */
