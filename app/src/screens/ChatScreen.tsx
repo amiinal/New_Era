@@ -153,17 +153,19 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
       {!!context && (
         <View style={s.ctx}><Text style={s.ctxT} numberOfLines={1}>{context}</Text></View>
       )}
-      {msgs === null ? <ActivityIndicator style={{ marginTop: space.s8 }} /> : failed ? (
-        <View style={s.errBox}>
+      {msgs === null ? <ActivityIndicator style={s.grow} /> : failed ? (
+        <View style={[s.errBox, s.growCenter]}>
           <Text style={[s.text, { textAlign: 'center' }]}>Couldn&apos;t load messages.</Text>
           <View style={{ marginTop: space.s3, alignSelf: 'stretch' }}>
             <Button title="Retry" variant="secondary" onPress={load} />
           </View>
         </View>
       ) : msgs.length === 0 ? (
-        <Text style={[s.text, { textAlign: 'center', marginTop: space.s8 }]}>No messages yet — say hello.</Text>
+        <View style={s.growCenter}>
+          <Text style={[s.text, { textAlign: 'center' }]}>No messages yet — say hello.</Text>
+        </View>
       ) : (
-        <FlatList data={msgs} keyExtractor={m => m.id} contentContainerStyle={s.list}
+        <FlatList data={msgs} keyExtractor={m => m.id} style={s.grow} contentContainerStyle={s.list}
           renderItem={({ item }) => {
             const mine = item.senderId === account?.id;
             const toggle = () => setMenu({ kind: 'msg', msg: item });
@@ -267,6 +269,8 @@ const themed = (p: Palette) => StyleSheet.create({
   danger: { ...type.body, color: C.error },
   ctx: { backgroundColor: p.surface, borderBottomWidth: 1, borderBottomColor: p.line, padding: 8 },
   ctxT: { fontSize: 14, color: p.bodyText },
+  grow: { flex: 1 },
+  growCenter: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   list: { padding: space.s4 },
   errBox: { padding: space.s5, alignItems: 'center' },
   row: { flexDirection: 'row', gap: 8, alignItems: 'flex-end', marginBottom: 8 },
