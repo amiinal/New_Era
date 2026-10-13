@@ -11,7 +11,8 @@ const AVAIL: Record<Listing['availability'], { color: string; label: string }> =
   sold_out: { color: C.error, label: 'Sold out' },
   made_to_order: { color: C.bodyText, label: 'Made to order' },
 };
-// Listing card: uniform square photo, h3 title, tabular price + dot.
+// Listing card: uniform square photo (filled edge-to-edge like the site),
+// h3 title, tabular price + dot.
 // Photo tap messages about the dish directly; body tap opens detail.
 export function ListingCard({ item, onPress, onPhoto, onMessage }: {
   item: Listing; onPress: () => void; onPhoto?: () => void; onMessage?: () => void;
@@ -23,7 +24,7 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
     <Pressable onPress={onPress} style={({ pressed }) => [s.card, pressed && s.pressed]}>
       {item.photos[0] ? (
         <Pressable onPress={onPhoto ?? onPress} style={s.phWrap}>
-          <Image source={{ uri: img(item.photos[0]) }} style={s.photo} resizeMode="contain" />
+          <Image source={{ uri: img(item.photos[0]) }} style={s.photo} resizeMode="cover" />
         </Pressable>
       ) : (
         <View style={[s.photo, s.empty]} />

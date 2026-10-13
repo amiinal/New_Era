@@ -100,8 +100,8 @@ function ago(iso: string): string {
   return `${Math.round(h / 24)}d ago`;
 }
 
-// Chats (Step 8 shell): real threads first, Mama's Kitchen demo to start
-// one when empty — same history in app and web (CHT-4).
+// Chats: only threads the customer actually opened — no demo entries.
+// An empty list invites discovery instead.
 export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }: {
   onOpenThread: (businessId: string, label: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
@@ -110,14 +110,10 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
   const { account } = useAuth();
   const [rows, setRows] = useState<MyThread[] | null>(null);
   const [failed, setFailed] = useState(false);
-  const [biz, setBiz] = useState<{ id: string; name: string } | null>(null);
   const { p } = useTheme();
   const s = themed(p);
   const load = () => {
     api.myThreads().then(r => { setRows(r); setFailed(false); }).catch(() => { setRows([]); setFailed(true); });
-    api.storefront('mamas-kitchen')
-      .then(sf => setBiz({ id: sf.business.id, name: sf.business.name }))
-      .catch(() => setBiz(null));
   };
   useEffect(() => { load(); }, []);
   if (!account) {
@@ -146,7 +142,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
       {mine.map(t => (
         <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
           <View style={s.row}>
-            <Avatar name={t.business.name} size={56} online={t.online} />
+            <Avatar name={t.business.name} size={56} online={t.online} uri={t.business.logoKey ? img(t.business.logoKey) : null} />
             <View style={{ flex: 1 }}>
               <Text style={[s.t, t.unread > 0 && s.tNew]}>{t.business.name}</Text>
               <Text style={s.micro} numberOfLines={1}>
@@ -159,18 +155,7 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
           </View>
         </Pressable>
       ))}
-      {mine.length === 0 && !failed && biz && (
-        <Pressable onPress={() => onOpenThread(biz.id, `Say hello to ${biz.name}`)} style={({ pressed }) => [s.card, pressed && s.pressed]}>
-          <View style={s.row}>
-            <Avatar name={biz.name} size={48} />
-            <View>
-              <Text style={s.t}>{biz.name}</Text>
-              <Text style={s.micro}>Tap to open demo thread</Text>
-            </View>
-          </View>
-        </Pressable>
-      )}
-      {mine.length === 0 && !failed && !biz && (
+      {mine.length === 0 && !failed && (
         <Text style={s.micro}>No chats yet — discover a business and say hello.</Text>
       )}
       {mine.length === 0 && failed && (

@@ -75,7 +75,7 @@ export type Peer =
   | { kind: 'business'; name: string; online: boolean; slug: string; logoKey: string | null }
   | { kind: 'customer'; name: string; online: boolean; accountId: string; avatarKey: string | null; tagline: string | null; contact: string | null };
 export type MyThread = Thread & {
-  business: { id: string; name: string; slug: string };
+  business: { id: string; name: string; slug: string; logoKey: string | null };
   messages: Message[]; unread: number; online: boolean;
 };
 export type Message = {
