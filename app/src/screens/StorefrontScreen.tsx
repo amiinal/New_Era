@@ -205,8 +205,12 @@ export function StorefrontScreen({
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
-  backRow: { paddingHorizontal: space.s4, paddingTop: space.s3 },
-  backT: { fontSize: 18, color: p.primary, fontWeight: '600' },
+  backRow: {
+    position: 'absolute', top: space.s3, left: space.s4, zIndex: 10,
+    width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: p.surface, ...shadow.sm,
+  },
+  backT: { fontSize: 24, color: p.primary, fontWeight: '600', lineHeight: 26, textAlign: 'center' },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   coverWrap: {
     height: 220, marginHorizontal: space.s4, borderRadius: radius.lg,
