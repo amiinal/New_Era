@@ -24,7 +24,7 @@ import Hibernate from './Hibernate.jsx';
 import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
 import { ChatIcon } from './icons.jsx';
-import { accountId, initTheme, recordEvent, restoreSession, startThread } from './lib.js';
+import { accountId, api, initTheme, recordEvent, restoreSession, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const img = (k) => (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`);
