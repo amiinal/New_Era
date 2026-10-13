@@ -97,16 +97,16 @@ export default function Profile() {
               {(acc.email || acc.phone || '?').slice(0, 1).toUpperCase()}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h1 style={{ margin: 0, fontSize: 22, overflowWrap: 'anywhere' }}>{acc.email || acc.phone}</h1>
+              <h1 style={{ margin: 0, fontSize: 20, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{acc.email || acc.phone}</h1>
               {acc.email && acc.phone ? <p style={{ margin: '4px 0 0', color: 'var(--color-body-text)' }}>{acc.phone}</p> : null}
               <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-body-text)' }}>
                 {acc.country} · Using as {mode === 'business' ? 'Business' : 'Customer'}
               </p>
             </div>
-            <button className="btn btn-secondary" onClick={flip}>
-              {mode === 'business' ? 'Customer view' : 'Business view'}
-            </button>
           </div>
+          <button className="btn btn-secondary" style={{ marginTop: 12, alignSelf: 'flex-start' }} onClick={flip}>
+            {mode === 'business' ? 'Customer view' : 'Business view'}
+          </button>
           <label className="lbl">Your name (shown to businesses)</label>
           <input className="input" placeholder="e.g. Adaeze" value={displayName}
             onChange={(e) => setDisplayName(e.target.value)} maxLength={40} style={{ width: '100%' }} />
