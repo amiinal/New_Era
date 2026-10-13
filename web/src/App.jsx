@@ -227,7 +227,6 @@ function Shell({ paused, ready }) {
   const { pathname } = useLocation();
   useEffect(() => { recordEvent('visit', {}); }, []);
   if (!ready) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
-  useEffect(() => { recordEvent('visit', {}); }, []);
   // Kill-switch gate: paused app + web show the notice (team keeps /admin).
   if (paused?.maintenance && pathname !== '/admin') {
     return (
