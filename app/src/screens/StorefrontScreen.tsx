@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import { MoreVertical, Plus } from 'lucide-react-native';
-import { api, img, Storefront } from '../api';
+import { api, img, SITE_URL, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
@@ -36,7 +37,30 @@ export function StorefrontScreen({
   const { p } = useTheme();
   const s = themed(p);
 
+  // Share the business: system sheet on device, clipboard fallback on web.
+  // The link points at the marketing site — it works without the app.
+  // Share the business: system sheet on device, clipboard fallback on web.
+  // The link points at the marketing site — it works without the app.
+  const shareStore = async () => {
+    const url = `${SITE_URL}/s/${slug}`;
+    const copyFallback = async () => {
+      try {
+        await Clipboard.setStringAsync(url);
+        Alert.alert('Link copied', 'Paste it anywhere — it works without the app.');
+      } catch {
+        Alert.alert('Could not share', url);
+      }
+    };
+    try {
+      const r = await Share.share({ message: url });
+      if (r.action === Share.dismissedAction) await copyFallback();
+    } catch {
+      await copyFallback();
+    }
+  };
+
   const report = (id: string) => {
+    setMenu(false);
     setMenu(false);
     if (!account) {
       Alert.alert('Sign in to report', 'We need your account so the team can follow up.');
@@ -117,7 +141,7 @@ export function StorefrontScreen({
           <Button title="Message" disabled={preview}
             onPress={() => onChat(b.id, undefined, `Say hello to ${b.name}`)} />
         </View>
-        <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={() => {}} /></View>
+        <View style={{ flex: 1 }}><Button title="Share" variant="secondary" onPress={shareStore} /></View>
       </View>
       {preview && (
         <Text style={s.previewNote}>Customer preview — messaging is off. Tap the header or avatar to change them.</Text>
