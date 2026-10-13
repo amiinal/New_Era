@@ -473,7 +473,7 @@ export function storeRoutes(app, prisma) {
     const rows = await prisma.thread.findMany({
       where: { OR: [{ customerId: acc.id }, { business: { ownerId: acc.id } }] },
       include: {
-        business: { select: { id: true, name: true, slug: true, ownerId: true } },
+        business: { select: { id: true, name: true, slug: true, ownerId: true, logoKey: true } },
         messages: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
       orderBy: { createdAt: 'desc' },
