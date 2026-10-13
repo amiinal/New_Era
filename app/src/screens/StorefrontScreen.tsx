@@ -98,7 +98,7 @@ export function StorefrontScreen({
     <ScrollView style={s.root}>
       {onBack ? (
         <Pressable onPress={onBack} hitSlop={8} style={s.backRow}>
-          <Text style={s.backT}>‹ Back</Text>
+          <Text style={s.backT}>‹</Text>
         </Pressable>
       ) : null}
       {(b.coverKey || listings[0]?.photos[0]) ? (
