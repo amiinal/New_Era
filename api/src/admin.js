@@ -218,16 +218,17 @@ export function adminRoutes(app, prisma) {
   // Kill switch: pause writes across app + web; reads stay up.
   app.get('/admin/maintenance', async (req, reply) => {
     if (!await guard(req, reply, prisma)) return;
-    const [on, message] = await Promise.all([
+    const [on, message, minApp] = await Promise.all([
       prisma.serverConfig.findUnique({ where: { key: 'maintenance_on' } }),
       prisma.serverConfig.findUnique({ where: { key: 'maintenance_message' } }),
+      prisma.serverConfig.findUnique({ where: { key: 'min_app_version' } }),
     ]);
-    return { on: on?.value === '1', message: message?.value || '' };
+    return { on: on?.value === '1', message: message?.value || '', minAppVersion: minApp?.value || '' };
   });
 
   app.post('/admin/maintenance', async (req, reply) => {
     if (!await guard(req, reply, prisma)) return;
-    const { on, message } = req.body || {};
+    const { on, message, minAppVersion } = req.body || {};
     await prisma.serverConfig.upsert({
       where: { key: 'maintenance_on' },
       update: { value: on ? '1' : '0' },
@@ -238,6 +239,13 @@ export function adminRoutes(app, prisma) {
         where: { key: 'maintenance_message' },
         update: { value: String(message).slice(0, 200) },
         create: { key: 'maintenance_message', value: String(message).slice(0, 200) },
+      });
+    }
+    if (minAppVersion !== undefined) {
+      await prisma.serverConfig.upsert({
+        where: { key: 'min_app_version' },
+        update: { value: String(minAppVersion).slice(0, 20) },
+        create: { key: 'min_app_version', value: String(minAppVersion).slice(0, 20) },
       });
     }
     return { on: !!on };

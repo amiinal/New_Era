@@ -87,11 +87,12 @@ app.addHook('onRequest', async (req, reply) => {
 
 // Public status for the app + web gates.
 app.get('/status', async () => {
-  const [on, message] = await Promise.all([
+  const [on, message, minApp] = await Promise.all([
     prisma.serverConfig.findUnique({ where: { key: 'maintenance_on' } }).catch(() => null),
     prisma.serverConfig.findUnique({ where: { key: 'maintenance_message' } }).catch(() => null),
+    prisma.serverConfig.findUnique({ where: { key: 'min_app_version' } }).catch(() => null),
   ]);
-  return { maintenance: on?.value === '1', message: message?.value || '' };
+  return { maintenance: on?.value === '1', message: message?.value || '', minAppVersion: minApp?.value || '' };
 });
 
 // Step 4 stub: presigned upload to R2 (app uploads direct). Authed, and the
