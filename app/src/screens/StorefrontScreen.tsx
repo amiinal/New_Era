@@ -210,7 +210,11 @@ const themed = (p: Palette) => StyleSheet.create({
     width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
     backgroundColor: p.surface, ...shadow.sm,
   },
-  backT: { fontSize: 24, color: p.primary, fontWeight: '600', lineHeight: 26, textAlign: 'center' },
+  backT: {
+    fontSize: 24, color: p.primary, fontWeight: '600',
+    lineHeight: 34, textAlign: 'center', textAlignVertical: 'center',
+    includeFontPadding: false, marginTop: -2, marginLeft: -1,
+  },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   coverWrap: {
     height: 220, marginHorizontal: space.s4, borderRadius: radius.lg,

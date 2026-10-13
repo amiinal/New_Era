@@ -1,11 +1,12 @@
 import { X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { api, Business, SITE_URL } from '../api';
+import { api, Business, img, SITE_URL } from '../api';
 import { useAuth } from '../auth';
 import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
+import { Avatar } from '../components/Avatar';
 import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
 import { Skeleton } from '../components/Skeleton';
@@ -126,11 +127,16 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
           renderItem={({ item }) => (
             <Pressable onPress={() => onOpen(item.slug)}
               style={({ pressed }) => [s.card, pressed && s.pressed]}>
-              <Text style={s.name}>{item.name}</Text>
-              <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
-              {(item.matchedListings?.length ?? 0) > 0 ? (
-                <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
-              ) : null}
+              <View style={s.bizRow}>
+                <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.name}>{item.name}</Text>
+                  <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
+                  {(item.matchedListings?.length ?? 0) > 0 ? (
+                    <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
+                  ) : null}
+                </View>
+              </View>
             </Pressable>
           )} />
       )}
@@ -157,6 +163,7 @@ const themed = (p: Palette) => StyleSheet.create({
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
+  bizRow: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   install: {
     flexDirection: 'row', alignItems: 'center', gap: space.s3,
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s3,
