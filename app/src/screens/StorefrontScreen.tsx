@@ -29,6 +29,10 @@ export function StorefrontScreen({
   const [reporting, setReporting] = useState(false);
   const [view, setView] = useState(false);
   const [full, setFull] = useState<{ uris: string[]; at: number } | null>(null);
+  // Dead photo keys (wiped uploads) must fall back to the brand fill,
+  // never a blank hole. Reset per storefront.
+  const [coverOk, setCoverOk] = useState(true);
+  useEffect(() => { setCoverOk(true); }, [slug]);
   const { width } = useWindowDimensions();
   // Uniform grid rule: 2 columns on phones, 3 once the column is wide.
   // Cells stay equal — no stretched orphans.
@@ -92,13 +96,24 @@ export function StorefrontScreen({
 
   return (
     <ScrollView style={s.root}>
+      {onBack ? (
+        <Pressable onPress={onBack} hitSlop={8} style={s.backRow}>
+          <Text style={s.backT}>‹ Back</Text>
+        </Pressable>
+      ) : null}
       {(b.coverKey || listings[0]?.photos[0]) ? (
         preview ? (
           <Pressable onPress={changeImage('coverKey')}>
-            <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
+            {coverOk ? (
+              <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} onError={() => setCoverOk(false)} />
+            ) : (
+              <View style={[s.cover, { backgroundColor: p.coverTint }]} />
+            )}
           </Pressable>
+        ) : coverOk ? (
+          <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} onError={() => setCoverOk(false)} />
         ) : (
-          <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
+          <View style={[s.cover, { backgroundColor: p.coverTint }]} />
         )
       ) : preview ? (
         <Pressable onPress={changeImage('coverKey')} style={[s.cover, { backgroundColor: p.coverTint }]} />
@@ -190,6 +205,8 @@ export function StorefrontScreen({
 
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
+  backRow: { paddingHorizontal: space.s4, paddingTop: space.s3 },
+  backT: { fontSize: 18, color: p.primary, fontWeight: '600' },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   cover: { width: '100%', height: 220 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4, ...shadow.md },

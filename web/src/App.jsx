@@ -58,6 +58,9 @@ function Storefront() {
   const [failed, setFailed] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
+  // Dead photo keys (wiped uploads) fall back to the brand fill.
+  const [heroOk, setHeroOk] = useState(true);
+  useEffect(() => { setHeroOk(true); }, [slug]);
 
   useEffect(() => {
     fetch(`${API}/storefront/${slug}`).then((r) => {
@@ -82,8 +85,8 @@ function Storefront() {
       <Nav />
       <div className="page">
         <Back />
-        {sf.listings[0] && sf.listings[0].photos[0] ? (
-          <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" />
+        {sf.listings[0] && sf.listings[0].photos[0] && heroOk ? (
+          <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" onError={() => setHeroOk(false)} />
         ) : (
           <div className="hero-img hero-fill" aria-hidden="true" />
         )}
