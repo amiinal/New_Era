@@ -96,8 +96,8 @@ export default function Profile() {
             <div className="avatar" style={{ margin: 0, width: 72, height: 72, fontSize: 28 }}>
               {(acc.email || acc.phone || '?').slice(0, 1).toUpperCase()}
             </div>
-            <div style={{ flex: 1 }}>
-              <h1 style={{ margin: 0, fontSize: 22 }}>{acc.email || acc.phone}</h1>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h1 style={{ margin: 0, fontSize: 22, overflowWrap: 'anywhere' }}>{acc.email || acc.phone}</h1>
               {acc.email && acc.phone ? <p style={{ margin: '4px 0 0', color: 'var(--color-body-text)' }}>{acc.phone}</p> : null}
               <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--color-body-text)' }}>
                 {acc.country} · Using as {mode === 'business' ? 'Business' : 'Customer'}

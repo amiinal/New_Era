@@ -84,7 +84,8 @@ select.input::-ms-expand { display: none; }
   transition: box-shadow .15s ease, transform .15s ease; }
 a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
 .input { background: var(--color-surface); border: 1px solid var(--color-line-strong);
-  border-radius: var(--radius-md); height: 48px; padding: 0 var(--space-4); }
+  border-radius: var(--radius-md); height: 48px; padding: 0 var(--space-4);
+  color: var(--color-ink); color-scheme: light dark; }
 
 /* Storefront site layout — 12-col spirit, max 1200 (design §3.2) */
 .topnav { display: flex; align-items: center; height: 64px; background: var(--color-surface);
@@ -112,7 +113,7 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 .nav-login:hover { color: var(--color-primary); }
 .mobile-only { display: none; }
 @media (max-width: 900px) {
-  .topnav .links, .topnav .nav-cta { display: none; }
+  .topnav .links, .topnav .nav-cta, .topnav .desktop-only { display: none; }
   .mobile-only { display: block; }
 }
 

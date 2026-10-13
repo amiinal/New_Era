@@ -74,7 +74,7 @@ export default function Nav() {
           <Link to="/for-businesses" className="btn" style={{ height: 36, lineHeight: '36px', padding: '0 14px', fontSize: 13 }}>Start Your Store</Link>
         </span>
       ) : (
-        <div className="menu-wrap">
+        <div className="menu-wrap desktop-only">
           <button className="menu-btn" onClick={toggle} aria-label="Menu">
             <MenuIcon size={22} color="var(--color-primary)" />
           </button>
@@ -100,14 +100,23 @@ export default function Nav() {
         {menu && (
           <div className="menu-panel" onClick={() => setMenu(false)}>
             {PAGES.map(([to, label]) => <Link key={to} to={to}>{label}</Link>)}
-            {!signed ? (
+            {signed ? (
+              <>
+                <Link to="/chat">My chats</Link>
+                <Link to="/profile">Profile</Link>
+                <Link to="/settings">Settings</Link>
+                <Link to="/support">Customer support</Link>
+                <button onClick={(e) => { e.stopPropagation(); flip(); }}>
+                  <SwitchIcon />{mode === 'business' ? 'Switch to Customer view' : 'Switch to Business view'}
+                </button>
+                <button onClick={() => signOut(navigate)}><LogoutIcon />Sign out</button>
+              </>
+            ) : (
               <>
                 <Link to="/chat">Chats</Link>
                 <Link to="/auth">Log In</Link>
                 <Link to="/for-businesses">Start Your Store</Link>
               </>
-            ) : (
-              <Link to="/chat">My chats</Link>
             )}
           </div>
         )}
