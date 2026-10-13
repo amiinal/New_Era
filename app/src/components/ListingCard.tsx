@@ -39,6 +39,7 @@ export function ListingCard({ item, onPress, onPhoto, onMessage }: {
           <View style={[s.dot, { backgroundColor: a.color }]} />
           <Text style={s.avail}> {a.label}</Text>
         </Text>
+        <View style={s.spacer} />
       {!!onMessage && (
         <Pressable onPress={onMessage} style={({ pressed }) => [s.msgBtn, pressed && s.pressed]}>
           <MessageCircle size={16} color="#fff" />
@@ -56,14 +57,15 @@ const themed = (p: Palette) => StyleSheet.create({
   photo: { width: '100%', aspectRatio: 1 },
   phWrap: { backgroundColor: p.line },
   empty: { backgroundColor: p.line },
-  body: { padding: space.s4 - 4 },
+  body: { padding: space.s4 - 4, flex: 1 },
+  spacer: { flex: 1, minHeight: 8 },
   title: { fontSize: 16, fontWeight: '600', color: p.ink },
   desc: { fontSize: 13, color: p.bodyText, marginTop: 2 },
   price: { fontSize: 14, color: p.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
   avail: { fontSize: 12, color: p.bodyText },
   dot: { width: 8, height: 8, borderRadius: 4 },
   msgBtn: {
-    marginTop: 8, height: 36, borderRadius: 8, backgroundColor: C.cta,
+    marginTop: 0, height: 36, borderRadius: 8, backgroundColor: C.cta,
     alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6,
   },
   msgT: { color: '#fff', fontSize: 13, fontWeight: '600' },

@@ -29,6 +29,7 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
   const [onboard, setOnboard] = useState(false);
+  const [photoCount, setPhotoCount] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [edit, setEdit] = useState(false);
   const { p } = useTheme();
@@ -53,6 +54,9 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
     if (biz) {
       setInsFailed(false);
       api.insights(biz.id, range).then(setIns).catch(() => { setIns(null); setInsFailed(true); });
+      api.bizListings(biz.id)
+        .then(ls => setPhotoCount(ls.filter(l => (l.photos?.length ?? 0) > 0 && !l.hidden).length))
+        .catch(() => setPhotoCount(null));
     }
   }, [biz?.id, range]);
   if (!loaded) return <ActivityIndicator style={{ marginTop: space.s8 }} />;
@@ -108,7 +112,16 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
 
       <View style={s.card}>
         <Text style={s.t}>Discovery checklist</Text>
-        <Text style={s.micro}>3+ photo items + category + location to appear in Discover.</Text>
+        <Text style={s.micro}>You need all three to appear in searches.</Text>
+        <Text style={s.check}>✓ Category · {biz.category}</Text>
+        <Text style={s.check}>✓ Location · {biz.area ? `${biz.area}, ` : ''}{biz.city}</Text>
+        {photoCount === null ? (
+          <Text style={s.check}>○ Photo listings · loading…</Text>
+        ) : photoCount >= 3 ? (
+          <Text style={s.check}>✓ Photo listings · {photoCount} — you&apos;re showing up in searches.</Text>
+        ) : (
+          <Text style={s.check}>○ Photo listings · {photoCount} of 3 — add {3 - photoCount} more to be found in Discover.</Text>
+        )}
       </View>
 
       <View style={s.card}>
@@ -160,6 +173,7 @@ const themed = (p: Palette) => StyleSheet.create({
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
   t: { ...type.h3, color: p.ink },
+  check: { ...type.bodySm, color: p.ink, marginTop: space.s2 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   range: { ...type.bodySm, color: p.bodyText, padding: space.s2 },
   rangeOn: { color: p.primary, fontWeight: '700' },

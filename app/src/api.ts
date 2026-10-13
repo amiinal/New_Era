@@ -55,7 +55,7 @@ export type Business = {
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';
   title: string; price: string | null; currency: string;
-  description: string | null;
+  description: string | null; hidden?: boolean;
   availability: 'in_stock' | 'limited' | 'sold_out' | 'made_to_order';
   photos: string[];
 };
