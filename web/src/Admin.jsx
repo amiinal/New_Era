@@ -246,6 +246,9 @@ function ControlPane({ onChanged }) {
     setOn(next);
     onChanged(next);
   };
+  const saveVersion = async () => {
+    await api('/admin/maintenance', { method: 'POST', body: JSON.stringify({ on, message, minAppVersion: minApp.trim() }) });
+  };
   return (
     <>
       <div className="card">
@@ -260,6 +263,9 @@ function ControlPane({ onChanged }) {
         <label className="lbl">Minimum app version (blank = no update gate)</label>
         <input className="input" value={minApp} onChange={(e) => setMinApp(e.target.value)}
           placeholder="e.g. 1.1.0" style={{ width: '100%' }} />
+        <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+          <button className="btn btn-secondary" onClick={saveVersion}>Save update settings</button>
+        </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
           {!on
             ? <button className="btn" onClick={() => save(true)}>Pause app + web</button>
