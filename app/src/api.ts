@@ -148,19 +148,24 @@ export const loadRefresh = async () => {
 };
 
 // Trade the saved refresh token for a live pair. Null when it's dead.
+// Only a 401 clears the saved token — network blips and 5xx keep it, so a
+// reload during a redeploy never logs the user out.
 export const refreshSession = async (): Promise<{ token: string; refreshToken: string; account: Account } | null> => {
   if (!refresh) return null;
+  let r;
   try {
-    const r = await raw<{ token: string; refreshToken: string; account: Account }>(
+    r = await raw<{ token: string; refreshToken: string; account: Account }>(
       '/auth/refresh',
       { method: 'POST', body: JSON.stringify({ refreshToken: refresh }) },
     );
-    if (r.status === 200 && r.body.token) {
-      await setTokens(r.body.token, r.body.refreshToken);
-      return r.body;
-    }
-  } catch { /* dead — sign in again */ }
-  await setTokens(null, null);
+  } catch {
+    return null;
+  }
+  if (r.status === 200 && r.body.token) {
+    await setTokens(r.body.token, r.body.refreshToken);
+    return r.body;
+  }
+  if (r.status === 401) await setTokens(null, null);
   return null;
 };
 

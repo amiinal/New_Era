@@ -101,19 +101,24 @@ export const recordEvent = (name, props) =>
   }).catch(() => {});
 
 // Launch restore: trade the saved refresh token for a live session.
+// Only a 401 means the token is truly dead — network blips and 5xx must
+// NEVER wipe the saved refresh (every redeploy would log everyone out).
 export async function restoreSession() {
   const saved = localStorage.getItem('refresh');
   if (!saved) return null;
+  let r;
   try {
-    const r = await raw('/auth/refresh', {
+    r = await raw('/auth/refresh', {
       method: 'POST', body: JSON.stringify({ refreshToken: saved }),
     });
-    if (r.status === 200 && r.body.token) {
-      setTokens(r.body.token, r.body.refreshToken);
-      return r.body.account;
-    }
-  } catch { /* dead — sign in again */ }
-  setTokens(null, null);
+  } catch {
+    return null;
+  }
+  if (r.status === 200 && r.body.token) {
+    setTokens(r.body.token, r.body.refreshToken);
+    return r.body.account;
+  }
+  if (r.status === 401) setTokens(null, null);
   return null;
 }
 
