@@ -16,6 +16,8 @@ export default function Discover() {
   const [q, setQ] = useState('');
   const [category, setCategory] = useState('');
   const [items, setItems] = useState(null);
+  // Custom "Other" categories surface as extra chips so they stay visible.
+  const [seenCats, setSeenCats] = useState([]);
 
   const load = async (withCat) => {
     const cat = withCat !== undefined ? withCat : category;
@@ -24,7 +26,17 @@ export default function Discover() {
       if (city.trim()) params.set('city', city.trim());
       if (q.trim()) params.set('q', q.trim());
       if (cat) params.set('category', cat);
-      setItems(await api(`/discover?${params}`));
+      const rows = await api(`/discover?${params}`);
+      setItems(rows);
+      setSeenCats((prev) => {
+        const next = [...prev];
+        for (const b of rows) {
+          if (b.category && !CATEGORIES.includes(b.category) && !next.includes(b.category)) {
+            next.push(b.category);
+          }
+        }
+        return next;
+      });
       recordEvent('search', Object.fromEntries(params));
     } catch {
       setItems([]);
@@ -55,6 +67,9 @@ export default function Discover() {
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           <button className={`btn ${category === '' ? '' : 'btn-secondary'}`} style={{ height: 36 }} onClick={() => { setCategory(''); load(''); }}>All</button>
           {CATEGORIES.map((c) => (
+            <button key={c} className={`btn ${category === c ? '' : 'btn-secondary'}`} style={{ height: 36 }} onClick={() => { setCategory(c); load(c); }}>{c}</button>
+          ))}
+          {seenCats.map((c) => (
             <button key={c} className={`btn ${category === c ? '' : 'btn-secondary'}`} style={{ height: 36 }} onClick={() => { setCategory(c); load(c); }}>{c}</button>
           ))}
         </div>

@@ -29,6 +29,9 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
+  // Custom "Other" categories businesses typed in: surface them as extra
+  // filter chips so they stay discoverable. Accumulated, never collapses.
+  const [seenCats, setSeenCats] = useState<string[]>([]);
   // PWA nudge: mobile browsers visiting the web app get an install card.
   // Never in the installed PWA (standalone), never on native builds.
   const [installCard, setInstallCard] = useState(false);
@@ -47,8 +50,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cat ? { category: cat } : {}),
     };
     try {
-      setItems(await api.discover(scope));
+      const rows = await api.discover(scope);
+      setItems(rows);
       setFailed(false);
+      setSeenCats(prev => {
+        const next = [...prev];
+        for (const b of rows) {
+          if (b.category && !CATEGORIES.includes(b.category) && !next.includes(b.category)) {
+            next.push(b.category);
+          }
+        }
+        return next;
+      });
       api.recordEvent('search', scope).catch(() => {});
     } catch { setItems([]); setFailed(true); }
   };
@@ -92,6 +105,10 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
         {['', ...CATEGORIES].map(c => (
           <Text key={c || 'all'} onPress={() => { setCategory(c); load(c); }}
             style={[s.chip, category === c && s.chipOn]}>{c || 'All'}</Text>
+        ))}
+        {seenCats.map(c => (
+          <Text key={c} onPress={() => { setCategory(c); load(c); }}
+            style={[s.chip, category === c && s.chipOn]}>{c}</Text>
         ))}
       </View>
       {items === null ? (
