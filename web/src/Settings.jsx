@@ -114,6 +114,8 @@ function EmailCard() {
 
 export default function Settings() {
   const navigate = useNavigate();
+  const [bye, setBye] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [mode, setMode] = useState(localStorage.getItem('theme') || 'system');
   const pick = (m) => { localStorage.setItem('theme', m); setMode(m); initTheme(); };
   return (
@@ -147,16 +149,34 @@ export default function Settings() {
             Hibernating hides your storefront, pauses chats, and signs every device out.
             Nothing is deleted — reopen anytime.
           </p>
-          <button className="btn btn-secondary" style={{ width: '100%' }} onClick={async () => {
-            if (!window.confirm('Hibernate your account? Your storefront hides today and every device signs out. Reopen anytime — everything comes back.')) return;
-            try {
-              await api('/me/deactivate', { method: 'POST' });
-              signOut(navigate);
-            } catch {
-              alert('Could not deactivate — retry.');
-            }
-          }}>Deactivate my account</button>
+          <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setBye(true)}>Deactivate my account</button>
         </div>
+        ) : null}
+        {bye ? (
+          <div style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,.4)', zIndex: 50,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+          }}>
+            <div className="card" style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
+              <h2 style={{ marginTop: 0 }}>Hibernate your account?</h2>
+              <p style={{ color: 'var(--color-body-text)', fontSize: 14 }}>
+                Your storefront hides today and every device signs out. Nothing is deleted —
+                reopen anytime. After 90 days hibernating, you can delete permanently.
+              </p>
+              <button className="btn" style={{ width: '100%' }} disabled={busy} onClick={async () => {
+                setBusy(true);
+                try {
+                  await api('/me/deactivate', { method: 'POST' });
+                  setBye(false);
+                  signOut(navigate);
+                } catch {
+                  alert('Could not deactivate — retry.');
+                } finally { setBusy(false); }
+              }}>{busy ? 'Working…' : 'Yes, deactivate'}</button>
+              <div style={{ height: 8 }} />
+              <button className="btn btn-secondary" style={{ width: '100%' }} disabled={busy} onClick={() => setBye(false)}>Cancel</button>
+            </div>
+          </div>
         ) : null}
         <div className="card" style={{ marginTop: 8 }}>
           <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => signOut(navigate)}>Sign out</button>
