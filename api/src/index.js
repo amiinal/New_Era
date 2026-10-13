@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import dns from 'node:dns';
 import { PrismaClient } from '@prisma/client';
 import { getPresignedPut, publicUrlFor } from './r2.js';
 import { sendMail } from './mail.js';
@@ -33,6 +34,48 @@ app.addHook('onRequest', (req, reply, done) => {
 authRoutes(app, prisma);
 storeRoutes(app, prisma);
 adminRoutes(app, prisma);
+
+// Photo URLs: R2 keys need absolute public URLs, but only when R2 public
+// serving actually resolves (else inline/disk photos would break). Probed
+// once at boot; uploads/* always stays local (/img on the API host).
+let r2Direct = false;
+try {
+  const host = new URL(process.env.R2_PUBLIC_URL || '').hostname;
+  await dns.promises.resolve(host).then(() => {
+    r2Direct = true;
+    console.log(`[img] R2 public serving live at ${process.env.R2_PUBLIC_URL}`);
+  }).catch(() => console.log('[img] R2 public host unresolved — serving photo keys relative (/img)'));
+} catch {
+  console.log('[img] no R2_PUBLIC_URL — serving photo keys relative (/img)');
+}
+const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'photo', 'imageKey', 'photos']);
+const fixPhoto = (v) => {
+  if (typeof v !== 'string' || !v) return v;
+  if (/^https?:\/\//.test(v) || v.startsWith('uploads/')) return v;
+  if (r2Direct) return publicUrlFor(v);
+  return v;
+};
+const fixPhotos = (v) => {
+  if (Array.isArray(v)) return v.map(fixPhotos);
+  if (v && typeof v === 'object') {
+    for (const k of Object.keys(v)) {
+      v[k] = PHOTO_KEYS.has(k)
+        ? (Array.isArray(v[k]) ? v[k].map(fixPhoto) : fixPhoto(v[k]))
+        : fixPhotos(v[k]);
+    }
+  }
+  return v;
+};
+app.addHook('onSend', async (req, reply, payload) => {
+  if (typeof payload !== 'string' || !String(reply.getHeader('content-type') || '').includes('application/json')) {
+    return payload;
+  }
+  try {
+    return JSON.stringify(fixPhotos(JSON.parse(payload)));
+  } catch {
+    return payload;
+  }
+});
 
 // Kill switch: when maintenance is on, writes pause (reads stay up).
 // /admin/* stays open so the team can switch it back off.
