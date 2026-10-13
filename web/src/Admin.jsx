@@ -12,7 +12,7 @@ const TABS = [
   { key: 'support', label: 'Support', Icon: InboxIcon },
   { key: 'lookup', label: 'Stores & accounts', Icon: SearchIcon },
   { key: 'analytics', label: 'Analytics', Icon: ChartIcon },
-  { key: 'control', label: 'Shutdown', Icon: PowerIcon },
+  { key: 'control', label: 'Control', Icon: PowerIcon },
 ];
 
 function ReportsPane() {
