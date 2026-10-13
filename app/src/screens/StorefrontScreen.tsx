@@ -123,9 +123,9 @@ export function StorefrontScreen({
       <View style={s.card}>
         <View style={s.row}>
           {preview ? (
-            <Pressable onPress={changeImage('logoKey')}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
+            <Pressable onPress={changeImage('logoKey')}><Avatar name={b.name} ring={sf.statuses.length > 0} uri={b.logoKey ? img(b.logoKey) : null} /></Pressable>
           ) : (
-            <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} /></Pressable>
+            <Pressable onPress={() => setView(true)}><Avatar name={b.name} ring={sf.statuses.length > 0} uri={b.logoKey ? img(b.logoKey) : null} /></Pressable>
           )}
           <View style={{ flex: 1 }}>
             <Text style={s.h1}>{b.name}</Text>

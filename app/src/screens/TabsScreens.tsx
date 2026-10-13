@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { api, FeedStatus, MyThread, Storefront } from '../api';
+import { api, FeedStatus, img, MyThread, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
@@ -69,7 +69,7 @@ export function UpdatesScreen({
       {groups.map(g => (
         <Pressable key={g.biz.id} onPress={() => setViewBiz(g.biz.id)} style={s.card}>
           <View style={s.row}>
-            <Avatar name={g.biz.name} size={48} ring />
+            <Avatar name={g.biz.name} size={48} ring uri={g.biz.logoKey ? img(g.biz.logoKey) : null} />
             <View style={{ flex: 1 }}>
               <Text style={s.t} onPress={() => onOpen(g.biz.slug)}>{g.biz.name}</Text>
               <Text style={s.micro}>{g.items.length} update{g.items.length === 1 ? '' : 's'} · latest {ago(g.items[0].createdAt)}</Text>
