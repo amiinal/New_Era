@@ -146,8 +146,8 @@ export default function Settings() {
         <div className="card" style={{ marginTop: 8 }}>
           <h3 style={{ marginTop: 0 }}>Take a break</h3>
           <p style={{ fontSize: 13, color: 'var(--color-body-text)', marginTop: 0 }}>
-            Hibernating hides your storefront, pauses chats, and signs every device out.
-            Nothing is deleted — reopen anytime.
+            Hibernating hides your customer profile — and your storefront if you have one —
+            pauses chats, and signs every device out. Nothing is deleted — reopen anytime.
           </p>
           <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setBye(true)}>Deactivate my account</button>
         </div>
@@ -160,8 +160,9 @@ export default function Settings() {
             <div className="card" style={{ maxWidth: 420, width: '100%', textAlign: 'center' }}>
               <h2 style={{ marginTop: 0 }}>Hibernate your account?</h2>
               <p style={{ color: 'var(--color-body-text)', fontSize: 14 }}>
-                Your storefront hides today and every device signs out. Nothing is deleted —
-                reopen anytime. After 90 days hibernating, you can delete permanently.
+                Your customer profile and storefront (if you have one) hide today, and every
+                device signs out. Nothing is deleted — reopen anytime. After 90 days
+                hibernating, you can delete permanently.
               </p>
               <button className="btn" style={{ width: '100%' }} disabled={busy} onClick={async () => {
                 setBusy(true);

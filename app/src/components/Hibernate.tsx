@@ -52,8 +52,9 @@ export function Hibernate({ since, onReopened, onGone }: {
       <View style={s.card}>
         <Text style={s.h1}>Taking a break?</Text>
         <Text style={s.sub}>
-          Your account is hibernating. Your storefront is hidden, chats are paused, and nothing is
-          deleted — reopen anytime and everything comes back exactly as you left it.
+          Your account is hibernating. Your customer profile and storefront (if you have one)
+          are hidden, chats are paused, and nothing is deleted — reopen anytime and everything
+          comes back exactly as you left it.
         </Text>
         <Button title={busy ? 'Working…' : 'Reopen my account'} onPress={reopen} disabled={busy} />
         <View style={{ height: space.s4 }} />

@@ -42,8 +42,9 @@ export default function Hibernate({ since, onChange }) {
         <div className="card" style={{ textAlign: 'center' }}>
           <h1>Taking a break?</h1>
           <p style={{ color: 'var(--color-body-text)' }}>
-            Your account is hibernating. Your storefront is hidden, chats are paused, and nothing is
-            deleted — reopen anytime and everything comes back exactly as you left it.
+            Your account is hibernating. Your customer profile and storefront (if you have one)
+            are hidden, chats are paused, and nothing is deleted — reopen anytime and everything
+            comes back exactly as you left it.
           </p>
           <button className="btn" style={{ width: '100%' }} onClick={reopen} disabled={busy}>
             {busy ? 'Working…' : 'Reopen my account'}
