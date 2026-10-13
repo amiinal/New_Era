@@ -191,7 +191,7 @@ export const symFor = (c: string) => ({ NGN: '₦', GHS: 'GH₵', KES: 'KSh' } a
 export const img = (key: string) => (/^https?:\/\//.test(key) ? key : `${API_URL}/img/${key}`);
 
 export const api = {
-  status: () => req<{ maintenance: boolean; message: string }>('/status'),
+  status: () => req<{ maintenance: boolean; message: string; minAppVersion?: string }>('/status'),
   requestCode: (body: { email?: string; phone?: string }) =>
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
   checkAccount: (email: string) =>

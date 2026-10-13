@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, BackHandler, Linking, Platform, StyleSheet, Text, View } from 'react-native';
+import Constants from 'expo-constants';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
 import { Hibernate } from './src/components/Hibernate';
@@ -25,6 +26,20 @@ import { api } from './src/api';
 import { initSentry } from './src/sentry';
 
 initSentry();
+
+// Evergreen update link: always resolves to the newest published release.
+const RELEASES_URL = 'https://github.com/amiinal/New_Era/releases/latest';
+
+// Numeric dot-version compare (-1/0/1). Empty minimum never gates.
+function isOutdated(have: string, min: string): boolean {
+  if (!min) return false;
+  const pa = have.split('.').map(Number), pb = min.split('.').map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d !== 0) return d < 0;
+  }
+  return false;
+}
 
 type Route =
   | { name: 'discover' } | { name: 'updates' } | { name: 'chats' }
@@ -62,9 +77,13 @@ function Shell() {
   }, []);
 
   // Kill switch: paused app shows the notice (reads stay, writes 503).
+  // Update gate: builds older than the admin-set minimum get nudged to the
+  // evergreen release page (sideloaded APKs have no store to do it).
+  const [minVersion, setMinVersion] = useState('');
+  const [updateLater, setUpdateLater] = useState(false);
   useEffect(() => {
     api.status()
-      .then(s => { setPaused(s.maintenance); setPausedMessage(s.message); })
+      .then(s => { setPaused(s.maintenance); setPausedMessage(s.message); setMinVersion(s.minAppVersion || ''); })
       .catch(() => {});
   }, []);
   // Chat badge: dot the Chats tab while any thread has unread mail.
@@ -288,6 +307,24 @@ function Shell() {
         <View style={styles.paused}>
           <Text style={styles.pausedH}>Paused for maintenance</Text>
           <Text style={styles.pausedT}>{pausedMessage || 'Back soon — thanks for waiting.'}</Text>
+        </View>
+        <StatusBar style="auto" />
+      </SafeAreaView>
+    );
+  }
+  if (!updateLater && isOutdated((Constants.expoConfig?.version as string | undefined) ?? '1.0.0', minVersion)) {
+    return (
+      <SafeAreaView style={[styles.root, bg]}>
+        <View style={styles.paused}>
+          <Text style={styles.pausedH}>A newer New Era is ready</Text>
+          <Text style={styles.pausedT}>Update for the latest fixes and features — it takes a minute.</Text>
+          <View style={{ height: 16 }} />
+          <Text onPress={() => Linking.openURL(RELEASES_URL)}
+            style={{ backgroundColor: C.cta, color: '#fff', fontWeight: '700', fontSize: 16, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 12, overflow: 'hidden', textAlign: 'center' }}>
+            Update New Era
+          </Text>
+          <View style={{ height: 12 }} />
+          <Text onPress={() => setUpdateLater(true)} style={{ color: p.primary, fontWeight: '600', fontSize: 14 }}>Later</Text>
         </View>
         <StatusBar style="auto" />
       </SafeAreaView>
