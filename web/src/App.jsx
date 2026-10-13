@@ -84,7 +84,9 @@ function Storefront() {
         <Back />
         {sf.listings[0] && sf.listings[0].photos[0] ? (
           <img src={img(sf.listings[0].photos[0])} alt="" className="hero-img" />
-        ) : null}
+        ) : (
+          <div className="hero-img hero-fill" aria-hidden="true" />
+        )}
         <div className="card bizcard">
           <div className="avatar">{b.name.slice(0, 1)}</div>
           <div>
@@ -99,7 +101,7 @@ function Storefront() {
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
           <MessageButton businessId={b.id} />
-          <button className="btn" style={{ background: 'var(--color-surface)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}
+          <button className="btn btn-secondary"
             onClick={() => navigator.clipboard?.writeText(window.location.href).then(() => alert('Link copied.'))}>Share</button>
           <button className="btn btn-secondary" onClick={() => setReporting(!reporting)}>Report</button>
         </div>

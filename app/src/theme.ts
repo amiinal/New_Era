@@ -47,8 +47,8 @@ export const shadow = {
     shadowOpacity: 0.12, shadowRadius: 24, elevation: 8,
   },
   cta: {
-    shadowColor: '#C24E22', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 12, elevation: 4,
+    shadowColor: '#1E1E24', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18, shadowRadius: 10, elevation: 3,
   },
 } as const;
 
