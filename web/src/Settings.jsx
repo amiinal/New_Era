@@ -50,6 +50,68 @@ function PasswordCard() {
   );
 }
 
+// Change email: code goes to the NEW address; the old one gets a notice.
+function EmailCard() {
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState('');
+  const send = async () => {
+    setMsg('');
+    if (!/.+@.+\..+/.test(email.trim())) { setMsg('Enter a valid email address.'); return; }
+    setBusy(true);
+    try {
+      const r = await api('/me/email/request', {
+        method: 'POST', body: JSON.stringify({ email: email.trim() }),
+      });
+      setSent(true);
+      setMsg(r.devCode ? `Dev code: ${r.devCode}` : 'Code sent — check your new inbox.');
+    } catch (e) {
+      setMsg(String(e.message).includes('409') ? 'That email is already in use.' : 'Could not send — retry.');
+    } finally { setBusy(false); }
+  };
+  const confirm = async () => {
+    setMsg('');
+    setBusy(true);
+    try {
+      await api('/me/email/confirm', {
+        method: 'POST', body: JSON.stringify({ email: email.trim(), code }),
+      });
+      setMsg('Email changed — future codes go to the new address. Your old address got a notice.');
+      setEmail('');
+      setCode('');
+      setSent(false);
+    } catch {
+      setMsg('Invalid or expired code — send a fresh one.');
+    } finally { setBusy(false); }
+  };
+  return (
+    <div className="card" style={{ marginTop: 8 }}>
+      <h3 style={{ marginTop: 0 }}>Email address</h3>
+      <p style={{ fontSize: 13, color: 'var(--color-body-text)', marginTop: 0 }}>
+        Codes go here. Changing it notifies the old address too.
+      </p>
+      <input className="input" placeholder="New email address" value={email}
+        onChange={(e) => setEmail(e.target.value)} style={{ width: '100%' }} />
+      {!sent ? (
+        <div style={{ marginTop: 8 }}>
+          <button className="btn" onClick={send} disabled={busy}>{busy ? 'Sending…' : 'Send code'}</button>
+        </div>
+      ) : (
+        <>
+          <input className="input" placeholder="6-digit code" value={code}
+            onChange={(e) => setCode(e.target.value)} style={{ width: '100%', marginTop: 8 }} />
+          <div style={{ marginTop: 8 }}>
+            <button className="btn" onClick={confirm} disabled={busy}>{busy ? 'Saving…' : 'Confirm new email'}</button>
+          </div>
+        </>
+      )}
+      {msg ? <p style={{ fontSize: 13, color: 'var(--color-body-text)', marginBottom: 0 }}>{msg}</p> : null}
+    </div>
+  );
+}
+
 export default function Settings() {
   const navigate = useNavigate();
   const [mode, setMode] = useState(localStorage.getItem('theme') || 'system');
@@ -61,6 +123,7 @@ export default function Settings() {
         <Back />
         <h1>Settings</h1>
         {accountId() ? <PasswordCard /> : null}
+        {accountId() ? <EmailCard /> : null}
         <div className="card" style={{ marginTop: 8 }}>
           <h3 style={{ marginTop: 0 }}>Appearance</h3>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -77,6 +140,24 @@ export default function Settings() {
           <span style={{ width: 8, display: 'inline-block' }} />
           <Link to="/support" className="btn btn-secondary">Contact support</Link>
         </div>
+        {accountId() ? (
+        <div className="card" style={{ marginTop: 8 }}>
+          <h3 style={{ marginTop: 0 }}>Take a break</h3>
+          <p style={{ fontSize: 13, color: 'var(--color-body-text)', marginTop: 0 }}>
+            Hibernating hides your storefront, pauses chats, and signs every device out.
+            Nothing is deleted — reopen anytime.
+          </p>
+          <button className="btn btn-secondary" style={{ width: '100%' }} onClick={async () => {
+            if (!window.confirm('Hibernate your account? Your storefront hides today and every device signs out. Reopen anytime — everything comes back.')) return;
+            try {
+              await api('/me/deactivate', { method: 'POST' });
+              signOut(navigate);
+            } catch {
+              alert('Could not deactivate — retry.');
+            }
+          }}>Deactivate my account</button>
+        </div>
+        ) : null}
         <div className="card" style={{ marginTop: 8 }}>
           <button className="btn btn-secondary" style={{ width: '100%' }} onClick={() => signOut(navigate)}>Sign out</button>
         </div>

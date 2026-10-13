@@ -20,10 +20,11 @@ import Support from './Support.jsx';
 import Prohibited from './Prohibited.jsx';
 import Admin from './Admin.jsx';
 import Nav from './Nav.jsx';
+import Hibernate from './Hibernate.jsx';
 import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
 import { ChatIcon } from './icons.jsx';
-import { initTheme, recordEvent, restoreSession, startThread } from './lib.js';
+import { accountId, initTheme, recordEvent, restoreSession, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 const img = (k) => (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`);
@@ -231,7 +232,15 @@ export default function App() {
 function Shell({ paused, ready }) {
   const { pathname } = useLocation();
   useEffect(() => { recordEvent('visit', {}); }, []);
+  const [me, setMe] = useState(undefined); // undefined = not checked yet
+  const loadMe = () => {
+    if (!accountId()) { setMe(false); return Promise.resolve(); }
+    return api('/me').then(setMe).catch(() => setMe(false));
+  };
+  useEffect(() => { if (ready) loadMe(); }, [ready, pathname]);
   if (!ready) return <div className="card" style={{ margin: 24 }}>Loading…</div>;
+  // Hibernating accounts stop here: reopen, delete (when due), or sign out.
+  if (me?.deactivatedAt) return <Hibernate since={me.deactivatedAt} onChange={loadMe} />;
   // Kill-switch gate: paused app + web show the notice (team keeps /admin).
   if (paused?.maintenance && pathname !== '/admin') {
     return (
