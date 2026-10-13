@@ -6,7 +6,7 @@ import { useAuth } from '../auth';
 import { useBg } from '../background';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
-import { radius, shadow, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { LegalReader } from '../components/Legal';
 import { Palette, useTheme } from '../useTheme';
@@ -30,6 +30,8 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [legal, setLegal] = useState<'terms' | 'privacy' | null>(null);
+  // Inline error line under the subtitle — states exactly what happened.
+  const [error, setError] = useState('');
 
   useEffect(() => {
     getFlag('returning').then(v => setTab(v ? 'signin' : 'signup'));
@@ -39,15 +41,16 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
   const bg = useBg(dark);
   if (!tab) return <View style={s.loading}><ActivityIndicator /></View>;
 
-  const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setStage('contact'); };
+  const reset = () => { setCode(''); setPassword(''); setResetCode(''); setNewPassword(''); setError(''); setStage('contact'); };
 
   const request = async () => {
-    if (!to.trim()) { Alert.alert('Enter email', 'We need somewhere to send the code.'); return; }
+    setError('');
+    if (!to.trim()) { setError('Enter your email — we need somewhere to send the code.'); return; }
     if (fresh) {
       const c = await api.checkAccount(to.trim()).catch(() => null);
       if (c?.exists) {
         setTab('signin');
-        Alert.alert('Account exists', 'This email already has an account — sign in instead.');
+        setError('This email already has an account — sign in instead.');
         return;
       }
     }
@@ -57,12 +60,13 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
       if (r.devCode) Alert.alert('Dev code', r.devCode);
     } catch (e) {
       const m = String((e as Error).message || '');
-      Alert.alert('Code not sent', m.startsWith('429')
+      setError(m.startsWith('429')
         ? 'Too many tries — wait a minute, then send once.'
-        : 'Check the API is running and the phone reaches it, then retry.');
+        : 'Code not sent — check your connection, then retry.');
     }
   };
   const verify = async () => {
+    setError('');
     try {
       const r = await signIn(to.trim(), code, country);
       await setFlag('returning', '1');
@@ -73,41 +77,44 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
       }
     } catch (e) {
       const m = String((e as Error).message || '');
-      Alert.alert('Could not sign in', m.startsWith('5')
-        ? 'Server or database error — check the API and database, then retry.'
+      setError(m.startsWith('5')
+        ? 'Server error — wait a bit, then retry.'
         : 'Invalid or expired code — request one code and enter it within 10 minutes.');
     }
   };
   const submitPassword = async () => {
-    if (!password) { Alert.alert('Enter password', 'Type the password you set for this account.'); return; }
+    setError('');
+    if (!password) { setError('Enter the password for this account.'); return; }
     try {
       await completePassword(pendingId, password);
       await setFlag('returning', '1');
     } catch {
-      Alert.alert('Wrong password', 'Try again, or tap Forgot password below to reset it.');
+      setError('Wrong password — try again, or reset it below.');
     }
   };
   const forgot = async () => {
+    setError('');
     try {
       const r = await api.forgotPassword({ email: to.trim() });
       setResetCode('');
       setNewPassword('');
       setStage('reset');
       if (r.devCode) Alert.alert('Dev code', r.devCode);
-      else Alert.alert('Code sent', 'Check your email for the reset code.');
+      else setError('');
     } catch {
-      Alert.alert('Could not send', 'Check the API is running, then retry.');
+      setError('Reset code not sent — check your connection, then retry.');
     }
   };
   const submitReset = async () => {
-    if (newPassword.length < 8) { Alert.alert('Password too short', 'Use 8 or more characters.'); return; }
+    setError('');
+    if (newPassword.length < 8) { setError('Use 8 or more characters.'); return; }
     try {
       const r = await api.resetPassword({ email: to.trim(), code: resetCode, password: newPassword });
       await applySession(r.token, r.refreshToken, r.account);
       await setFlag('returning', '1');
     } catch (e) {
       const m = String((e as Error).message || '');
-      Alert.alert('Could not reset', m.includes('8+')
+      setError(m.includes('8+')
         ? 'Use 8 or more characters.'
         : 'Invalid or expired code — request a fresh one.');
     }
@@ -134,6 +141,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
             : fresh ? 'Join New Era to list your business and chat with customers.'
             : 'Sign in to your New Era account.'}
         </Text>
+        {!!error && <Text style={s.err}>{error}</Text>}
 
         {stage === 'contact' && (
           <>
@@ -234,6 +242,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   h1: { ...type.h1, fontSize: 26, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
+  err: { ...type.bodySm, color: C.error, textAlign: 'center', marginTop: space.s2, marginBottom: space.s2 },
   field: {
     borderRadius: 24, height: 52, color: p.ink,
     paddingHorizontal: space.s5, fontSize: 16, marginBottom: space.s3,

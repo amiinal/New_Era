@@ -19,6 +19,8 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  // Inline error line under the subtitle — states exactly what happened.
+  const [error, setError] = useState('');
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const next = params.get('next') || '/discover';
@@ -31,9 +33,10 @@ export default function Auth() {
     localStorage.setItem('mode', j.account.lastMode || 'customer');
     navigate(next, { replace: true });
   };
-  const startOver = () => { setCode(''); setStage('contact'); };
+  const startOver = () => { setCode(''); setError(''); setStage('contact'); };
 
   const request = async () => {
+    setError('');
     try {
       if (fresh && to.trim()) {
         const c = await fetch(`${API}/auth/check`, {
@@ -42,7 +45,7 @@ export default function Auth() {
         }).then((r) => r.json()).catch(() => null);
         if (c?.exists) {
           setTab('signin');
-          alert('This email already has an account — sign in instead.');
+          setError('This email already has an account — sign in instead.');
           return;
         }
       }
@@ -51,15 +54,16 @@ export default function Auth() {
         body: JSON.stringify(contactBody()),
       });
       const j = await r.json().catch(() => ({}));
-      if (!r.ok) { alert('Rate-limited, wait a minute'); return; }
+      if (!r.ok) { setError(r.status === 429 ? 'Too many tries — wait a minute, then send once.' : 'Code not sent — check your connection, then retry.'); return; }
       setStage('code');
-      alert(j.devCode ? `Your code: ${j.devCode}` : 'Code sent — check your email.');
+      if (j.devCode) alert(`Your code: ${j.devCode}`);
     } catch {
-      alert('Could not reach New Era — check your connection, then retry.');
+      setError('Could not reach New Era — check your connection, then retry.');
     }
   };
 
   const verify = async () => {
+    setError('');
     const r = await fetch(`${API}/auth/verify`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...contactBody(), code, country }),
@@ -67,39 +71,43 @@ export default function Auth() {
     const j = await r.json().catch(() => ({}));
     if (j.token) done(j);
     else if (j.needsPassword) { setPendingId(j.accountId); setStage('password'); }
-    else alert(j.error || 'Invalid or expired code');
+    else setError(r.status >= 500 ? 'Server error — wait a bit, then retry.' : (j.error || 'Invalid or expired code — request one code and enter it within 10 minutes.'));
   };
 
   const submitPassword = async () => {
+    setError('');
+    if (!password) { setError('Enter the password for this account.'); return; }
     const r = await fetch(`${API}/auth/password`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ accountId: pendingId, password }),
     });
     const j = await r.json().catch(() => ({}));
     if (j.token) done(j);
-    else alert('Wrong password — try again, or reset it below.');
+    else setError('Wrong password — try again, or reset it below.');
   };
 
   const forgot = async () => {
+    setError('');
     const r = await fetch(`${API}/auth/password/forgot`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify(contactBody()),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) { alert('Could not send — retry in a minute.'); return; }
+    if (!r.ok) { setError('Reset code not sent — check your connection, then retry.'); return; }
     setStage('reset');
-    alert(j.devCode ? `Your code: ${j.devCode}` : 'Reset code sent.');
+    if (j.devCode) alert(`Your code: ${j.devCode}`);
   };
 
   const submitReset = async () => {
-    if (newPassword.length < 8) { alert('Use 8 or more characters.'); return; }
+    setError('');
+    if (newPassword.length < 8) { setError('Use 8 or more characters.'); return; }
     const r = await fetch(`${API}/auth/password/reset`, {
       method: 'POST', headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...contactBody(), code: resetCode, password: newPassword }),
     });
     const j = await r.json().catch(() => ({}));
     if (j.token) done(j);
-    else alert('Invalid or expired code — request a fresh one.');
+    else setError('Invalid or expired code — request a fresh one.');
   };
 
   const title = stage === 'password' ? 'Enter password'
@@ -121,6 +129,11 @@ export default function Auth() {
             : fresh ? 'Join New Era to list your business and chat with customers.'
             : 'Sign in to your New Era account.'}
         </p>
+        {error ? (
+          <p style={{ color: '#B0362C', textAlign: 'center', fontSize: 14, marginTop: 0 }}>
+            {error}
+          </p>
+        ) : null}
         {stage === 'contact' && (
           <>
             <input className="input" placeholder="Email address" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: '100%' }} />
