@@ -237,11 +237,12 @@ function AnalyticsPane() {
 function ControlPane({ onChanged }) {
   const [on, setOn] = useState(false);
   const [message, setMessage] = useState('');
+  const [minApp, setMinApp] = useState('');
   useEffect(() => {
-    api('/admin/maintenance').then((m) => { setOn(m.on); setMessage(m.message); }).catch(() => {});
+    api('/admin/maintenance').then((m) => { setOn(m.on); setMessage(m.message); setMinApp(m.minAppVersion || ''); }).catch(() => {});
   }, []);
   const save = async (next) => {
-    await api('/admin/maintenance', { method: 'POST', body: JSON.stringify({ on: next, message }) });
+    await api('/admin/maintenance', { method: 'POST', body: JSON.stringify({ on: next, message, minAppVersion: minApp.trim() }) });
     setOn(next);
     onChanged(next);
   };
@@ -256,6 +257,9 @@ function ControlPane({ onChanged }) {
         <label className="lbl">Notice shown to users</label>
         <input className="input" value={message} onChange={(e) => setMessage(e.target.value)}
           placeholder="e.g. Back in an hour — upgrading." style={{ width: '100%' }} />
+        <label className="lbl">Minimum app version (blank = no update gate)</label>
+        <input className="input" value={minApp} onChange={(e) => setMinApp(e.target.value)}
+          placeholder="e.g. 1.1.0" style={{ width: '100%' }} />
         <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
           {!on
             ? <button className="btn" onClick={() => save(true)}>Pause app + web</button>
@@ -264,6 +268,7 @@ function ControlPane({ onChanged }) {
       </div>
       <p style={{ fontSize: 13, color: 'var(--color-body-text)' }}>
         The message saves together with the switch — edit it before pausing.
+        The minimum version nudges older APKs to the releases page on next launch.
       </p>
     </>
   );
