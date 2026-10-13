@@ -45,7 +45,7 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
     Alert.alert('Delete listing?', `"${l.title}" will be removed.`, [
       { text: 'Cancel' },
       { text: 'Delete', style: 'destructive', onPress: async () => {
-        try { await api.deleteListing(l.id); setItems(items.filter(x => x.id !== l.id)); }
+        try { await api.deleteListing(l.id); setItems(prev => (prev ?? []).filter(x => x.id !== l.id)); }
         catch { Alert.alert('Could not delete', 'Check connection, then retry.'); }
       } },
     ]);
