@@ -331,7 +331,15 @@ export function authRoutes(app, prisma) {
     }
     const taken = await prisma.account.findUnique({ where: { email: next } });
     if (taken && taken.id !== acc.id) return reply.code(409).send({ error: 'email already in use' });
+    const oldEmail = acc.email;
     const updated = await prisma.account.update({ where: { id: acc.id }, data: { email: next } });
+    // The old address hears about it — hijack attempts surface immediately.
+    if (oldEmail && oldEmail !== next) {
+      sendMail({
+        to: oldEmail, subject: 'Your New Era email was changed',
+        html: `<p>Your New Era sign-in email was changed to ${next}. If this wasn't you, contact support@getneweraapp.com right away.</p>`,
+      }).catch(() => {});
+    }
     return safe(updated);
   });
 
@@ -358,5 +366,61 @@ export function authRoutes(app, prisma) {
     if (taken && taken.id !== acc.id) return reply.code(409).send({ error: 'phone already in use' });
     const updated = await prisma.account.update({ where: { id: acc.id }, data: { phone: next } });
     return safe(updated);
+  });
+
+  // Hibernate: storefront hides, sessions die, nothing is deleted. Signing
+  // in again + reopening restores everything exactly as it was.
+  app.post('/me/deactivate', async (req, reply) => {
+    const acc = await authedRow(req, reply);
+    if (!acc) return;
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
+    await prisma.account.update({ where: { id: acc.id }, data: { deactivatedAt: new Date() } });
+    await prisma.refreshToken.deleteMany({ where: { accountId: acc.id } });
+    return { ok: true };
+  });
+
+  // Reopen a hibernating account. Explicit tap — sign-in alone never flips it.
+  app.post('/me/reactivate', async (req, reply) => {
+    const acc = await authedRow(req, reply);
+    if (!acc) return;
+    if (!acc.deactivatedAt) return { ok: true };
+    const updated = await prisma.account.update({ where: { id: acc.id }, data: { deactivatedAt: null } });
+    return { ok: true, account: safe(updated) };
+  });
+
+  // Permanent delete: hibernating 90+ days, and no businesses. Stores stay
+  // accountable — an owner with a storefront cannot vanish with open orders.
+  app.delete('/me/account', async (req, reply) => {
+    const acc = await authedRow(req, reply);
+    if (!acc) return;
+    if (rateLimited(req.ip)) return reply.code(429).send({ error: 'too many tries — wait a minute.' });
+    if (!acc.deactivatedAt || Date.now() - new Date(acc.deactivatedAt).getTime() < 90 * 24 * 3600 * 1000) {
+      return reply.code(400).send({ error: 'available after 90 days hibernating' });
+    }
+    const mine = await prisma.business.findMany({ where: { ownerId: acc.id }, select: { id: true } });
+    if (mine.length > 0) {
+      return reply.code(400).send({ error: 'stores stay accountable — contact support to close a business account' });
+    }
+    const bizIds = mine.map(b => b.id);
+    const threads = await prisma.thread.findMany({
+      where: { customerId: acc.id }, select: { id: true },
+    });
+    const threadIds = threads.map(t => t.id);
+    await prisma.$transaction([
+      prisma.message.deleteMany({ where: { OR: [{ senderId: acc.id }, { threadId: { in: threadIds } }] } }),
+      prisma.threadRead.deleteMany({ where: { OR: [{ accountId: acc.id }, { threadId: { in: threadIds } }] } }),
+      prisma.thread.deleteMany({ where: { id: { in: threadIds } } }),
+      prisma.certificate.deleteMany({ where: { businessId: { in: bizIds } } }),
+      prisma.status.deleteMany({ where: { businessId: { in: bizIds } } }),
+      prisma.collection.deleteMany({ where: { businessId: { in: bizIds } } }),
+      prisma.listing.deleteMany({ where: { businessId: { in: bizIds } } }),
+      prisma.business.deleteMany({ where: { id: { in: bizIds } } }),
+      prisma.supportMessage.deleteMany({ where: { accountId: acc.id } }),
+      prisma.report.deleteMany({ where: { reporterId: acc.id } }),
+      prisma.event.updateMany({ where: { accountId: acc.id }, data: { accountId: null } }),
+      prisma.refreshToken.deleteMany({ where: { accountId: acc.id } }),
+      prisma.account.delete({ where: { id: acc.id } }),
+    ]);
+    return { ok: true };
   });
 }

@@ -63,6 +63,7 @@ export function storeRoutes(app, prisma) {
     // ("Food service") — substring match so chips actually find them.
     const where = {
       country, hidden: false, suspended: false,
+      owner: { deactivatedAt: null },
       ...(city ? { city } : {}),
       ...(category ? { category: { contains: category, mode: 'insensitive' } } : {}),
     };
@@ -101,11 +102,11 @@ export function storeRoutes(app, prisma) {
   });
 
   // UPD-1: public updates feed — live statuses with their business,
-  // newest first. Hidden/suspended stores are excluded.
+  // newest first. Hidden/suspended/hibernating stores are excluded.
   app.get('/updates', async req => {
     const take = Math.min(Number(req.query.limit) || 30, 50);
     return prisma.status.findMany({
-      where: { expiresAt: { gt: new Date() }, business: { hidden: false, suspended: false } },
+      where: { expiresAt: { gt: new Date() }, business: { hidden: false, suspended: false, owner: { deactivatedAt: null } } },
       orderBy: { createdAt: 'desc' },
       take,
       include: { business: { select: { id: true, name: true, slug: true, logoKey: true } } },
@@ -118,23 +119,31 @@ export function storeRoutes(app, prisma) {
     const b = await prisma.business.findUnique({
       where: { slug: req.params.slug },
       include: {
+        owner: { select: { deactivatedAt: true } },
         listings: true,
         collections: true,
         certificates: true,
         statuses: { where: { expiresAt: { gt: new Date() } }, orderBy: { createdAt: 'desc' } },
       },
     });
-    if (!b || b.hidden || b.suspended) return reply.code(404).send({ error: 'unknown storefront' });
-    const { listings, collections, certificates, statuses, ...business } = b;
+    if (!b || b.hidden || b.suspended || b.owner?.deactivatedAt) {
+      return reply.code(404).send({ error: 'unknown storefront' });
+    }
+    const { listings, collections, certificates, statuses, owner: _drop, ...business } = b;
     return { business, listings: listings.filter(l => !l.hidden), collections, certificates, statuses };
   });
 
   // TRU-7: minimal public business card for the pre-chat caution check.
   // Hidden/suspended stores stay invisible here too.
   app.get('/businesses/:id', async (req, reply) => {
-    const b = await prisma.business.findUnique({ where: { id: req.params.id } });
-    if (!b || b.hidden || b.suspended) return reply.code(404).send({ error: 'unknown business' });
-    const { ownerId, ...pub } = b;
+    const b = await prisma.business.findUnique({
+      where: { id: req.params.id },
+      include: { owner: { select: { deactivatedAt: true } } },
+    });
+    if (!b || b.hidden || b.suspended || b.owner?.deactivatedAt) {
+      return reply.code(404).send({ error: 'unknown business' });
+    }
+    const { ownerId, owner: _drop, ...pub } = b;
     return pub;
   });
 
@@ -215,8 +224,11 @@ export function storeRoutes(app, prisma) {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const { businessId, listingId } = req.body || {};
-    const biz = await prisma.business.findUnique({ where: { id: businessId } });
-    if (!biz) return reply.code(404).send({ error: 'unknown business' });
+    const biz = await prisma.business.findUnique({
+      where: { id: businessId },
+      include: { owner: { select: { deactivatedAt: true } } },
+    });
+    if (!biz || biz.owner?.deactivatedAt) return reply.code(404).send({ error: 'unknown business' });
     if (biz.ownerId === acc.id) return reply.code(400).send({ error: 'own storefront — use preview instead' });
     const existing = await prisma.thread.findFirst({
       where: { businessId, customerId: acc.id, listingId: listingId || null },

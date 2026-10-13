@@ -29,6 +29,7 @@ model Account {
   headerKey     String?  // customer profile header background
   passwordHash  String?  // optional 2nd step: OTP + password (ACC-1)
   lastSeenAt    DateTime? // presence dot (online < 2min)
+  deactivatedAt DateTime? // hibernation: hidden + signed out until reopened
   createdAt     DateTime @default(now())
   businesses    Business[]
   threads       Thread[] @relation("CustomerThreads")
