@@ -251,13 +251,10 @@ const themed = (p: Palette) => StyleSheet.create({
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },
   kebabWrap: { position: 'relative', zIndex: 20, elevation: 20 },
-  menuScrim: { flex: 1, backgroundColor: 'transparent', alignItems: 'center' },
-  menuCol: {
-    width: '100%', maxWidth: 900, flex: 1,
-    alignItems: 'flex-end', justifyContent: 'flex-start',
-    paddingTop: 110, paddingRight: space.s3,
-  },
+  menuScrim: { flex: 1, backgroundColor: 'transparent' },
+  menuCol: { flex: 1 },
   menuCard: {
+    position: 'absolute', top: 76, right: space.s3,
     minWidth: 200, backgroundColor: p.surface, borderRadius: radius.md,
     paddingHorizontal: space.s4, paddingVertical: space.s2, ...shadow.lg,
   },
@@ -284,11 +281,11 @@ const themed = (p: Palette) => StyleSheet.create({
   box: { flexDirection: 'row', gap: space.s2, alignItems: 'center', padding: space.s3, backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
   plusBtn: {
     width: 48, height: 48, borderRadius: 24, backgroundColor: p.background,
-    alignItems: 'center', justifyContent: 'center',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
   sendBtn: {
     width: 48, height: 48, borderRadius: 24, backgroundColor: C.cta,
-    alignItems: 'center', justifyContent: 'center', ...shadow.cta,
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...shadow.cta,
   },
   pressed: { opacity: 0.85 },
   nudge: {
@@ -300,7 +297,7 @@ const themed = (p: Palette) => StyleSheet.create({
   nudgeYes: { ...type.body, color: C.success, fontWeight: '600' },
   nudgeNo: { ...type.body, color: p.bodyText },
   input: {
-    flex: 1, height: 48, borderRadius: 8, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
+    flex: 1, minWidth: 0, height: 48, borderRadius: 8, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     paddingHorizontal: space.s4, fontSize: 16, backgroundColor: p.surface,
   },
   dangerItem: { color: C.error },
