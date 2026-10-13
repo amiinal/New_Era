@@ -18,7 +18,9 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
   const [tagline, setTagline] = useState(account?.tagline ?? '');
   const [showEmail, setShowEmail] = useState(!!account?.showEmail);
   const [showPhone, setShowPhone] = useState(!!account?.showPhone);
-  const [contactPhone, setContactPhone] = useState(account?.contactPhone ?? '');
+  // Stored "null" strings (legacy) read as empty — never show the word.
+  const cleanNull = (v: string | null | undefined) => (!v || v === 'null' ? '' : v);
+  const [contactPhone, setContactPhone] = useState(cleanNull(account?.contactPhone));
   const [showContactPhone, setShowContactPhone] = useState(!!account?.showContactPhone);
   const [busy, setBusy] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -43,7 +45,7 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         displayName: name.trim() || null,
         showEmail,
         showPhone,
-        contactPhone: contactPhone.trim() || null,
+        contactPhone: cleanNull(contactPhone).trim() || null,
         showContactPhone,
       });
       await refresh();
@@ -67,7 +69,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
           value={name} onChangeText={setName} maxLength={40} />
         <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} />
-        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
+        <Text style={s.label}>Phone number</Text>
+        <TextInput style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
           value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
         {!!contactPhone.trim() && (
           <Pressable onPress={() => setShowContactPhone(!showContactPhone)} style={[s.check, { marginBottom: space.s2 }]}>
@@ -115,6 +118,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   btnWrap: { alignSelf: 'stretch', marginTop: space.s3 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
+  label: { ...type.bodySm, color: p.bodyText, alignSelf: 'flex-start', marginTop: space.s3 },
   av: { width: 96, height: 96, borderRadius: 48 },
   header: { width: '100%', height: 110, borderRadius: 12, marginBottom: space.s2 },
   empty: { backgroundColor: p.line },
