@@ -59,7 +59,13 @@ export function storeRoutes(app, prisma) {
   app.get('/discover', async req => {
     const { country, city, q, category } = req.query;
     if (!country) return [];
-    const where = { country, hidden: false, suspended: false, ...(city ? { city } : {}), ...(category ? { category } : {}) };
+    // Category chips are broad ("Food") while businesses pick exact ones
+    // ("Food service") — substring match so chips actually find them.
+    const where = {
+      country, hidden: false, suspended: false,
+      ...(city ? { city } : {}),
+      ...(category ? { category: { contains: category, mode: 'insensitive' } } : {}),
+    };
     const all = await prisma.business.findMany({
       where,
       include: { listings: { select: { title: true, description: true, photos: true } } },
