@@ -103,22 +103,22 @@ export function StorefrontScreen({
       ) : null}
       {(b.coverKey || listings[0]?.photos[0]) ? (
         preview ? (
-          <Pressable onPress={changeImage('coverKey')}>
+          <Pressable onPress={changeImage('coverKey')} style={s.coverWrap}>
             {coverOk ? (
-              <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} onError={() => setCoverOk(false)} />
-            ) : (
-              <View style={[s.cover, { backgroundColor: p.coverTint }]} />
-            )}
+              <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.coverImg} onError={() => setCoverOk(false)} />
+            ) : null}
           </Pressable>
         ) : coverOk ? (
-          <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} onError={() => setCoverOk(false)} />
+          <View style={s.coverWrap}>
+            <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.coverImg} onError={() => setCoverOk(false)} />
+          </View>
         ) : (
-          <View style={[s.cover, { backgroundColor: p.coverTint }]} />
+          <View style={s.coverWrap} />
         )
       ) : preview ? (
-        <Pressable onPress={changeImage('coverKey')} style={[s.cover, { backgroundColor: p.coverTint }]} />
+        <Pressable onPress={changeImage('coverKey')} style={s.coverWrap} />
       ) : (
-        <View style={[s.cover, { backgroundColor: p.coverTint }]} />
+        <View style={s.coverWrap} />
       )}
       <View style={s.card}>
         <View style={s.row}>
@@ -208,7 +208,11 @@ const themed = (p: Palette) => StyleSheet.create({
   backRow: { paddingHorizontal: space.s4, paddingTop: space.s3 },
   backT: { fontSize: 18, color: p.primary, fontWeight: '600' },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
-  cover: { width: '100%', height: 220 },
+  coverWrap: {
+    height: 220, marginHorizontal: space.s4, borderRadius: radius.lg,
+    overflow: 'hidden', backgroundColor: p.coverTint,
+  },
+  coverImg: { flex: 1 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4, ...shadow.md },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },
