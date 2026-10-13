@@ -8,6 +8,7 @@ import { ListingForm } from '../components/ListingForm';
 import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
 import { Palette, useTheme } from '../useTheme';
+import { confirmAction } from '../ui';
 
 // B2: own listings with one-tap availability (LST-5), edit, delete, add.
 export function BizListings({ dRoutes, dActive, onDNav }: {
@@ -42,13 +43,10 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
     } catch { Alert.alert('Could not update', 'Check connection, then retry.'); }
   };
   const remove = (l: Listing) => {
-    Alert.alert('Delete listing?', `"${l.title}" will be removed.`, [
-      { text: 'Cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => {
-        try { await api.deleteListing(l.id); setItems(prev => (prev ?? []).filter(x => x.id !== l.id)); }
-        catch { Alert.alert('Could not delete', 'Check connection, then retry.'); }
-      } },
-    ]);
+    confirmAction('Delete listing?', `"${l.title}" will be removed.`, 'Delete', async () => {
+      try { await api.deleteListing(l.id); setItems(prev => (prev ?? []).filter(x => x.id !== l.id)); }
+      catch { Alert.alert('Could not delete', 'Check connection, then retry.'); }
+    });
   };
 
   return (

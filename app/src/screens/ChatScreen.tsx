@@ -14,6 +14,7 @@ import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { CautionSheet } from '../components/CautionSheet';
 import { Palette, useTheme } from '../useTheme';
+import { confirmAction } from '../ui';
 import { PeerSheet } from '../components/PeerSheet';
 
 // Step 6: thread with listing context (CHT-3). Native keyboard via TextInput.
@@ -107,20 +108,14 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   };
   const delChat = () => {
     setMenu(null);
-    Alert.alert('Delete conversation?', 'Gone for both sides. This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete', style: 'destructive',
-        onPress: async () => {
-          try {
-            await api.deleteThread(threadId);
-            onExit?.();
-          } catch {
-            Alert.alert('Could not delete', 'Retry.');
-          }
-        },
-      },
-    ]);
+    confirmAction('Delete conversation?', 'Gone for both sides. This cannot be undone.', 'Delete', async () => {
+      try {
+        await api.deleteThread(threadId);
+        onExit?.();
+      } catch {
+        Alert.alert('Could not delete', 'Retry.');
+      }
+    });
   };
 
   const openPeer = () => {

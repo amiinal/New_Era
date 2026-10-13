@@ -13,6 +13,7 @@ import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
 import { Palette, useTheme } from '../useTheme';
+import { confirmAction } from '../ui';
 
 const CATEGORIES = [
   'Food service', 'Bakery', 'Salon', 'Barbershop', 'Tailor', 'Fashion',
@@ -52,10 +53,7 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
   // Leaving early keeps whatever is already created — resume anytime
   // from Business home.
   const exit = () => {
-    Alert.alert('Leave setup?', 'Your progress so far is kept.', [
-      { text: 'Keep going', style: 'cancel' },
-      { text: 'Exit', onPress: onDone },
-    ]);
+    confirmAction('Leave setup?', 'Your progress so far is kept.', 'Exit', onDone);
   };
 
   const create = async () => {
