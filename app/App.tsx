@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Platform, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from './src/auth';
+import { Hibernate } from './src/components/Hibernate';
 import { ThemeProvider } from './src/useTheme';
 import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
@@ -34,7 +35,7 @@ type Route =
 
 // State-based navigator (no router dep): customer tabs + drill-in stack.
 function Shell() {
-  const { account, mode, setAppMode, restoring, restored } = useAuth();
+  const { account, mode, setAppMode, restoring, restored, refresh, signOut } = useAuth();
   const { p } = useTheme();
   const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
@@ -262,6 +263,10 @@ function Shell() {
         <ActivityIndicator />
       </View>
     );
+  }
+  // Hibernating accounts stop here: reopen, delete (when due), or sign out.
+  if (account?.deactivatedAt) {
+    return <Hibernate since={account.deactivatedAt} onReopened={refresh} onGone={signOut} />;
   }
   if (account && needRole) {    return (
       <RoleSelect onPick={async m => {

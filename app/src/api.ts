@@ -45,6 +45,7 @@ export type Account = {
   contactPhone: string | null;
   showContactPhone: boolean;
   hasPassword: boolean;
+  deactivatedAt: string | null;
 };
 export type Business = {
   id: string; ownerId: string; name: string; slug: string; category: string;
@@ -195,6 +196,12 @@ export const api = {
     req<{ sent: boolean; devCode?: string }>('/auth/request-code', { method: 'POST', body: JSON.stringify(body) }),
   checkAccount: (email: string) =>
     req<{ exists: boolean }>('/auth/check', { method: 'POST', body: JSON.stringify({ email }) }),
+  deactivate: () =>
+    req<{ ok: boolean }>('/me/deactivate', { method: 'POST' }),
+  reactivate: () =>
+    req<{ ok: boolean; account?: Account }>('/me/reactivate', { method: 'POST' }),
+  deleteAccount: () =>
+    req<{ ok: boolean }>('/me/account', { method: 'DELETE' }),
   verify: (body: { email?: string; phone?: string; code: string; country: string }) =>
     req<{ token: string; refreshToken: string; account: Account } | { needsPassword: true; accountId: string }>('/auth/verify', { method: 'POST', body: JSON.stringify(body) }),
   passwordLogin: (body: { accountId: string; password: string }) =>
