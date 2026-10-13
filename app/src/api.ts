@@ -121,17 +121,8 @@ async function raw<T>(path: string, init?: RequestInit): Promise<{ status: numbe
 
 async function req<T>(path: string, init?: RequestInit, retried = false): Promise<T> {
   let r = await raw<T>(path, init);
-  if (r.status === 401 && !retried && refresh && !path.startsWith('/auth/')) {
-    try {
-      const rot = await raw<{ token: string; refreshToken: string; account: Account }>(
-        '/auth/refresh',
-        { method: 'POST', body: JSON.stringify({ refreshToken: refresh }) },
-      );
-      if (rot.status === 200 && rot.body.token) {
-        await setTokens(rot.body.token, rot.body.refreshToken);
-        r = await raw<T>(path, init);
-      }
-    } catch { /* fall through to the 401 below */ }
+  if (r.status === 401 && !retried && !path.startsWith('/auth/')) {
+    if (await rotateOnce()) r = await raw<T>(path, init);
   }
   if (r.status === 401) throw new Error(`401 ${(r.body as { error?: string }).error || 'sign in again'} ${path}`);
   if (r.status < 200 || r.status >= 300) {
@@ -139,6 +130,29 @@ async function req<T>(path: string, init?: RequestInit, retried = false): Promis
     throw new Error(`${r.status}${detail ? ' ' + detail : ''} ${path}`);
   }
   return r.body;
+}
+
+// Singleflight rotation: parallel 401s share one trade instead of racing
+// the single-use token (losers would 401 and look logged-out).
+let rotating: Promise<boolean> | null = null;
+async function rotateOnce(): Promise<boolean> {
+  if (!rotating) {
+    rotating = (async () => {
+      try {
+        if (!refresh) return false;
+        const rot = await raw<{ token: string; refreshToken: string; account: Account }>(
+          '/auth/refresh',
+          { method: 'POST', body: JSON.stringify({ refreshToken: refresh }) },
+        );
+        if (rot.status === 200 && rot.body.token) {
+          await setTokens(rot.body.token, rot.body.refreshToken);
+          return true;
+        }
+      } catch { /* network blip — keep the saved refresh */ }
+      return false;
+    })().finally(() => { rotating = null; });
+  }
+  return rotating;
 }
 
 // Saved refresh token for launch restore (null when signed out).

@@ -74,23 +74,37 @@ async function raw(path, init) {
 
 export async function api(path, init, retried = false) {
   let r = await raw(path, init);
-  const saved = localStorage.getItem('refresh');
-  if (r.status === 401 && !retried && saved && !path.startsWith('/auth/')) {
-    try {
-      const rot = await raw('/auth/refresh', {
-        method: 'POST', body: JSON.stringify({ refreshToken: saved }),
-      });
-      if (rot.status === 200 && rot.body.token) {
-        setTokens(rot.body.token, rot.body.refreshToken);
-        r = await raw(path, init);
-      }
-    } catch { /* fall through to the 401 below */ }
+  if (r.status === 401 && !retried && !path.startsWith('/auth/')) {
+    if (await rotateOnce()) r = await raw(path, init);
   }
   if (r.status < 200 || r.status >= 300) {
     if (r.status === 401) throw new Error(`401 ${(r.body.error || 'sign in again').trim()} ${path}`);
     throw new Error(`${r.status} ${(r.body.error || '').trim()}`.trim());
   }
   return r.body;
+}
+
+// Singleflight rotation: parallel 401s share one trade instead of racing
+// the single-use token (losers would 401 and look logged-out).
+let rotating = null;
+async function rotateOnce() {
+  if (!rotating) {
+    rotating = (async () => {
+      try {
+        const saved = localStorage.getItem('refresh');
+        if (!saved) return false;
+        const rot = await raw('/auth/refresh', {
+          method: 'POST', body: JSON.stringify({ refreshToken: saved }),
+        });
+        if (rot.status === 200 && rot.body.token) {
+          setTokens(rot.body.token, rot.body.refreshToken);
+          return true;
+        }
+      } catch { /* network blip — keep the saved refresh */ }
+      return false;
+    })().finally(() => { rotating = null; });
+  }
+  return rotating;
 }
 
 // Loop health (ANA-4): fire-and-forget, guests included (server allows

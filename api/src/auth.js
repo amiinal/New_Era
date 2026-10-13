@@ -8,6 +8,14 @@ import { bearer, mintRefresh, REFRESH_MS, refreshHash, signAccess, verifyAccess 
 
 const codes = new Map(); // key -> { code, expires }
 const hits = new Map(); // ip -> timestamps (ACC-6 rate limit)
+// Recently consumed refresh tokens (hash -> issued pair, 60s): heals clients
+// orphaned by a reload mid-rotation. Swept periodically; never blocks exit.
+const rotated = new Map();
+const sweepTimer = setInterval(() => {
+  const cut = Date.now() - 60_000;
+  for (const [k, v] of rotated) if (v.at < cut) rotated.delete(k);
+}, 30_000);
+if (typeof sweepTimer.unref === 'function') sweepTimer.unref();
 
 function rateLimited(ip, limit = 10, windowMs = 60_000) {
   const now = Date.now();
@@ -181,13 +189,20 @@ export function authRoutes(app, prisma) {
     if (!refreshToken) return reply.code(401).send({ error: 'sign in again' });
     const rec = await prisma.refreshToken.findUnique({ where: { hash: refreshHash(refreshToken) } });
     if (!rec || rec.expiresAt < new Date()) {
+      // Reuse grace: a reload that kills the response mid-rotation orphans
+      // the client (old consumed, new lost). Replaying the just-issued pair
+      // once heals it; a consumed token alone grants nothing new.
+      const replay = rotated.get(refreshHash(refreshToken));
+      if (replay && Date.now() - replay.at < 60_000) return replay.pair;
       if (rec) await prisma.refreshToken.delete({ where: { id: rec.id } }).catch(() => {});
       return reply.code(401).send({ error: 'sign in again' });
     }
     await prisma.refreshToken.delete({ where: { id: rec.id } });
     const acc = await prisma.account.findUnique({ where: { id: rec.accountId } });
     if (!acc) return reply.code(401).send({ error: 'sign in again' });
-    return { ...(await issueSession(prisma, acc.id)), account: safe(acc) };
+    const pair = { ...(await issueSession(prisma, acc.id)), account: safe(acc) };
+    rotated.set(refreshHash(refreshToken), { pair, at: Date.now() });
+    return pair;
   });
 
   // This device is done — drop its refresh token.
