@@ -15,8 +15,8 @@ const dark: Partial<Palette> = {
   line: C.darkLine,
   primary: C.primaryOnDark,
   chatBg: C.darkSurface,
+  coverTint: C.primary, // empty cover reads navy in dark mode
 };
-
 type Mode = 'system' | 'light' | 'dark';
 type Ctx = { p: Palette; dark: boolean; mode: Mode; setMode: (m: Mode) => void };
 

@@ -239,6 +239,7 @@ const FAQ: [string, string][] = [
   ['Do I need a business registration document?', 'No. A business does not need business documents to go live.'],
   ['Is New Era only for products?', 'No. Businesses can list both products and services.'],
   ['Can I share my store?', 'Yes. Every business gets a shareable storefront link.'],
+  ['What size should my cover photo be?', 'Cover photos fill the wide banner edge-to-edge. Use a wide photo — about 3:2 landscape (for example 1500 × 1000 pixels or larger). Keep faces and text in the middle: phones trim the edges to fit, so centered content is never cut.'],
   ['How does New Era choose which businesses appear in Discover?', 'New Era focuses on relevance, location, freshness, availability, completeness, and responsiveness. Popularity metrics such as followers and likes are not used.'],
 ];
 

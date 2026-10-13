@@ -18,6 +18,7 @@ export const C = {
   surface: '#FFFFFF',
   background: '#F7F7F9',
   chatBg: '#E8EAF6', // light indigo chat wash (mockup)
+  coverTint: '#DCE4F7', // empty-cover fill, light mode (navy in dark)
   // dark
   darkBackground: '#121317',
   darkSurface: '#1C1F26',

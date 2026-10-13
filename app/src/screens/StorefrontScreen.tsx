@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { MoreVertical } from 'lucide-react-native';
+import { MoreVertical, Plus } from 'lucide-react-native';
 import { api, img, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, shadow, space, type } from '../theme';
@@ -68,7 +68,7 @@ export function StorefrontScreen({
 
   return (
     <ScrollView style={s.root}>
-      {(b.coverKey || listings[0]?.photos[0]) && (
+      {(b.coverKey || listings[0]?.photos[0]) ? (
         preview ? (
           <Pressable onPress={changeImage('coverKey')}>
             <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
@@ -76,6 +76,14 @@ export function StorefrontScreen({
         ) : (
           <Image source={{ uri: img(b.coverKey || listings[0].photos[0]) }} style={s.cover} />
         )
+      ) : preview ? (
+        <Pressable onPress={changeImage('coverKey')} style={s.coverAdd}>
+          <Plus size={24} color={p.primary} />
+          <Text style={s.coverAddT}>Add cover</Text>
+          <Text style={s.micro}>Wide photo works best — about 3:2, e.g. 1500 × 1000.</Text>
+        </Pressable>
+      ) : (
+        <View style={[s.cover, { backgroundColor: p.coverTint }]} />
       )}
       <View style={s.card}>
         <View style={s.row}>
@@ -164,6 +172,12 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   cover: { width: '100%', height: 220 },
+  coverAdd: {
+    width: '100%', height: 220, alignItems: 'center', justifyContent: 'center', gap: 4,
+    borderWidth: 2, borderStyle: 'dashed', borderColor: p.lineStrong,
+    backgroundColor: p.surface,
+  },
+  coverAddT: { ...type.h3, color: p.primary },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, margin: space.s4, padding: space.s4, ...shadow.md },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   h1: { ...type.h1, fontSize: 22, color: p.ink },
