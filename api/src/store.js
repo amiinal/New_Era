@@ -220,6 +220,8 @@ export function storeRoutes(app, prisma) {
   });
 
   // CHT: open (or reuse) a thread; ACC-7 blocks chatting with own store.
+  // One thread per business+customer no matter which listing started it —
+  // duplicates merge into the oldest, and opening resurrects a hidden one.
   app.post('/threads', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
@@ -230,10 +232,25 @@ export function storeRoutes(app, prisma) {
     });
     if (!biz || biz.owner?.deactivatedAt) return reply.code(404).send({ error: 'unknown business' });
     if (biz.ownerId === acc.id) return reply.code(400).send({ error: 'own storefront — use preview instead' });
-    const existing = await prisma.thread.findFirst({
-      where: { businessId, customerId: acc.id, listingId: listingId || null },
+    const existing = await prisma.thread.findMany({
+      where: { businessId, customerId: acc.id },
+      orderBy: { createdAt: 'asc' },
     });
-    if (existing) return existing;
+    if (existing.length > 0) {
+      const [first, ...dupes] = existing;
+      for (const d of dupes) {
+        await prisma.message.updateMany({ where: { threadId: d.id }, data: { threadId: first.id } });
+        await prisma.threadRead.deleteMany({ where: { threadId: d.id } });
+        await prisma.thread.delete({ where: { id: d.id } });
+      }
+      if ((first.hiddenFor || []).includes(acc.id)) {
+        await prisma.thread.update({
+          where: { id: first.id },
+          data: { hiddenFor: first.hiddenFor.filter(id => id !== acc.id) },
+        });
+      }
+      return prisma.thread.findUnique({ where: { id: first.id } });
+    }
     return prisma.thread.create({ data: { businessId, customerId: acc.id, listingId: listingId || null } });
   });
 
@@ -246,7 +263,7 @@ export function storeRoutes(app, prisma) {
     });
     if (!t) return reply.code(404).send({ error: 'unknown thread' });
     const mine = t.customerId === acc.id || t.business.ownerId === acc.id;
-    if (!mine) return reply.code(404).send({ error: 'unknown thread' });
+    if (!mine || (t.hiddenFor || []).includes(acc.id)) return reply.code(404).send({ error: 'unknown thread' });
     // Peer identity for tappable avatars + online dot.
     const custName = (c) => c?.displayName || c?.tagline || 'Customer';
     const peer = t.customerId === acc.id
@@ -269,6 +286,7 @@ export function storeRoutes(app, prisma) {
     if (!t || (t.customerId !== acc.id && !(await prisma.business.findFirst({ where: { id: t.businessId, ownerId: acc.id } })))) {
       return reply.code(404).send({ error: 'unknown thread' });
     }
+    if ((t.hiddenFor || []).includes(acc.id)) return reply.code(404).send({ error: 'unknown thread' });
     // Opening the thread marks it read for this account.
     await prisma.threadRead.upsert({
       where: { threadId_accountId: { threadId: t.id, accountId: acc.id } },
@@ -288,6 +306,13 @@ export function storeRoutes(app, prisma) {
     }
     const { body, imageKey } = req.body || {};
     if (!body && !imageKey) return reply.code(400).send({ error: 'body or imageKey required (CHT-2: text+images)' });
+    // Messaging a thread you removed brings it back on your side.
+    if ((t.hiddenFor || []).includes(acc.id)) {
+      await prisma.thread.update({
+        where: { id: t.id },
+        data: { hiddenFor: t.hiddenFor.filter(id => id !== acc.id) },
+      });
+    }
     return prisma.message.create({ data: { threadId: t.id, senderId: acc.id, body: body || null, imageKey: imageKey || null } });
   });
 
@@ -307,15 +332,17 @@ export function storeRoutes(app, prisma) {
     return { deleted: true };
   });
 
-  // Delete the whole conversation (either side; gone for both).
+  // Remove the whole conversation from YOUR side only — the other side
+  // keeps it. Per-message delete stays for both sides (sender only).
   app.delete('/threads/:id', async (req, reply) => {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const t = await prisma.thread.findUnique({ where: { id: req.params.id } });
     if (!t || !await participant(acc, t)) return reply.code(404).send({ error: 'unknown thread' });
-    await prisma.message.deleteMany({ where: { threadId: t.id } });
-    await prisma.threadRead.deleteMany({ where: { threadId: t.id } }).catch(() => {});
-    await prisma.thread.delete({ where: { id: t.id } });
+    const hidden = t.hiddenFor || [];
+    if (!hidden.includes(acc.id)) {
+      await prisma.thread.update({ where: { id: t.id }, data: { hiddenFor: [...hidden, acc.id] } });
+    }
     return { deleted: true };
   });
 
@@ -483,7 +510,10 @@ export function storeRoutes(app, prisma) {
     const acc = await authed(req, reply, prisma);
     if (!acc) return;
     const rows = await prisma.thread.findMany({
-      where: { OR: [{ customerId: acc.id }, { business: { ownerId: acc.id } }] },
+      where: {
+        OR: [{ customerId: acc.id }, { business: { ownerId: acc.id } }],
+        NOT: { hiddenFor: { has: acc.id } },
+      },
       include: {
         business: { select: { id: true, name: true, slug: true, ownerId: true, logoKey: true } },
         messages: { orderBy: { createdAt: 'desc' }, take: 1 },
@@ -552,7 +582,7 @@ export function storeRoutes(app, prisma) {
     const biz = await prisma.business.findUnique({ where: { id: req.params.id } });
     if (!biz || biz.ownerId !== acc.id) return reply.code(403).send({ error: 'not your business' });
     const rows = await prisma.thread.findMany({
-      where: { businessId: biz.id }, orderBy: { createdAt: 'desc' }, take: 20,
+      where: { businessId: biz.id, NOT: { hiddenFor: { has: acc.id } } }, orderBy: { createdAt: 'desc' }, take: 20,
       include: { messages: { orderBy: { createdAt: 'desc' }, take: 1 } },
     });
     // Customer identity per thread so the inbox shows names, bios, dots.

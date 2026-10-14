@@ -127,8 +127,9 @@ model Thread {
   businessId  String
   business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   customerId  String
-  customer    Account  @relation("CustomerThreads", fields: [customerId], references: [id])
+  customer    Account @relation("CustomerThreads", fields: [customerId], references: [id])
   listingId   String?
+  hiddenFor   String[] @default([]) // account ids that removed it (their side only)
   createdAt DateTime @default(now())
   messages    Message[]
   reads       ThreadRead[]
