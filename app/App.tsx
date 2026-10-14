@@ -10,6 +10,7 @@ import { getFlag, setFlag } from './src/store';
 import { Intro } from './src/components/Intro';
 import { RoleSelect } from './src/screens/RoleSelect';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
+import { ProfileSheet } from './src/components/ProfileSheet';
 import { DrawerRoute } from './src/components/Drawer';
 import { C } from './src/theme';
 import { useTheme } from './src/useTheme';
@@ -54,6 +55,7 @@ function Shell() {
   const { p } = useTheme();
   const bg = { backgroundColor: p.background };
   const [route, setRoute] = useState<Route>({ name: 'discover' });
+  const [showProfile, setShowProfile] = useState(false);
   const [roleChecked, setRoleChecked] = useState(false);
   const [needRole, setNeedRole] = useState(false);
   const [bizAuto, setBizAuto] = useState(false);
@@ -452,7 +454,14 @@ function Shell() {
       )}
       {route.name === 'chat' && <ChatScreen threadId={route.threadId} context={route.context} onExit={() => setRoute({ name: 'chats' })} onOpenStore={openStore} onBack={() => setRoute(route.from ?? { name: 'chats' })} />}
       </View>
-      <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)} />
+      <BottomNav active={tab} chatsDot={hasUnread} onTab={t => setRoute({ name: t } as Route)}
+        onAvatar={() => {
+          if (!account) setAuthIntent({ mode: 'customer' });
+          else setShowProfile(true);
+        }} />
+      {showProfile && account ? (
+        <ProfileSheet onClose={() => setShowProfile(false)} onSaved={() => setShowProfile(false)} />
+      ) : null}
       <StatusBar style="auto" />
     </SafeAreaView>
   );

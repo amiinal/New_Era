@@ -1,7 +1,10 @@
-import { Compass, MessageCircle, Newspaper, Package, Store } from 'lucide-react-native';
+import { Compass, MessageCircle, Newspaper, Package, Store, UserRound } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { C, shadow } from '../theme';
+import { img } from '../api';
+import { Avatar } from './Avatar';
+import { useAuth } from '../auth';
 import { Palette, useTheme } from '../useTheme';
 
 export type Tab = 'chats' | 'updates' | 'discover';
@@ -42,8 +45,10 @@ const TABS: { key: Tab; label: string; Icon: typeof Compass }[] = [
   { key: 'discover', label: 'Discover', Icon: Compass },
 ];
 // Customer bottom nav (§CUS-1): active tab in primary, unread dot in error.
-export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t: Tab) => void; chatsDot?: boolean }) {
+// Fourth slot is the profile avatar (or sign-in glyph for guests).
+export function BottomNav({ active, onTab, onAvatar, chatsDot }: { active: Tab; onTab: (t: Tab) => void; onAvatar: () => void; chatsDot?: boolean }) {
   const { p } = useTheme();
+  const { account } = useAuth();
   const s = themed(p);
   const activeColor = p.primary;
   return (
@@ -61,6 +66,19 @@ export function BottomNav({ active, onTab, chatsDot }: { active: Tab; onTab: (t:
           </Pressable>
         );
       })}
+      <Pressable onPress={onAvatar} style={({ pressed }) => [s.tab, pressed && s.pressed]} accessibilityLabel="Profile">
+        {account ? (
+          <Avatar
+            name={account.displayName || account.email || account.phone || 'You'}
+            size={28}
+            uri={account.avatarKey ? img(account.avatarKey) : null}
+          />
+        ) : (
+          <View style={s.guestAvatar}>
+            <UserRound size={18} color={p.bodyText} />
+          </View>
+        )}
+      </Pressable>
     </View>
   );
 }
@@ -74,6 +92,10 @@ const themed = (p: Palette) => StyleSheet.create({
   tabOn: { backgroundColor: 'rgba(44,62,122,.07)' },
   pressed: { opacity: 0.7 },
   label: { fontSize: 12, color: p.bodyText },
+  guestAvatar: {
+    width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: p.lineStrong,
+    alignItems: 'center', justifyContent: 'center',
+  },
   dot: {
     position: 'absolute', top: 0, right: -2, width: 10, height: 10,
     borderRadius: 5, backgroundColor: C.error,

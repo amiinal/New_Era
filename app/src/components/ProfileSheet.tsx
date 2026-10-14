@@ -12,7 +12,7 @@ import { Help, Settings } from '../screens/Settings';
 // Customer profile: photo + short tagline, private to the account.
 // No public counts, no followers — identity only.
 export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
-  const { account, refresh } = useAuth();
+  const { account, refresh, signOut } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
   const [name, setName] = useState(account?.displayName ?? '');
   const [tagline, setTagline] = useState(account?.tagline ?? '');
@@ -95,6 +95,10 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         </View>        <View style={{ height: space.s3 }} />
         <View style={s.btnWrap}>
           <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
+        </View>
+        <View style={{ height: space.s3 }} />
+        <View style={s.btnWrap}>
+          <Button title="Sign out" variant="tertiary" onPress={async () => { await signOut(); onClose(); }} />
         </View>
         <View style={{ height: space.s3 }} />
         <View style={s.btnWrap}>
