@@ -226,10 +226,24 @@ export default function Thread() {
             <div className="card">No messages yet — say hello.</div>
           ) : msgs.map((m) => {
             const mine = m.senderId === me;
-            const showDots = !!m.body || mine;
             return (
               <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
-                {!mine ? <PeerAvatar peer={peer} size={36} /> : null}
+                {mine ? (
+                  <span className="msg-meta">
+                    <span className="menu-wrap">
+                      <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
+                        <DotsIcon size={18} color="var(--color-body-text)" />
+                      </button>
+                      {menuId === m.id && (
+                        <span className="menu-panel pop" onClick={() => setMenuId(null)}>
+                          {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
+                          <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button>
+                        </span>
+                      )}
+                    </span>
+                    <span className="msg-stamp">{fmtTime(m.createdAt)}</span>
+                  </span>
+                ) : <PeerAvatar peer={peer} size={36} />}
                 <div className="msg-col">
                   {m.imageKey ? (
                     <img src={img(m.imageKey)} alt="" className="msg-img" />
@@ -239,20 +253,23 @@ export default function Thread() {
                   ) : !m.imageKey ? (
                     <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>Photo</div>
                   ) : null}
-                  <div className="msg-stamp">{fmtTime(m.createdAt)}</div>
                 </div>
-                {showDots ? (
-                <div className="menu-wrap">
-                  <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
-                    <DotsIcon size={18} color="var(--color-body-text)" />
-                  </button>
-                  {menuId === m.id && (
-                    <div className={`menu-panel pop ${mine ? '' : 'pop-left'}`} onClick={() => setMenuId(null)}>
-                      {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
-                      {mine ? <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button> : null}
-                    </div>
-                  )}
-                </div>
+                {!mine ? (
+                <span className="msg-meta">
+                  {m.body ? (
+                  <span className="menu-wrap">
+                    <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
+                      <DotsIcon size={18} color="var(--color-body-text)" />
+                    </button>
+                    {menuId === m.id && (
+                      <span className="menu-panel pop pop-left" onClick={() => setMenuId(null)}>
+                        <button onClick={() => copy(m)}>Copy text</button>
+                      </span>
+                    )}
+                  </span>
+                  ) : null}
+                  <span className="msg-stamp">{fmtTime(m.createdAt)}</span>
+                </span>
                 ) : null}
               </div>
             );

@@ -224,6 +224,7 @@ a:hover .lcard { transform: translateY(-2px); }
 .chat-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 8px 0; }
 .msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 15px; overflow-wrap: anywhere; }
 .msg-me { align-self: flex-end; background: var(--color-primary); color: #fff; }
+[data-theme="dark"] .msg-me { background: var(--color-primary-on-dark); color: #1E1E24; }
 .msg-them { align-self: flex-start; background: var(--color-surface); box-shadow: var(--shadow-sm); }
 .msg-col { display: flex; flex-direction: column; max-width: 75%; }
 .msg-row.me .msg-col { align-items: flex-end; }
@@ -241,8 +242,9 @@ a:hover .lcard { transform: translateY(-2px); }
   box-shadow: var(--shadow-cta); transition: background .15s ease, transform .15s ease; flex-shrink: 0; }
 .send-btn:hover { background: #D15E2F; }
 .send-btn:active { background: var(--color-cta-dark); transform: scale(.94); }
-.msg-row { display: flex; align-items: center; gap: 4px; justify-content: flex-start; }
+.msg-row { display: flex; align-items: flex-end; gap: 6px; justify-content: flex-start; }
 .msg-row.me { justify-content: flex-end; }
+.msg-meta { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
 .menu-panel.pop { top: calc(100% + 4px); min-width: 180px; }
 .menu-panel.pop-left { left: 0; right: auto; }
 

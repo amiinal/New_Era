@@ -37,8 +37,8 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   const [menu, setMenu] = useState<{ kind: 'msg'; msg: Message } | { kind: 'head' } | null>(null);
   const [nudge, setNudge] = useState(false);
   const [caution, setCaution] = useState<{ biz: Business; cross: boolean } | null>(null);
-  const { p } = useTheme();
-  const s = themed(p);
+  const { p, dark } = useTheme();
+  const s = themed(p, dark);
 
   const load = async () => {
     try {
@@ -166,28 +166,37 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
             const toggle = () => setMenu({ kind: 'msg', msg: item });
             return (
               <View style={[s.row, mine && s.rowMe]}>
-                {!mine && (
+                {mine ? (
+                  <View style={s.meta}>
+                    <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
+                      <MoreHorizontal size={16} color={p.bodyText} />
+                    </Pressable>
+                    <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
+                  </View>
+                ) : (
                   <Pressable onPress={openPeer} hitSlop={8}>
                     <Avatar name={peer?.name || '?'} size={40} online={peer?.online} />
                   </Pressable>
                 )}
                 <View style={[s.col, mine && s.colMe]}>
-                  <View style={s.bubbleRow}>
-                    <Pressable onPress={toggle} onLongPress={() => setMenu({ kind: 'msg', msg: item })} delayLongPress={400}
-                      style={[s.bubble, mine ? s.me : s.them]}>
-                      {!!item.imageKey && (
-                        <Image source={{ uri: img(item.imageKey) }} style={s.msgImg} />
-                      )}
-                      {!!item.body && (
-                        <Text style={[s.text, mine && { color: '#fff' }]}>{item.body}</Text>
-                      )}
-                    </Pressable>
+                  <Pressable onPress={toggle} onLongPress={() => setMenu({ kind: 'msg', msg: item })} delayLongPress={400}
+                    style={[s.bubble, mine ? s.me : s.them]}>
+                    {!!item.imageKey && (
+                      <Image source={{ uri: img(item.imageKey) }} style={s.msgImg} />
+                    )}
+                    {!!item.body && (
+                      <Text style={[s.text, mine && s.meText]}>{item.body}</Text>
+                    )}
+                  </Pressable>
+                </View>
+                {!mine && (
+                  <View style={s.meta}>
                     <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
                       <MoreHorizontal size={16} color={p.bodyText} />
                     </Pressable>
+                    <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
                   </View>
-                  <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
-                </View>
+                )}
               </View>
             );
           }} />
@@ -242,7 +251,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   );
 }
 
-const themed = (p: Palette) => StyleSheet.create({
+const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.chatBg },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.s2, backgroundColor: p.surface, paddingHorizontal: space.s3, paddingVertical: space.s3 },
   backBtn: { padding: space.s1 },
@@ -269,13 +278,14 @@ const themed = (p: Palette) => StyleSheet.create({
   rowMe: { justifyContent: 'flex-end' },
   col: { maxWidth: '85%' },
   colMe: { alignItems: 'flex-end' },
-  bubbleRow: { flexDirection: 'row', gap: 4, alignItems: 'center' },
+  meta: { alignItems: 'center', justifyContent: 'center', gap: 2, flexShrink: 0 },
   popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
   stamp: { fontSize: 11, color: p.bodyText, marginTop: 2 },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, ...shadow.sm },
   msgImg: { width: 200, height: 150, borderRadius: 8, marginBottom: 4 },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
-  me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
+  me: { backgroundColor: dark ? C.primaryOnDark : C.primary, alignSelf: 'flex-end' },
+  meText: { color: dark ? C.darkBackground : '#fff' },
   text: { fontSize: 16, color: p.ink },
   dots: { padding: space.s1, alignSelf: 'center' },
   box: { flexDirection: 'row', gap: space.s2, alignItems: 'center', padding: space.s3, backgroundColor: p.surface, borderTopWidth: 1, borderTopColor: p.line },
