@@ -108,7 +108,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
   };
   const delChat = () => {
     setMenu(null);
-    confirmAction('Delete conversation?', 'Gone for both sides. This cannot be undone.', 'Delete', async () => {
+    confirmAction('Remove conversation?', 'Gone from your chats only — the other side keeps it.', 'Remove', async () => {
       try {
         await api.deleteThread(threadId);
         onExit?.();
@@ -233,7 +233,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
                     ) : null}
                   </>
                 ) : (
-                  <Text onPress={delChat} style={s.danger}>Delete conversation</Text>
+                  <Text onPress={delChat} style={s.danger}>Remove conversation</Text>
                 )}
               </View>
             </View>

@@ -53,7 +53,7 @@ export function StatusViewer({
         <View style={styles.prog}>
           {items.map((_, j) => (
             <View key={j} style={styles.seg}>
-              <View style={[styles.fill, { flex: j < i ? 1 : 0, opacity: j === i ? fill : 1 }]} />
+              <View style={[styles.fill, { flex: j < i ? 1 : j === i ? Math.max(fill, 0.02) : 0 }]} />
             </View>
           ))}
         </View>

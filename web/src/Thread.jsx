@@ -132,7 +132,7 @@ export default function Thread() {
   };
   const delChat = async () => {
     setHeadMenu(false);
-    if (!window.confirm('Delete this conversation? Gone for both sides.')) return;
+    if (!window.confirm('Remove this conversation from your chats? The other side keeps it.')) return;
     try {
       await api(`/threads/${threadId}`, { method: 'DELETE' });
       navigate('/chat', { replace: true });
@@ -193,7 +193,7 @@ export default function Thread() {
           </button>
           {headMenu && (
             <div className="menu-panel" onClick={() => setHeadMenu(false)}>
-              <button onClick={delChat} style={{ color: 'var(--color-error)' }}>Delete conversation</button>
+              <button onClick={delChat} style={{ color: 'var(--color-error)' }}>Remove conversation</button>
             </div>
           )}
         </div>
