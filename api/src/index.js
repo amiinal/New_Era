@@ -12,7 +12,7 @@ initSentry();
 process.on('unhandledRejection', (e) => capture(e));
 process.on('uncaughtException', (e) => capture(e));
 
-const app = Fastify({ logger: true, trustProxy: true });
+const app = Fastify({ logger: true, trustProxy: true, bodyLimit: 10 * 1024 * 1024 });
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 4000;
 
