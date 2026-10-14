@@ -394,6 +394,7 @@ function Shell() {
           : route.name === 'bdiscover'
           ? <DiscoverScreen onOpen={openStore} dRoutes={BIZ} dActive="bdiscover" onDNav={goDrawer} />
           : <BusinessHome onOpenStore={openStore} onManage={() => setRoute({ name: 'blistings' })}
+              onCustomerView={() => { setAppMode('customer'); setRoute({ name: 'discover' }); }}
               dRoutes={BIZ} dActive="mybiz" onDNav={goDrawer}
               autoStart={bizAuto} onAutoDone={() => setBizAuto(false)} />}
         </View>

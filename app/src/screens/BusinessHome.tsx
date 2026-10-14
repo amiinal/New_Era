@@ -15,8 +15,8 @@ import { Onboarding } from './Onboarding';
 // B1 business home (approved Step 10 layout): header with mode switch,
 // hero actions, discovery checklist, free Insights (7/30d), listings
 // preview, recent chats. Listings/inbox management are later slices.
-export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, autoStart, onAutoDone }: {
-  onOpenStore: (slug: string) => void; onManage: () => void;
+export function BusinessHome({ onOpenStore, onManage, onCustomerView, dRoutes, dActive, onDNav, autoStart, onAutoDone }: {
+  onOpenStore: (slug: string) => void; onManage: () => void; onCustomerView?: () => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
   autoStart?: boolean; onAutoDone?: () => void;
 }) {
@@ -79,6 +79,12 @@ export function BusinessHome({ onOpenStore, onManage, dRoutes, dActive, onDNav, 
             <View style={{ marginTop: space.s4 }}>
               <Button title="Start selling" onPress={() => setOnboard(true)} />
             </View>
+            {onCustomerView ? (
+              <Text style={[s.micro, { textAlign: 'center', marginTop: space.s3 }]}>
+                Just looking around?{' '}
+                <Text style={s.link} onPress={onCustomerView}>Back to customer view</Text>
+              </Text>
+            ) : null}
           </>
         )}
         {onboard && <Onboarding onDone={() => { setOnboard(false); onAutoDone?.(); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} onAddMore={() => { setOnboard(false); onAutoDone?.(); onManage(); }} />}
