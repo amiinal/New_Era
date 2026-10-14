@@ -1,6 +1,6 @@
 import {
   Compass, CircleHelp, MessageCircle, Newspaper, Package, Settings as SettingsIcon,
-  Store, UserRound, X,
+  Store, UserRound, X, ArrowLeftRight,
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -71,6 +71,12 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
             );
           })}
           <View style={{ flex: 1 }} />
+          {mode === 'business' ? (
+            <Pressable onPress={() => { onClose(); onNav('discover'); }} style={s.row}>
+              <ArrowLeftRight size={20} color={p.bodyText} />
+              <Text style={s.label}>Customer view</Text>
+            </Pressable>
+          ) : null}
           {account ? (mode === 'business' ? (
             <Pressable onPress={() => setPage('profile')} style={s.row}>
               <Store size={20} color={p.bodyText} />

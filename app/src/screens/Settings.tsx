@@ -1,4 +1,5 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import Constants from 'expo-constants';
 import React, { useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api } from '../api';
@@ -168,7 +169,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <Button title="Sign out" variant="secondary" onPress={() => { signOut(); onClose(); }} />
         <View style={{ height: space.s2 }} />
         <Button title="Close" variant="tertiary" onPress={onClose} />
-        <Text style={[s.micro, { textAlign: 'center', marginTop: space.s4 }]}>New Era · MVP beta · v1.0.0</Text>
+        <Text style={[s.micro, { textAlign: 'center', marginTop: space.s4 }]}>New Era · MVP beta · v{(Constants.expoConfig?.version as string | undefined) ?? '1.0.0'}</Text>
       </View>
       </ScrollView>
       {chat && <SupportChat onClose={() => setChat(false)} />}

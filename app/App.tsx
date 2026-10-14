@@ -117,7 +117,15 @@ function Shell() {
         if (saved) {
           try {
             const r = JSON.parse(saved) as Route;
-            if (r && typeof r.name === 'string') setRoute(r);
+            if (r && typeof r.name === 'string') {
+              // Relaunch lands on tabs, never inside someone else's
+              // store/chat — drill routes lose their context overnight.
+              if (r.name === 'store' || r.name === 'listing' || r.name === 'chat') {
+                setRoute({ name: account.lastMode === 'business' ? 'bizhome' : 'discover' } as Route);
+              } else {
+                setRoute(r);
+              }
+            }
           } catch { /* start fresh */ }
         }
         return;
@@ -341,13 +349,22 @@ function Shell() {
   };
   const CUST: DrawerRoute[] = ['chats', 'updates', 'discover'];
   const BIZ: DrawerRoute[] = ['mybiz', 'blistings', 'bchats', 'bupdates', 'bdiscover'];
-  const goDrawer = (r: DrawerRoute) => setRoute(
+  const goDrawer = (r: DrawerRoute) => {
+    // Cross-mode escape: business drawer offers Customer view, which flips
+    // the mode and lands on customer Discover (no dead-end modes).
+    if (r === 'discover' && mode === 'business') {
+      setAppMode('customer');
+      setRoute({ name: 'discover' } as Route);
+      return;
+    }
+    setRoute(
     r === 'mybiz' ? { name: 'bizhome' }
     : r === 'blistings' ? { name: 'blistings' }
     : r === 'bdiscover' ? { name: 'bdiscover' }
     : r === 'bupdates' ? { name: 'bupdates' }
     : r === 'bchats' ? { name: 'bchats' }
     : { name: r } as Route);
+  };
 
   if (mode === 'business') {
     const bizTab: BizTab =

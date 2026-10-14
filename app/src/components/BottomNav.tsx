@@ -7,7 +7,7 @@ import { Palette, useTheme } from '../useTheme';
 export type Tab = 'chats' | 'updates' | 'discover';
 export type BizTab = 'mybiz' | 'blistings' | 'bchats' | 'bupdates' | 'bdiscover';
 const BIZ_TABS: { key: BizTab; label: string; Icon: typeof Store }[] = [
-  { key: 'mybiz', label: 'My Business', Icon: Store },
+  { key: 'mybiz', label: 'Business', Icon: Store },
   { key: 'blistings', label: 'Listings', Icon: Package },
   { key: 'bchats', label: 'Chats', Icon: MessageCircle },
   { key: 'bupdates', label: 'Updates', Icon: Newspaper },
