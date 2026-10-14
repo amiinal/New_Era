@@ -188,11 +188,19 @@ function Bars({ rows }) {
 
 function AnalyticsPane() {
   const [s, setS] = useState(null);
+  const [dl, setDl] = useState(null); // APK downloads, ground truth from GitHub
   useEffect(() => { api('/admin/stats').then(setS).catch(() => setS(false)); }, []);
+  useEffect(() => {
+    fetch('https://api.github.com/repos/amiinal/New_Era/releases')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rs) => setDl(rs.reduce((n, rel) => n + (rel.assets || []).reduce((m, a) => m + (a.download_count || 0), 0), 0)))
+      .catch(() => setDl(false));
+  }, []);
   if (s === null) return <div className="card">Loading…</div>;
   if (s === false) return <div className="card">Couldn&apos;t load stats.</div>;
   const searches = (s.searchesByDay || []).reduce((n, d) => n + d.n, 0);
   const views = (s.viewsByDay || []).reduce((n, d) => n + d.n, 0);
+  const installs = (s.installsByDay || []).reduce((n, d) => n + d.n, 0);
   const cards = [
     ['Signups', s.accounts], ['Businesses', s.businesses], ['Listings', s.listings],
     ['Chats', s.threads], ['Messages', s.messages],
@@ -204,6 +212,8 @@ function AnalyticsPane() {
     ['Chats from listings', `${s.chatsFromListing ?? 0} / ${s.threads}`],
     ['First-reply rate', `${s.replyRate ?? 0}%`],
     ['Returning visitors · 14d', s.returningVisitors ?? 0],
+    ['APK downloads · all', dl === null ? '…' : dl === false ? 'n/a' : dl],
+    ['PWA installs · 14d', installs],
   ];
   return (
     <>
@@ -230,6 +240,8 @@ function AnalyticsPane() {
       <Bars rows={s.searchesByDay || []} />
       <h2>Storefront views — last 14 days</h2>
       <Bars rows={s.viewsByDay || []} />
+      <h2>PWA installs — last 14 days</h2>
+      <Bars rows={s.installsByDay || []} />
     </>
   );
 }

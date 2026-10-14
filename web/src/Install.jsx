@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import Footer from './Footer.jsx';
+import { recordEvent } from './lib.js';
 
 export default function Install() {
   const apk = import.meta.env.VITE_APK_URL || '#';
@@ -27,7 +28,7 @@ export default function Install() {
         <div className="card" style={{ marginBottom: 8 }}>
           <h3 style={{ marginTop: 0 }}>Android</h3>
           <p style={{ color: 'var(--color-body-text)' }}>Download New Era directly to your Android phone.</p>
-          <a href={apk} className="btn">Download APK</a>
+          <a href={apk} className="btn" onClick={() => recordEvent('apk_download', {})}>Download APK</a>
         </div>
         <div className="card">
           <h3 style={{ marginTop: 0 }}>Browser</h3>

@@ -179,6 +179,14 @@ function Shell() {
   useEffect(() => {
     api.recordEvent('app_open', {}).catch(() => {});
   }, []);
+  // PWA installs: the browser fires appinstalled once per install.
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const g = globalThis as { addEventListener?: (t: string, f: () => void) => void; removeEventListener?: (t: string, f: () => void) => void };
+    const onInstalled = () => { api.recordEvent('pwa_install', {}).catch(() => {}); };
+    g.addEventListener?.('appinstalled', onInstalled);
+    return () => { g.removeEventListener?.('appinstalled', onInstalled); };
+  }, []);
 
   // In-app back: drill screens return to where they came from, other tabs
   // return home. Only at home do we let the OS/browser exit the app.
