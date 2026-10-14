@@ -166,19 +166,19 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
             const toggle = () => setMenu({ kind: 'msg', msg: item });
             return (
               <View style={[s.row, mine && s.rowMe]}>
-                {mine ? (
-                  <View style={s.meta}>
-                    <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
-                      <MoreHorizontal size={16} color={p.bodyText} />
-                    </Pressable>
-                    <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
-                  </View>
-                ) : (
+                {!mine && (
                   <Pressable onPress={openPeer} hitSlop={8}>
                     <Avatar name={peer?.name || '?'} size={40} online={peer?.online} />
                   </Pressable>
                 )}
                 <View style={[s.col, mine && s.colMe]}>
+                  {!!(item.body || mine) && (
+                  <View style={[s.metaRow, mine && s.metaRowMe]}>
+                    <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
+                      <MoreHorizontal size={16} color={p.bodyText} />
+                    </Pressable>
+                  </View>
+                  )}
                   <Pressable onPress={toggle} onLongPress={() => setMenu({ kind: 'msg', msg: item })} delayLongPress={400}
                     style={[s.bubble, mine ? s.me : s.them]}>
                     {!!item.imageKey && (
@@ -188,15 +188,8 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
                       <Text style={[s.text, mine && s.meText]}>{item.body}</Text>
                     )}
                   </Pressable>
+                  <Text style={[s.stamp, mine && s.stampMe]}>{fmtTime(item.createdAt)}</Text>
                 </View>
-                {!mine && (
-                  <View style={s.meta}>
-                    <Pressable onPress={toggle} style={s.dots} hitSlop={8}>
-                      <MoreHorizontal size={16} color={p.bodyText} />
-                    </Pressable>
-                    <Text style={s.stamp}>{fmtTime(item.createdAt)}</Text>
-                  </View>
-                )}
               </View>
             );
           }} />
@@ -278,9 +271,11 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   rowMe: { justifyContent: 'flex-end' },
   col: { maxWidth: '85%' },
   colMe: { alignItems: 'flex-end' },
-  meta: { alignItems: 'center', justifyContent: 'center', gap: 2, flexShrink: 0 },
+  metaRow: { flexDirection: 'row', alignSelf: 'flex-start', marginBottom: 4 },
+  metaRowMe: { alignSelf: 'flex-end' },
   popItem: { ...type.body, color: p.ink, paddingVertical: space.s2 },
-  stamp: { fontSize: 11, color: p.bodyText, marginTop: 2 },
+  stamp: { fontSize: 11, color: p.bodyText, marginTop: 4 },
+  stampMe: { textAlign: 'right' },
   bubble: { maxWidth: '75%', padding: 12, borderRadius: 16, ...shadow.sm },
   msgImg: { width: 200, height: 150, borderRadius: 8, marginBottom: 4 },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },

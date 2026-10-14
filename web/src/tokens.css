@@ -228,7 +228,7 @@ a:hover .lcard { transform: translateY(-2px); }
 .msg-them { align-self: flex-start; background: var(--color-surface); box-shadow: var(--shadow-sm); }
 .msg-col { display: flex; flex-direction: column; max-width: 75%; }
 .msg-row.me .msg-col { align-items: flex-end; }
-.msg-stamp { font-size: 11px; color: var(--color-body-text); margin-top: 2px; }
+.msg-stamp { font-size: 11px; color: var(--color-body-text); margin-top: 4px; }
 .msg-img { width: 200px; max-width: 100%; border-radius: 8px; margin-bottom: 4px; }
 .plus-btn { width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
   background: var(--color-surface); color: var(--color-primary);
@@ -244,7 +244,9 @@ a:hover .lcard { transform: translateY(-2px); }
 .send-btn:active { background: var(--color-cta-dark); transform: scale(.94); }
 .msg-row { display: flex; align-items: flex-end; gap: 6px; justify-content: flex-start; }
 .msg-row.me { justify-content: flex-end; }
-.msg-meta { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; flex-shrink: 0; }
+.msg-meta-top { display: flex; margin-bottom: 4px; }
+.msg-row.me .msg-meta-top { justify-content: flex-end; }
+.msg-row.me .msg-stamp { text-align: right; }
 .menu-panel.pop { top: calc(100% + 4px); min-width: 180px; }
 .menu-panel.pop-left { left: 0; right: auto; }
 

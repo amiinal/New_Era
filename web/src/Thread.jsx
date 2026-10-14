@@ -228,23 +228,23 @@ export default function Thread() {
             const mine = m.senderId === me;
             return (
               <div key={m.id} className={`msg-row ${mine ? 'me' : ''}`}>
-                {mine ? (
-                  <span className="msg-meta">
+                {!mine ? <PeerAvatar peer={peer} size={36} /> : null}
+                <div className="msg-col">
+                  {(m.body || mine) ? (
+                  <span className="msg-meta-top">
                     <span className="menu-wrap">
                       <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
                         <DotsIcon size={18} color="var(--color-body-text)" />
                       </button>
                       {menuId === m.id && (
-                        <span className="menu-panel pop" onClick={() => setMenuId(null)}>
+                        <span className={`menu-panel pop ${mine ? '' : 'pop-left'}`} onClick={() => setMenuId(null)}>
                           {m.body ? <button onClick={() => copy(m)}>Copy text</button> : null}
-                          <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button>
+                          {mine ? <button onClick={() => delMsg(m)} style={{ color: 'var(--color-error)' }}>Delete message</button> : null}
                         </span>
                       )}
                     </span>
-                    <span className="msg-stamp">{fmtTime(m.createdAt)}</span>
                   </span>
-                ) : <PeerAvatar peer={peer} size={36} />}
-                <div className="msg-col">
+                  ) : null}
                   {m.imageKey ? (
                     <img src={img(m.imageKey)} alt="" className="msg-img" />
                   ) : null}
@@ -253,24 +253,8 @@ export default function Thread() {
                   ) : !m.imageKey ? (
                     <div className={`msg ${mine ? 'msg-me' : 'msg-them'}`}>Photo</div>
                   ) : null}
-                </div>
-                {!mine ? (
-                <span className="msg-meta">
-                  {m.body ? (
-                  <span className="menu-wrap">
-                    <button className="msg-dots" onClick={() => setMenuId(menuId === m.id ? null : m.id)} aria-label="Message options">
-                      <DotsIcon size={18} color="var(--color-body-text)" />
-                    </button>
-                    {menuId === m.id && (
-                      <span className="menu-panel pop pop-left" onClick={() => setMenuId(null)}>
-                        <button onClick={() => copy(m)}>Copy text</button>
-                      </span>
-                    )}
-                  </span>
-                  ) : null}
                   <span className="msg-stamp">{fmtTime(m.createdAt)}</span>
-                </span>
-                ) : null}
+                </div>
               </div>
             );
           })}
