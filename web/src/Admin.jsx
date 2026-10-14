@@ -248,6 +248,7 @@ function ControlPane({ onChanged }) {
   };
   const saveVersion = async () => {
     await api('/admin/maintenance', { method: 'POST', body: JSON.stringify({ on, message, minAppVersion: minApp.trim() }) });
+    alert(minApp.trim() ? `Saved — builds older than ${minApp.trim()} will be nudged on next launch.` : 'Saved — update gate is off.');
   };
   return (
     <>
