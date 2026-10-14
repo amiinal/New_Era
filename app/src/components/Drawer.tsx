@@ -4,6 +4,7 @@ import {
 } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
 import { radius, shadow, space, type } from '../theme';
@@ -38,6 +39,9 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
   const { p, dark } = useTheme();
   const { account } = useAuth();
   const s = themed(p, dark);
+  // Bottom breathing room: clear of the phone's system buttons (24px min).
+  const insets = useSafeAreaInsets();
+  const padBottom = Math.max(insets.bottom, 24);
   const activeC = p.primary;
   const [page, setPage] = useState<'menu' | 'profile' | 'cprofile' | 'settings' | 'help'>('menu');
   const [biz, setBiz] = useState<Business | null>(null);
@@ -48,7 +52,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={s.scrim} onPress={onClose}>
-        <Pressable style={s.panel} onPress={() => {}}>
+        <Pressable style={[s.panel, { paddingBottom: padBottom }]} onPress={() => {}}>
           <Text style={s.brand}>New Era</Text>
           {mode === 'business' && biz && (
             <View style={s.bizcard}>
@@ -113,7 +117,7 @@ export function Drawer({ mode, routes, active, onNav, onClose }: {
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'flex-start' },
   panel: {
-    width: '82%', maxWidth: 340, height: '100%', backgroundColor: p.surface,
+    width: '78%', maxWidth: 300, height: '100%', backgroundColor: p.surface,
     padding: space.s5, borderTopRightRadius: radius.lg, borderBottomRightRadius: radius.lg,
     ...shadow.lg,
   },
