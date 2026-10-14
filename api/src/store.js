@@ -511,6 +511,7 @@ export function storeRoutes(app, prisma) {
   // ANA-4 loop health: guests included (accountId null) — discovery happens
   // logged-out. Allowlisted names + IP rate limit keep floods out.
   const EVENTS_OK = new Set(['search', 'storefront_view', 'chat_started', 'app_open', 'visit',
+    'pwa_install', 'apk_download',
     'onboarding_step', 'first_listing', 'go_live', 'status_post', 'first_reply', 'nudge_reply']);
   const evHits = new Map();
   app.post('/events', async (req, reply) => {

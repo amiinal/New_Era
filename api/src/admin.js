@@ -179,12 +179,13 @@ export function adminRoutes(app, prisma) {
     // Loop health, bucketed from the same 14-day window.
     const dayKey = (d) => d.toISOString().slice(0, 10);
     const zeroDays = () => { const m = new Map(); for (let i = 13; i >= 0; i--) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i); m.set(dayKey(d), 0); } return m; };
-    const searches = zeroDays(), views = zeroDays();
+    const searches = zeroDays(), views = zeroDays(), installs = zeroDays();
     const activeDays = new Map(); // accountId -> Set(day)
     for (const e of evs) {
       const k = dayKey(new Date(e.createdAt));
       if (e.name === 'search' && searches.has(k)) searches.set(k, searches.get(k) + 1);
       if (e.name === 'storefront_view' && views.has(k)) views.set(k, views.get(k) + 1);
+      if (e.name === 'pwa_install' && installs.has(k)) installs.set(k, installs.get(k) + 1);
       if (e.accountId) {
         if (!activeDays.has(e.accountId)) activeDays.set(e.accountId, new Set());
         activeDays.get(e.accountId).add(k);
@@ -208,7 +209,7 @@ export function adminRoutes(app, prisma) {
     return {
       accounts: accounts.length, businesses, listings, threads: threads.length, messages,
       reportsOpen, supportUnread, signupsByDay: days,
-      searchesByDay: byDay(searches), viewsByDay: byDay(views),
+      searchesByDay: byDay(searches), viewsByDay: byDay(views), installsByDay: byDay(installs),
       chatsFromListing: threads.filter(t => t.listingId).length,
       replyRate: threads.length ? Math.round((replied / threads.length) * 100) : 0,
       returningVisitors: returning,
