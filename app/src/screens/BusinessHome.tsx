@@ -1,4 +1,3 @@
-import { Menu } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
@@ -9,7 +8,7 @@ import { Avatar } from '../components/Avatar';
 import { BizProfile } from '../components/BizProfile';
 import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
-import { Drawer, DrawerRoute } from '../components/Drawer';
+import { DrawerRoute } from '../ui';
 import { Onboarding } from './Onboarding';
 
 // B1 business home (approved Step 10 layout): header with mode switch,
@@ -30,7 +29,6 @@ export function BusinessHome({ onOpenStore, onManage, onCustomerView, dRoutes, d
   const [failed, setFailed] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [photoCount, setPhotoCount] = useState<number | null>(null);
-  const [menu, setMenu] = useState(false);
   const [edit, setEdit] = useState(false);
   const { p } = useTheme();
   const s = themed(p);
@@ -96,9 +94,6 @@ export function BusinessHome({ onOpenStore, onManage, onCustomerView, dRoutes, d
   return (
     <ScrollView style={s.root} contentContainerStyle={s.col}>
       <View style={s.head}>
-        <Pressable onPress={() => setMenu(true)}>
-          <Menu size={24} color={p.ink} />
-        </Pressable>
         <Pressable onPress={() => setEdit(true)}>
           <Avatar name={biz.name} size={56} />
         </Pressable>
@@ -161,8 +156,6 @@ export function BusinessHome({ onOpenStore, onManage, onCustomerView, dRoutes, d
         <Composer businessId={biz.id} onClose={() => setCompose(false)}
           onPosted={() => { setCompose(false); api.insights(biz.id, range).then(i => { setIns(i); setInsFailed(false); }).catch(() => {}); }} />
       )}
-      {menu && <Drawer mode="business" routes={dRoutes} active={dActive}
-        onNav={r => { setMenu(false); onDNav(r); }} onClose={() => setMenu(false)} />}
       {edit && <BizProfile onClose={() => setEdit(false)}
         onSaved={() => { setEdit(false); setLoaded(false); loadBiz().finally(() => setLoaded(true)); }} />}
     </ScrollView>

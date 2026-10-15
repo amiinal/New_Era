@@ -9,8 +9,7 @@ import { Button } from '../components/Button';
 import { Composer } from '../components/Composer';
 import { StatusViewer } from '../components/StatusViewer';
 import { statusLabel } from '../components/StatusViewer';
-import { TabHead } from '../components/TabHead';
-import { DrawerRoute } from '../components/Drawer';
+import { DrawerRoute } from '../ui';
 
 // Business Updates: add-story tile + own statuses. No Message buttons —
 export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
@@ -40,7 +39,9 @@ export function BizUpdates({ onStore, dRoutes, dActive, onDNav }: {
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Updates" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
+      <View style={s.headRow}>
+        <Text style={s.h1}>Updates</Text>
+      </View>
       {failed && !biz ? (
         <Pressable onPress={load} style={s.card}>
           <Text style={s.t}>Couldn&apos;t load updates.</Text>
@@ -106,7 +107,9 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Inbox" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} />
+      <View style={s.headRow}>
+        <Text style={s.h1}>Inbox</Text>
+      </View>
       {failed ? (
         <View style={s.card}>
           <Text style={s.t}>Couldn&apos;t load inbox.</Text>
@@ -142,6 +145,8 @@ export function BizInbox({ onThread, dRoutes, dActive, onDNav }: {
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
+  h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
   pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },

@@ -7,20 +7,19 @@ import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
 import { StatusViewer, statusLabel } from '../components/StatusViewer';
-import { TabHead } from '../components/TabHead';
-import { DrawerRoute } from '../components/Drawer';
+import { DrawerRoute } from '../ui';
 import { Palette, useTheme } from '../useTheme';
 
 // Customer Updates: live feed of recent business statuses, one card per
 // business — avatar ring plays its stories. Posting lives in business
 // mode only — no add tile, no account switcher.
 export function UpdatesScreen({
-  onMessage, onOpen, dRoutes, dActive, onDNav, onSignIn,
+  onMessage, onOpen, dRoutes, dActive, onDNav, onSignIn, onStartSelling,
 }: {
   onMessage: (businessId: string, label: string) => void;
   onOpen: (slug: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
-  onSignIn?: () => void;
+  onSignIn?: () => void; onStartSelling?: () => void;
 }) {
   const [items, setItems] = useState<FeedStatus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +51,12 @@ export function UpdatesScreen({
     <View style={s.root}>
       <ScrollView style={s.root} contentContainerStyle={s.col}
         bounces={false} overScrollMode="never">
-      <TabHead title="Updates" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
+      <View style={s.headRow}>
+        <Text style={s.h1}>Updates</Text>
+        {onStartSelling ? (
+          <Text onPress={onStartSelling} numberOfLines={1} style={s.switch}>Start selling</Text>
+        ) : null}
+      </View>
       {loading && <Skeleton kind="card" />}
       {!loading && failed && (
         <View style={s.card}>
@@ -102,10 +106,10 @@ function ago(iso: string): string {
 
 // Chats: only threads the customer actually opened — no demo entries.
 // An empty list invites discovery instead.
-export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }: {
+export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn, onStartSelling }: {
   onOpenThread: (businessId: string, label: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
-  onSignIn?: () => void;
+  onSignIn?: () => void; onStartSelling?: () => void;
 }) {
   const { account } = useAuth();
   const [rows, setRows] = useState<MyThread[] | null>(null);
@@ -120,7 +124,12 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
     return (
       <View style={s.root}>
         <View style={s.col}>
-          <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
+          <View style={s.headRow}>
+            <Text style={s.h1}>Chats</Text>
+            {onStartSelling ? (
+              <Text onPress={onStartSelling} numberOfLines={1} style={s.switch}>Start selling</Text>
+            ) : null}
+          </View>
           <View style={s.card}>
             <Text style={s.t}>Message a business to start chatting.</Text>
             <Text style={s.micro}>Find something you like — sign-in pops up when you message.</Text>
@@ -138,7 +147,12 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Chats" drawer="customer" routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} />
+      <View style={s.headRow}>
+        <Text style={s.h1}>Chats</Text>
+        {onStartSelling ? (
+          <Text onPress={onStartSelling} numberOfLines={1} style={s.switch}>Start selling</Text>
+        ) : null}
+      </View>
       {mine.map(t => (
         <Pressable key={t.id} onPress={() => onOpenThread(t.business.id, `Say hello to ${t.business.name}`)} style={({ pressed }) => [s.card, t.unread > 0 && s.fresh, pressed && s.pressed]}>
           <View style={s.row}>
@@ -175,6 +189,9 @@ export function ChatsScreen({ onOpenThread, dRoutes, dActive, onDNav, onSignIn }
 const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
+  h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
+  switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
   card: { backgroundColor: p.surface, borderRadius: 16, padding: space.s4, marginBottom: space.s3, ...shadow.md },
   pressed: { opacity: 0.85 },
   fresh: { borderWidth: 1, borderColor: C.success },

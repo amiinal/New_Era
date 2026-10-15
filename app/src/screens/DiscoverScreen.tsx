@@ -3,17 +3,16 @@ import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { api, Business, img, SITE_URL } from '../api';
-import { useAuth } from '../auth';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
-import { DrawerRoute } from '../components/Drawer';
+import { DrawerRoute } from '../ui';
 import { Palette, useTheme } from '../useTheme';
 
-// Discover: static header (title + mode switch + location pill + search),
+// Discover: static header (title + location pill + search),
 // filter sheet (query, city, country, tags), scrolling business cards.
 // Location defaults to real geolocation; everything else is picked in the
 // sheet and committed with Apply.
@@ -41,10 +40,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
   onStartSelling?: () => void; onSignIn?: () => void;
 }) {
-  const { account, mode, setAppMode } = useAuth();
   const { p } = useTheme();
   const s = themed(p);
-  const link = p.primary;
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('NG');
@@ -53,7 +50,6 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [failed, setFailed] = useState(false);
   // Nearby fallback: same intent, country-wide, when the city has nothing.
   const [nearby, setNearby] = useState<Business[] | null>(null);
-  const [hasBiz, setHasBiz] = useState<boolean | null>(null);
   const [seenCats, setSeenCats] = useState<string[]>([]);
   const [seenCities, setSeenCities] = useState<string[]>([]);
   // Country type-to-filter dropdown + focused-field highlight.
@@ -112,7 +108,6 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     });
   };
   useEffect(() => { load(); }, []);
-  useEffect(() => { api.myBusinesses().then(b => setHasBiz(b.length > 0)).catch(() => {}); }, []);
 
   // Real location first: device GPS → city + country. Silent fallback keeps
   // the NG default when denied, off, or unresolvable.
@@ -211,15 +206,6 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       <View style={s.col}>
       <View style={s.headRow}>
         <Text style={s.h1}>Discover</Text>
-        {account ? (
-          hasBiz !== null && mode === 'customer' ? (
-            <Text onPress={() => setAppMode('business')} numberOfLines={1} style={[s.switch, { color: link }]}>
-              {hasBiz ? 'Business view' : 'Start selling'}
-            </Text>
-          ) : null
-        ) : onStartSelling ? (
-          <Text onPress={onStartSelling} numberOfLines={1} style={[s.switch, { color: link }]}>Start selling</Text>
-        ) : null}
         <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
           <MapPin size={14} color={p.primary} />
           <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>

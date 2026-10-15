@@ -9,6 +9,12 @@ export function useCols() {
   return Math.min(width, WEB_MAX) > 700 ? 3 : 2;
 }
 
+// Tab routes (the old slide-in drawer is gone): customer tabs + business
+// tabs. Kept here as the shared navigation type.
+export type DrawerRoute =
+  | 'mybiz' | 'blistings' | 'bchats' | 'bupdates' | 'bdiscover'
+  | 'chats' | 'updates' | 'discover';
+
 // Destructive confirms that work everywhere: web Alert.alert() drops
 // custom buttons (plain window.alert, action never fires), so browser
 // confirm() carries the choice there instead.

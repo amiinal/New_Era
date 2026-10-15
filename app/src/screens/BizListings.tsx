@@ -5,8 +5,7 @@ import { api, img, Listing, symFor } from '../api';
 import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
 import { ListingForm } from '../components/ListingForm';
-import { TabHead } from '../components/TabHead';
-import { DrawerRoute } from '../components/Drawer';
+import { DrawerRoute } from '../ui';
 import { Palette, useTheme } from '../useTheme';
 import { confirmAction } from '../ui';
 
@@ -51,7 +50,10 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.col}>
-      <TabHead title="Listings" drawer="business" routes={dRoutes} active={dActive} onNav={onDNav} right={<Button title="+ Add" onPress={() => setForm('add')} />} />
+      <View style={s.headRow}>
+        <Text style={s.h1}>Listings</Text>
+        <Button title="+ Add" onPress={() => setForm('add')} />
+      </View>
       {failed ? (
         <View style={s.rowCard}>
           <View style={{ flex: 1 }}>
@@ -134,6 +136,8 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
 const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flexGrow: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
+  h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
   micro: { ...type.micro, color: p.bodyText },
   rowCard: {
     flexDirection: 'row', gap: space.s3, alignItems: 'center',

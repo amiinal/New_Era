@@ -11,7 +11,7 @@ import { Intro } from './src/components/Intro';
 import { RoleSelect } from './src/screens/RoleSelect';
 import { BizNav, BizTab, BottomNav, Tab } from './src/components/BottomNav';
 import { ProfileSheet } from './src/components/ProfileSheet';
-import { DrawerRoute } from './src/components/Drawer';
+import { DrawerRoute } from './src/ui';
 import { C } from './src/theme';
 import { useTheme } from './src/useTheme';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -262,8 +262,15 @@ function Shell() {
       Alert.alert('Could not open chat', 'Check the API is running, then retry.');
     }
   };
-  const pickGuest = async (m: 'customer' | 'business') => {
-    await setFlag('role:guest', m);
+  // Customer tabs offer the business door: guests route through auth,
+  // members flip straight over (wizard opens when there's no store yet).
+  const goSelling = () => {
+    if (!account) { setAuthIntent({ mode: 'business' }); return; }
+    setBizAuto(true);
+    setRoute({ name: 'bizhome' } as Route);
+    setAppMode('business');
+  };
+  const pickGuest = async (m: 'customer' | 'business') => {    await setFlag('role:guest', m);
     if (m === 'business') {
       setAuthIntent({ mode: 'business' });
     } else {
@@ -435,12 +442,14 @@ function Shell() {
           onMessage={(bid, label) => openChat(bid, undefined, label)}
           onOpen={slug => setRoute({ name: 'store', slug })}
           dRoutes={CUST} dActive="updates" onDNav={goDrawer}
-          onSignIn={() => setAuthIntent({ mode: 'customer' })} />
+          onSignIn={() => setAuthIntent({ mode: 'customer' })}
+          onStartSelling={goSelling} />
       )}
       {route.name === 'chats' && (
         <ChatsScreen onOpenThread={(bid, label) => openChat(bid, undefined, label)}
           dRoutes={CUST} dActive="chats" onDNav={goDrawer}
-          onSignIn={() => setAuthIntent({ mode: 'customer' })} />
+          onSignIn={() => setAuthIntent({ mode: 'customer' })}
+          onStartSelling={goSelling} />
       )}
       {route.name === 'store' && (
         <StorefrontScreen slug={route.slug}
@@ -460,7 +469,8 @@ function Shell() {
           else setShowProfile(true);
         }} />
       {showProfile && account ? (
-        <ProfileSheet onClose={() => setShowProfile(false)} onSaved={() => setShowProfile(false)} />
+        <ProfileSheet onClose={() => setShowProfile(false)} onSaved={() => setShowProfile(false)}
+          onSwitchMode={() => { setShowProfile(false); goSelling(); }} />
       ) : null}
       <StatusBar style="auto" />
     </SafeAreaView>

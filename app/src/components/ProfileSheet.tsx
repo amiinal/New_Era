@@ -11,7 +11,7 @@ import { Help, Settings } from '../screens/Settings';
 
 // Customer profile: photo + short tagline, private to the account.
 // No public counts, no followers — identity only.
-export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () => void; onSaved: () => void; onSwitchMode?: () => void }) {
   const { account, refresh, signOut } = useAuth();
   const [uri, setUri] = useState<string | null>(null);
   const [name, setName] = useState(account?.displayName ?? '');
@@ -67,8 +67,8 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         <Button title="Choose photo" variant="secondary" onPress={pick} />
         <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
           value={name} onChangeText={setName} maxLength={40} />
-        <TextInput style={[s.input, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
-          value={tagline} onChangeText={setTagline} maxLength={120} />
+        <TextInput style={[s.input, s.area, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
+          value={tagline} onChangeText={setTagline} maxLength={120} multiline numberOfLines={3} />
         <Text style={s.label}>Phone number</Text>
         <TextInput style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
           value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
@@ -96,6 +96,14 @@ export function ProfileSheet({ onClose, onSaved }: { onClose: () => void; onSave
         <View style={s.btnWrap}>
           <Button title="Settings" variant="secondary" onPress={() => setSettings(true)} />
         </View>
+        {onSwitchMode ? (
+          <>
+            <View style={{ height: space.s3 }} />
+            <View style={s.btnWrap}>
+              <Button title="Business view" variant="secondary" onPress={() => { onClose(); onSwitchMode(); }} />
+            </View>
+          </>
+        ) : null}
         <View style={{ height: space.s3 }} />
         <View style={s.btnWrap}>
           <Button title="Sign out" variant="tertiary" onPress={async () => { await signOut(); onClose(); }} />
@@ -130,6 +138,7 @@ const themed = (p: Palette) => StyleSheet.create({
     width: '100%', backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
+  area: { height: 84, paddingTop: space.s3, textAlignVertical: 'top' },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s3, alignSelf: 'flex-start' },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: space.s2, alignSelf: 'flex-start' },
   box: {

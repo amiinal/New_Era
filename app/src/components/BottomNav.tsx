@@ -78,6 +78,7 @@ export function BottomNav({ active, onTab, onAvatar, chatsDot }: { active: Tab; 
             </View>
           );
         })()}
+        <Text style={s.label}>Profile</Text>
       </Pressable>
     </View>
   );
