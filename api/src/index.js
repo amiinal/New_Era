@@ -1,5 +1,4 @@
 import Fastify from 'fastify';
-import dns from 'node:dns';
 import { PrismaClient } from '@prisma/client';
 import { getPresignedPut, publicUrlFor } from './r2.js';
 import { sendMail } from './mail.js';
@@ -46,9 +45,12 @@ async function probeR2(log) {
   try {
     // Tolerant: bare hostnames and stray whitespace still resolve.
     const raw = String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    if (!raw) throw new Error('no R2_PUBLIC_URL');
     const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-    const host = new URL(withScheme).hostname;
-    await dns.promises.resolve(host);
+    // Stronger than DNS: fetch the bucket's own healthcheck file, which
+    // proves serving (DNS + HTTP + bucket) end to end.
+    const res = await fetch(`${withScheme}/__healthcheck.txt`, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`R2 healthcheck ${res.status}`);
     r2Base = withScheme;
     if (!r2Direct && log) console.log(`[img] R2 public serving live at ${withScheme}`);
     r2Direct = true;
