@@ -39,15 +39,23 @@ adminRoutes(app, prisma);
 // serving actually resolves (else inline/disk photos would break). Probed
 // once at boot; uploads/* always stays local (/img on the API host).
 let r2Direct = false;
-try {
-  const host = new URL(process.env.R2_PUBLIC_URL || '').hostname;
-  await dns.promises.resolve(host).then(() => {
+let r2LastProbe = 0;
+async function probeR2(log) {
+  r2LastProbe = Date.now();
+  try {
+    const host = new URL(process.env.R2_PUBLIC_URL || '').hostname;
+    await dns.promises.resolve(host);
+    if (!r2Direct && log) console.log(`[img] R2 public serving live at ${process.env.R2_PUBLIC_URL}`);
     r2Direct = true;
-    console.log(`[img] R2 public serving live at ${process.env.R2_PUBLIC_URL}`);
-  }).catch(() => console.log('[img] R2 public host unresolved — serving photo keys relative (/img)'));
-} catch {
-  console.log('[img] no R2_PUBLIC_URL — serving photo keys relative (/img)');
+  } catch {
+    if (r2Direct && log) console.log('[img] R2 public host lost — serving photo keys relative (/img)');
+    r2Direct = false;
+  }
 }
+// Boot probe plus a slow self-heal: a transient DNS miss at boot must not
+// pin relative URLs forever.
+await probeR2(true);
+setInterval(() => { probeR2(false).catch(() => {}); }, 60_000);
 const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'photo', 'imageKey', 'photos']);
 const fixPhoto = (v) => {
   if (typeof v !== 'string' || !v) return v;
