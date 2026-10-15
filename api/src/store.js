@@ -22,6 +22,16 @@ const authed = async (req, reply, prisma) => {
 const ONLINE_MS = 120000;
 const isOnline = (d) => !!d && Date.now() - new Date(d).getTime() < ONLINE_MS;
 
+// First photo of up to 5 listings — the swipe-strip preview.
+const previewOf = (listings) => {
+  const out = [];
+  for (const l of listings || []) {
+    if (l.photos && l.photos[0] && !out.includes(l.photos[0])) out.push(l.photos[0]);
+    if (out.length >= 5) break;
+  }
+  return out;
+};
+
 // Typo-tolerant word match for search: exact substring wins; otherwise one
 // small typo in a long-enough word still matches ("pepered" finds
 // "peppered"). Case is already lowered by callers.
@@ -103,7 +113,7 @@ export function storeRoutes(app, prisma) {
     const eligible = all.filter(b => b.listings.length >= 3 && b.category && (b.city || b.area));
     const withMatches = (list) => list.map(b => {
       const { listings: _drop, ...rest } = b;
-      return { ...rest, matchedListings: [] };
+      return { ...rest, matchedListings: [], previewPhotos: previewOf(b.listings) };
     });
     if (!q) return withMatches(eligible);
     // Query matches names, categories, AND listing titles/descriptions —
@@ -124,19 +134,18 @@ export function storeRoutes(app, prisma) {
       .sort((x, y) => (y.matched.length - x.matched.length) || (Number(y.nameHit) - Number(x.nameHit)))
       .map(r => {
         const { listings: _drop, ...rest } = r.b;
-        // Preview strip: matched items' photos first, else the first listings'.
-        // Name hits still show something sellable; item hits show the hit.
+        // Preview strip: matched items' photos first, topped up from the
+        // rest — up to 5. Name hits still show something sellable.
         const previewPhotos = [];
         for (const t of r.matched) {
           const l = r.b.listings.find(x => x.title === t);
           if (l?.photos[0]) previewPhotos.push(l.photos[0]);
         }
-        if (previewPhotos.length === 0) {
-          for (const l of r.b.listings.slice(0, 3)) {
-            if (l.photos[0]) previewPhotos.push(l.photos[0]);
-          }
+        for (const l of r.b.listings) {
+          if (previewPhotos.length >= 5) break;
+          if (l.photos[0] && !previewPhotos.includes(l.photos[0])) previewPhotos.push(l.photos[0]);
         }
-        return { ...rest, matchedListings: r.matched, previewPhotos: previewPhotos.slice(0, 3) };
+        return { ...rest, matchedListings: r.matched, previewPhotos };
       });
   });
 
