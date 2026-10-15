@@ -18,6 +18,24 @@ import { Palette, useTheme } from '../useTheme';
 // Location defaults to real geolocation; everything else is picked in the
 // sheet and committed with Apply.
 const CATEGORIES = ['Fashion', 'Beauty', 'Food', 'Home', 'Electronics', 'Services'];
+
+function growCats(list: Business[], prev: string[]): string[] {
+  const next = [...prev];
+  for (const b of list) {
+    if (b.category && !CATEGORIES.includes(b.category) && !next.includes(b.category)) {
+      next.push(b.category);
+    }
+  }
+  return next;
+}
+
+function growCities(list: Business[], prev: string[]): string[] {
+  const next = [...prev];
+  for (const b of list) {
+    if (b.city && !next.includes(b.city)) next.push(b.city);
+  }
+  return next.slice(0, 8);
+}
 export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSelling, onSignIn }: {
   onOpen: (slug: string) => void;
   dRoutes: DrawerRoute[]; dActive: DrawerRoute; onDNav: (r: DrawerRoute) => void;
@@ -33,6 +51,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [category, setCategory] = useState('');
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
+  // Nearby fallback: same intent, country-wide, when the city has nothing.
+  const [nearby, setNearby] = useState<Business[] | null>(null);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
   const [seenCats, setSeenCats] = useState<string[]>([]);
   const [seenCities, setSeenCities] = useState<string[]>([]);
@@ -55,33 +75,34 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [dCat, setDCat] = useState('');
   const [countryQ, setCountryQ] = useState('');
   const [countryOpen, setCountryOpen] = useState(false);
+  const [cityOpen, setCityOpen] = useState(false);
   const [focused, setFocused] = useState<'q' | 'city' | 'country' | null>(null);
   const focusStyle = (k: 'q' | 'city' | 'country') =>
     focused === k ? { borderColor: p.primary, borderWidth: 2 } : null;
 
   const runLoad = async (scope: { country: string; city?: string; q?: string; category?: string }) => {
+    setNearby(null);
     try {
       const rows = await api.discover(scope);
       setItems(rows);
       setFailed(false);
-      setSeenCats(prev => {
-        const next = [...prev];
-        for (const b of rows) {
-          if (b.category && !CATEGORIES.includes(b.category) && !next.includes(b.category)) {
-            next.push(b.category);
-          }
-        }
-        return next;
-      });
-      setSeenCities(prev => {
-        const next = [...prev];
-        for (const b of rows) {
-          if (b.city && !next.includes(b.city)) next.push(b.city);
-        }
-        return next.slice(0, 8);
-      });
+      setSeenCats(prev => growCats(rows, prev));
+      setSeenCities(prev => growCities(rows, prev));
+      if (scope.city && rows.length === 0) {
+        try {
+          const near = await api.discover({
+            country: scope.country,
+            ...(scope.q ? { q: scope.q } : {}), ...(scope.category ? { category: scope.category } : {}),
+          });
+          setNearby(near);
+          setSeenCats(prev => growCats(near, prev));
+          setSeenCities(prev => growCities(near, prev));
+        } catch { setNearby([]); }
+      } else {
+        setNearby([]);
+      }
       api.recordEvent('search', scope).catch(() => {});
-    } catch { setItems([]); setFailed(true); }
+    } catch { setItems([]); setNearby([]); setFailed(true); }
   };
   const load = (withCat?: string) => {
     const cat = withCat !== undefined ? withCat : category;
@@ -123,6 +144,9 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     setDCity(city);
     setDCountry(country);
     setDCat(category);
+    setCountryQ('');
+    setCountryOpen(false);
+    setCityOpen(false);
     setSheet(true);
   };
   const applySheet = () => {
@@ -130,6 +154,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     setCity(dCity);
     setCountry(dCountry);
     setCategory(dCat);
+    setCountryOpen(false);
+    setCityOpen(false);
     setSheet(false);
     runLoad({
       country: dCountry,
@@ -148,9 +174,37 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const countryMatches = COUNTRIES.filter(c =>
     c.name.toLowerCase().includes(countryQ.trim().toLowerCase()),
   ).slice(0, 8);
+  const cityMatches = seenCities.filter(c =>
+    c.toLowerCase().includes(dCity.trim().toLowerCase()),
+  ).slice(0, 8);
   const pillText = `${city ? `${city}, ` : ''}${countryName}`;
   const here = (b: Business) =>
     city && b.city && b.city.toLowerCase() === city.toLowerCase();
+
+  const bizCard = (item: Business) => (
+    <Pressable onPress={() => onOpen(item.slug)}
+      style={({ pressed }) => [s.card, pressed && s.pressed]}>
+      <View style={s.bizRow}>
+        <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
+        <View style={{ flex: 1 }}>
+          <Text style={s.name}>{item.name}</Text>
+          <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
+          {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
+          {(item.matchedListings?.length ?? 0) > 0 ? (
+            <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
+          ) : null}
+        </View>
+      </View>
+    </Pressable>
+  );
+  const emptyCard = (
+    <View style={s.card}>
+      <Text style={s.empty}>No matches here — try widening the city or clearing tags.</Text>
+      <View style={{ marginTop: space.s3 }}>
+        <Button title="Clear filters" variant="secondary" onPress={clearFilters} />
+      </View>
+    </View>
+  );
 
   return (
     <View style={s.root}>
@@ -159,18 +213,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
         <Text style={s.h1}>Discover</Text>
         {account ? (
           hasBiz !== null && mode === 'customer' ? (
-            <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
+            <Text onPress={() => setAppMode('business')} numberOfLines={1} style={[s.switch, { color: link }]}>
               {hasBiz ? 'Business view' : 'Start selling'}
             </Text>
           ) : null
         ) : onStartSelling ? (
-          <Text onPress={onStartSelling} style={[s.switch, { color: link }]}>Start selling</Text>
+          <Text onPress={onStartSelling} numberOfLines={1} style={[s.switch, { color: link }]}>Start selling</Text>
         ) : null}
+        <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
+          <MapPin size={14} color={p.primary} />
+          <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>
+        </Pressable>
       </View>
-      <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
-        <MapPin size={14} color={p.primary} />
-        <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>
-      </Pressable>
       <Pressable onPress={openSheet} style={({ pressed }) => [s.searchBar, pressed && s.pressed]}>
         <View style={s.searchIcon}>
           <Search size={16} color="#fff" />
@@ -201,32 +255,23 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
             <Button title="Retry" variant="secondary" onPress={() => load()} />
           </View>
         </View>
+      ) : city && items.length === 0 ? (
+        nearby === null ? (
+          <><Skeleton kind="row" /><Skeleton kind="row" /></>
+        ) : nearby.length > 0 ? (
+          <ScrollView style={{ flex: 1 }}>
+            <Text style={s.nearH}>Nothing in {city} yet</Text>
+            <Text style={s.micro}>Nearby stores instead.</Text>
+            {nearby.map(b => <View key={b.id}>{bizCard(b)}</View>)}
+          </ScrollView>
+        ) : (
+          emptyCard
+        )
+      ) : items.length === 0 ? (
+        emptyCard
       ) : (
         <FlatList data={items} keyExtractor={b => b.id} style={{ flex: 1 }}
-          ListEmptyComponent={(
-            <View style={s.card}>
-              <Text style={s.empty}>No matches here — try widening the city or clearing tags.</Text>
-              <View style={{ marginTop: space.s3 }}>
-                <Button title="Clear filters" variant="secondary" onPress={clearFilters} />
-              </View>
-            </View>
-          )}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => onOpen(item.slug)}
-              style={({ pressed }) => [s.card, pressed && s.pressed]}>
-              <View style={s.bizRow}>
-                <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
-                <View style={{ flex: 1 }}>
-                  <Text style={s.name}>{item.name}</Text>
-                  <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
-                  {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
-                  {(item.matchedListings?.length ?? 0) > 0 ? (
-                    <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
-                  ) : null}
-                </View>
-              </View>
-            </Pressable>
-          )} />
+          renderItem={({ item }) => bizCard(item)} />
       )}
       </View>
       <Modal visible={sheet} animationType="slide" transparent onRequestClose={() => setSheet(false)}>
@@ -243,19 +288,31 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
               onFocus={() => setFocused('q')} onBlur={() => setFocused(null)} />
             <ScrollView style={s.sheetBody} keyboardShouldPersistTaps="handled">
             <TextInput style={[s.input, { marginTop: space.s3 }, focusStyle('city')]} placeholder="City — type it" placeholderTextColor={p.bodyText}
-              value={dCity} onChangeText={setDCity}
-              onFocus={() => setFocused('city')} onBlur={() => setFocused(null)} />
-            {seenCities.length > 0 && (
-              <View style={s.miniChips}>
-                {seenCities.map(c => (
-                  <Text key={c} onPress={() => setDCity(c)} style={[s.miniChip, dCity === c && s.chipOn]}>{c}</Text>
-                ))}
+              value={dCity} onChangeText={t => { setDCity(t); setCityOpen(true); }}
+              onFocus={() => { setCityOpen(true); setFocused('city'); }} onPressIn={() => setCityOpen(true)}
+              onBlur={() => setFocused(null)} />
+            {cityOpen && (
+              <View style={s.drop}>
+                <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+                  {dCity.trim() ? (
+                    <Text onPress={() => setCityOpen(false)} style={s.dropItem}>
+                      Use “{dCity.trim()}”
+                    </Text>
+                  ) : null}
+                  {cityMatches.filter(c => c.toLowerCase() !== dCity.trim().toLowerCase()).map(c => (
+                    <Text key={c} onPress={() => { setDCity(c); setCityOpen(false); }} style={s.dropItem}>{c}</Text>
+                  ))}
+                  {dCity.trim() === '' && cityMatches.length === 0 && (
+                    <Text style={s.micro}>Saved cities appear here — or just type it.</Text>
+                  )}
+                </ScrollView>
               </View>
             )}
             <Text style={s.sec}>Country — type to find</Text>
             <TextInput style={[s.input, focusStyle('country')]} placeholder={draftCountryName} placeholderTextColor={p.bodyText}
               value={countryQ}
               onFocus={() => { setCountryQ(''); setCountryOpen(true); setFocused('country'); }}
+              onPressIn={() => setCountryOpen(true)}
               onChangeText={t => { setCountryQ(t); setCountryOpen(true); }}
               onBlur={() => setFocused(null)} />
             {countryOpen && (
@@ -294,11 +351,11 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   col: { flex: 1, width: '100%', maxWidth: 720, alignSelf: 'center', padding: space.s4 },
   switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
-  h1: { ...type.h1, fontSize: 22, color: p.ink },
-  headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.s3 },
+  h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
   pill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start',
-    maxWidth: '90%', marginBottom: space.s3,
+    flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 1,
+    maxWidth: '42%',
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
     borderRadius: 18, paddingVertical: 6, paddingHorizontal: space.s3, ...shadow.sm,
   },
@@ -326,12 +383,6 @@ const themed = (p: Palette) => StyleSheet.create({
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
   sec: { ...type.h3, color: p.ink, marginBottom: space.s2, marginTop: space.s4 },
-  miniChips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginTop: space.s2 },
-  miniChip: {
-    paddingVertical: 6, paddingHorizontal: space.s3, borderWidth: 1,
-    borderColor: p.lineStrong, borderRadius: 14, color: p.bodyText, overflow: 'hidden',
-    fontSize: 13,
-  },
   drop: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
     borderRadius: radius.md, marginTop: space.s1, paddingVertical: space.s1,
@@ -353,6 +404,7 @@ const themed = (p: Palette) => StyleSheet.create({
   bizRow: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   pressed: { opacity: 0.85 },
   name: { ...type.h3, color: p.ink },
+  nearH: { ...type.h3, color: p.ink, marginTop: space.s3 },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
   here: { fontSize: 12, color: p.primary, fontWeight: '700', marginTop: 2 },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },

@@ -1,9 +1,8 @@
 import { Compass, MessageCircle, Newspaper, Package, Store, UserRound } from 'lucide-react-native';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Image, StyleSheet, Text, View } from 'react-native';
 import { C, shadow } from '../theme';
 import { img } from '../api';
-import { Avatar } from './Avatar';
 import { useAuth } from '../auth';
 import { Palette, useTheme } from '../useTheme';
 
@@ -67,17 +66,18 @@ export function BottomNav({ active, onTab, onAvatar, chatsDot }: { active: Tab; 
         );
       })}
       <Pressable onPress={onAvatar} style={({ pressed }) => [s.tab, pressed && s.pressed]} accessibilityLabel="Profile">
-        {account ? (
-          <Avatar
-            name={account.displayName || account.email || account.phone || 'You'}
-            size={28}
-            uri={account.avatarKey ? img(account.avatarKey) : null}
-          />
-        ) : (
-          <View style={s.guestAvatar}>
-            <UserRound size={18} color={p.bodyText} />
-          </View>
-        )}
+        {(() => {
+          const label = (account?.displayName || account?.email || account?.phone || 'Y').slice(0, 1).toUpperCase();
+          const uri = account?.avatarKey ? img(account.avatarKey) : null;
+          return uri ? (
+            <Image source={{ uri }} style={s.selfAvatar} />
+          ) : (
+            <View style={s.selfAvatar}>
+              <Text style={s.selfLetter}>{account ? label : ''}</Text>
+              {!account ? <UserRound size={18} color={p.bodyText} /> : null}
+            </View>
+          );
+        })()}
       </Pressable>
     </View>
   );
@@ -92,10 +92,11 @@ const themed = (p: Palette) => StyleSheet.create({
   tabOn: { backgroundColor: 'rgba(44,62,122,.07)' },
   pressed: { opacity: 0.7 },
   label: { fontSize: 12, color: p.bodyText },
-  guestAvatar: {
+  selfAvatar: {
     width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: p.lineStrong,
-    alignItems: 'center', justifyContent: 'center',
+    backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
+  selfLetter: { fontSize: 13, fontWeight: '700', color: p.primary },
   dot: {
     position: 'absolute', top: 0, right: -2, width: 10, height: 10,
     borderRadius: 5, backgroundColor: C.error,
