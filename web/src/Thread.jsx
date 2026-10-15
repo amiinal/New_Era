@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { accountId, api, API } from './lib.js';
-import { DotsIcon, SendIcon } from './icons.jsx';
+import { ChevronLeftIcon, DotsIcon, SendIcon } from './icons.jsx';
 
 const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
 
@@ -154,7 +154,7 @@ export default function Thread() {
   return (
     <div>
       <div className="topnav">
-        <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit' }}>‹ Chats</Link>
+          <Link to="/chat" style={{ textDecoration: 'none', color: 'inherit', display: 'inline-flex', alignItems: 'center', gap: 2 }}><ChevronLeftIcon size={18} /> Chats</Link>
         <span className="chat-peer">
           <PeerAvatar peer={peer} />
           {peer?.kind === 'customer' ? (

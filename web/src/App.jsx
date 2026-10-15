@@ -23,7 +23,7 @@ import Nav from './Nav.jsx';
 import Hibernate from './Hibernate.jsx';
 import Back from './Back.jsx';
 import ReportForm from './ReportForm.jsx';
-import { ChatIcon } from './icons.jsx';
+import { ChatIcon, ChevronLeftIcon, ChevronRightIcon } from './icons.jsx';
 import { accountId, api, initTheme, recordEvent, restoreSession, startThread } from './lib.js';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:4000';
@@ -175,14 +175,14 @@ function ListingDetail() {
     <div>
       <Nav />
       <div className="page" style={{ maxWidth: 720 }}>
-        <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}>‹ Back</button>
+        <button className="btn btn-secondary" style={{ height: 40 }} onClick={() => navigate(-1)}><ChevronLeftIcon size={18} /> Back</button>
         {n > 0 ? (
           <div className="gal">
             <img src={img(l.photos[at])} alt={l.title} className="detail-img" style={{ marginTop: 16 }} />
             {n > 1 ? (
               <>
-                <button className="gal-arrow left" onClick={() => setIdx(at - 1)} aria-label="Previous photo">‹</button>
-                <button className="gal-arrow right" onClick={() => setIdx(at + 1)} aria-label="Next photo">›</button>
+                <button className="gal-arrow left" onClick={() => setIdx(at - 1)} aria-label="Previous photo"><ChevronLeftIcon size={24} /></button>
+                <button className="gal-arrow right" onClick={() => setIdx(at + 1)} aria-label="Next photo"><ChevronRightIcon size={24} /></button>
                 <div className="gal-dots">
                   {l.photos.map((_, j) => (
                     <button key={j} className={`gal-dot ${j === at ? 'on' : ''}`} onClick={() => setIdx(j)} aria-label={`Photo ${j + 1}`} />

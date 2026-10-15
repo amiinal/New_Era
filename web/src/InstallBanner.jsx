@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { XIcon } from './icons.jsx';
 
 const KEY = 'ne-install-banner';
 const COOLDOWN = 7 * 24 * 3600 * 1000; // dismissed stays dismissed for 7 days
@@ -44,7 +45,7 @@ export default function InstallBanner() {
       </div>
       <Link to="/install" className="btn install-go">Get the app</Link>
       <button className="install-later" onClick={hide}>Not now</button>
-      <button className="install-x" onClick={hide} aria-label="Dismiss">×</button>
+      <button className="install-x" onClick={hide} aria-label="Dismiss"><XIcon size={20} /></button>
     </div>
   );
 }

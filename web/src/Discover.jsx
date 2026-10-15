@@ -4,6 +4,7 @@ import Nav from './Nav.jsx';
 import Back from './Back.jsx';
 import Footer from './Footer.jsx';
 import { api, API, recordEvent } from './lib.js';
+import { ChevronRightIcon } from './icons.jsx';
 import { COUNTRIES } from './countries.js';
 
 const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
@@ -100,8 +101,8 @@ export default function Discover() {
                       ))}
                     </div>
                   ) : null}
-                  <span style={{ display: 'block', marginTop: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-primary)' }}>
-                    See more ›
+                  <span style={{ marginTop: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                    See more <ChevronRightIcon size={14} />
                   </span>
                 </div>
               </Link>
