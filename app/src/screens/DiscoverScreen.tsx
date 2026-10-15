@@ -380,7 +380,7 @@ const themed = (p: Palette) => StyleSheet.create({
   h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
   pillText: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 1, maxWidth: '42%' },
-  pillT: { ...type.bodySm, color: p.ink, fontWeight: '600', flexShrink: 1 },
+  pillT: { ...type.bodySm, color: p.primary, fontWeight: '600', flexShrink: 1 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center', gap: space.s3,
     backgroundColor: p.surface, borderRadius: 28, height: 56,
