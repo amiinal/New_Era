@@ -45,7 +45,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
   const [country, setCountry] = useState('NG');
-  const [category, setCategory] = useState('');
+  const [cats, setCats] = useState<string[]>([]);
   const [items, setItems] = useState<Business[] | null>(null);
   const [failed, setFailed] = useState(false);
   // Nearby fallback: same intent, country-wide, when the city has nothing.
@@ -68,7 +68,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [dQ, setDQ] = useState('');
   const [dCity, setDCity] = useState('');
   const [dCountry, setDCountry] = useState('NG');
-  const [dCat, setDCat] = useState('');
+  const [dCats, setDCats] = useState<string[]>([]);
   const [countryQ, setCountryQ] = useState('');
   const [countryOpen, setCountryOpen] = useState(false);
   const [cityOpen, setCityOpen] = useState(false);
@@ -76,20 +76,35 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const focusStyle = (k: 'q' | 'city' | 'country') =>
     focused === k ? { borderColor: p.primary, borderWidth: 2 } : null;
 
-  const runLoad = async (scope: { country: string; city?: string; q?: string; category?: string }) => {
+  const runLoad = async (scope: { country: string; city?: string; q?: string; cats?: string[] }) => {
     setNearby(null);
     try {
-      const rows = await api.discover(scope);
+      // One tag = one query; several tags = parallel queries merged by id.
+      const wanted = (scope.cats ?? []).filter(Boolean);
+      const queries = wanted.length > 0 ? wanted : [undefined];
+      const batches = await Promise.all(queries.map(cat => api.discover({
+        country: scope.country,
+        ...(scope.city ? { city: scope.city } : {}),
+        ...(scope.q ? { q: scope.q } : {}),
+        ...(cat ? { category: cat } : {}),
+      })));
+      const seen = new Map<string, Business>();
+      for (const rows of batches) for (const b of rows) seen.set(b.id, b);
+      const rows = [...seen.values()];
       setItems(rows);
       setFailed(false);
       setSeenCats(prev => growCats(rows, prev));
       setSeenCities(prev => growCities(rows, prev));
       if (scope.city && rows.length === 0) {
         try {
-          const near = await api.discover({
+          const nearBatches = await Promise.all(queries.map(cat => api.discover({
             country: scope.country,
-            ...(scope.q ? { q: scope.q } : {}), ...(scope.category ? { category: scope.category } : {}),
-          });
+            ...(scope.q ? { q: scope.q } : {}),
+            ...(cat ? { category: cat } : {}),
+          })));
+          const nearSeen = new Map<string, Business>();
+          for (const list of nearBatches) for (const b of list) nearSeen.set(b.id, b);
+          const near = [...nearSeen.values()];
           setNearby(near);
           setSeenCats(prev => growCats(near, prev));
           setSeenCities(prev => growCities(near, prev));
@@ -97,14 +112,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       } else {
         setNearby([]);
       }
-      api.recordEvent('search', scope).catch(() => {});
+      api.recordEvent('search', {
+        country: scope.country,
+        ...(scope.city ? { city: scope.city } : {}),
+        ...(scope.q ? { q: scope.q } : {}),
+        ...(wanted.length > 0 ? { category: wanted.join(',') } : {}),
+      }).catch(() => {});
     } catch { setItems([]); setNearby([]); setFailed(true); }
   };
-  const load = (withCat?: string) => {
-    const cat = withCat !== undefined ? withCat : category;
+  const load = () => {
     runLoad({
       country,
-      ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cat ? { category: cat } : {}),
+      ...(city ? { city } : {}), ...(q ? { q } : {}), ...(cats.length > 0 ? { cats } : {}),
     });
   };
   useEffect(() => { load(); }, []);
@@ -138,7 +157,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     setDQ(q);
     setDCity(city);
     setDCountry(country);
-    setDCat(category);
+    setDCats(cats);
     setCountryQ('');
     setCountryOpen(false);
     setCityOpen(false);
@@ -148,18 +167,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     setQ(dQ);
     setCity(dCity);
     setCountry(dCountry);
-    setCategory(dCat);
+    setCats(dCats);
     setCountryOpen(false);
     setCityOpen(false);
     setSheet(false);
     runLoad({
       country: dCountry,
-      ...(dCity ? { city: dCity } : {}), ...(dQ ? { q: dQ } : {}), ...(dCat ? { category: dCat } : {}),
+      ...(dCity ? { city: dCity } : {}), ...(dQ ? { q: dQ } : {}), ...(dCats.length > 0 ? { cats: dCats } : {}),
     });
   };
   const clearFilters = () => {
     setQ('');
-    setCategory('');
+    setCats([]);
     setSheet(false);
     runLoad({ country, ...(city ? { city } : {}) });
   };
@@ -216,7 +235,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
           <Search size={16} color="#fff" />
         </View>
         <Text style={s.searchHint} numberOfLines={1}>
-          {q || (category ? `${category} near ${city || countryName}` : 'Search businesses…')}
+          {q || (cats.length > 0 ? `${cats.join(' + ')} near ${city || countryName}` : 'Search businesses…')}
         </Text>
       </Pressable>
       {installCard && (
@@ -273,7 +292,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
               value={dQ} onChangeText={setDQ} autoFocus returnKeyType="search" onSubmitEditing={applySheet}
               onFocus={() => setFocused('q')} onBlur={() => setFocused(null)} />
             <ScrollView style={s.sheetBody} keyboardShouldPersistTaps="handled">
-            <TextInput style={[s.input, { marginTop: space.s3 }, focusStyle('city')]} placeholder="City — type it" placeholderTextColor={p.bodyText}
+            <TextInput style={[s.input, { marginTop: space.s3 }, focusStyle('city')]} placeholder="Search by city" placeholderTextColor={p.bodyText}
               value={dCity} onChangeText={t => { setDCity(t); setCityOpen(true); }}
               onFocus={() => { setCityOpen(true); setFocused('city'); }} onPressIn={() => setCityOpen(true)}
               onBlur={() => setFocused(null)} />
@@ -294,7 +313,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
                 </ScrollView>
               </View>
             )}
-            <Text style={s.sec}>Country — type to find</Text>
+            <Text style={s.sec}>Country</Text>
             <TextInput style={[s.input, focusStyle('country')]} placeholder={draftCountryName} placeholderTextColor={p.bodyText}
               value={countryQ}
               onFocus={() => { setCountryQ(''); setCountryOpen(true); setFocused('country'); }}
@@ -314,12 +333,18 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
                 </ScrollView>
               </View>
             )}
-            <Text style={s.sec}>Categories</Text>
+            <Text style={s.sec}>Categories — pick as many as you like</Text>
             <View style={s.chips}>
-              {['', ...CATEGORIES, ...seenCats.filter(c => !CATEGORIES.includes(c))].map(c => (
-                <Text key={c || 'all'} onPress={() => setDCat(c)}
-                  style={[s.chip, dCat === c && s.chipOn]}>{c || 'All'}</Text>
-              ))}
+              {['', ...CATEGORIES, ...seenCats.filter(c => !CATEGORIES.includes(c))].map(c => {
+                const on = c === '' ? dCats.length === 0 : dCats.includes(c);
+                return (
+                  <Text key={c || 'all'} onPress={() => {
+                    if (c === '') setDCats([]);
+                    else setDCats(on ? dCats.filter(x => x !== c) : [...dCats, c]);
+                  }}
+                    style={[s.chip, on && s.chipOn]}>{c || 'All'}</Text>
+                );
+              })}
             </View>
             </ScrollView>
             <View style={s.sheetFoot}>

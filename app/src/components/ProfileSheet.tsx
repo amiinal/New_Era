@@ -106,11 +106,11 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
         ) : null}
         <View style={{ height: space.s3 }} />
         <View style={s.btnWrap}>
-          <Button title="Sign out" variant="tertiary" onPress={async () => { await signOut(); onClose(); }} />
+          <Button title="Close" variant="secondary" onPress={onClose} />
         </View>
         <View style={{ height: space.s3 }} />
         <View style={s.btnWrap}>
-          <Button title="Close" variant="secondary" onPress={onClose} />
+          <Button title="Sign out" variant="tertiary" onPress={async () => { await signOut(); onClose(); }} />
         </View>
       </ScrollView>
       </View>
@@ -130,7 +130,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   btnWrap: { alignSelf: 'stretch', marginTop: space.s3 },
   h1: { ...type.h1, color: p.ink, marginBottom: space.s4 },
-  label: { ...type.bodySm, color: p.bodyText, alignSelf: 'flex-start', marginTop: space.s3 },
+  label: { ...type.bodySm, color: p.bodyText, alignSelf: 'stretch', textAlign: 'left', marginTop: space.s3 },
   av: { width: 96, height: 96, borderRadius: 48 },
   header: { width: '100%', height: 110, borderRadius: 12, marginBottom: space.s2 },
   empty: { backgroundColor: p.line },
@@ -145,5 +145,5 @@ const themed = (p: Palette) => StyleSheet.create({
     width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: p.primary,
     alignItems: 'center', justifyContent: 'center',
   },
-  checkT: { ...type.body, color: p.ink },
+  checkT: { ...type.body, color: p.ink, flex: 1 },
 });
