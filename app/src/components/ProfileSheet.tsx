@@ -57,7 +57,8 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.root}>
+      <Pressable style={s.scrim} onPress={onClose}>
+      <Pressable onPress={() => {}} style={s.sheet}>
       <ScrollView style={s.card} contentContainerStyle={s.cardInner}>
         <Text style={s.h1}>Your profile</Text>
         {shown
@@ -115,7 +116,8 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
           <Button title="Sign out" variant="tertiary" onPress={async () => { await signOut(); onClose(); }} />
         </View>
       </ScrollView>
-      </View>
+      </Pressable>
+      </Pressable>
       {settings && <Settings onClose={() => setSettings(false)} onHelp={() => setHelp(true)} />}
       {help && <Help onClose={() => setHelp(false)} />}
     </Modal>
@@ -123,7 +125,8 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
 }
 
 const themed = (p: Palette) => StyleSheet.create({
-  root: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
+  scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
+  sheet: { width: '100%', maxWidth: 480, maxHeight: '90%' },
   card: {
     width: '100%', maxWidth: 480, backgroundColor: p.background, borderRadius: radius.lg, ...shadow.lg,
   },
