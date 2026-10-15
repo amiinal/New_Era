@@ -53,6 +53,10 @@ const lev = (a, b) => {
 const fuzzyHit = (needle, text) => {
   const t = String(text || '').toLowerCase();
   if (!needle || t.includes(needle)) return true;
+  // Space-blind: "moimoi" matches "moi moi".
+  const flat = t.replace(/[^a-z0-9]+/g, '');
+  const nflat = String(needle).replace(/[^a-z0-9]+/g, '');
+  if (nflat && flat.includes(nflat)) return true;
   if (needle.length < 4) return false;
   const allow = needle.length >= 7 ? 2 : 1;
   return t.split(/[^a-z0-9]+/).some(w =>
