@@ -5,7 +5,7 @@ import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, Style
 import { api, Business, img, SITE_URL } from '../api';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
-import { radius, shadow, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
@@ -436,7 +436,7 @@ const themed = (p: Palette) => StyleSheet.create({
     width: 96, height: 120, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: space.s2,
   },
-  seeMoreT: { ...type.bodySm, color: p.primary, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' },
+  seeMoreT: { ...type.bodySm, color: C.cta, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },
   sheetScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
   sheet: {
