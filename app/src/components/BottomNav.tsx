@@ -94,10 +94,10 @@ const themed = (p: Palette) => StyleSheet.create({
   pressed: { opacity: 0.7 },
   label: { fontSize: 12, color: p.bodyText },
   selfAvatar: {
-    width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: p.lineStrong,
+    width: 24, height: 24, borderRadius: 12, borderWidth: 1, borderColor: p.lineStrong,
     backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
-  selfLetter: { fontSize: 13, fontWeight: '700', color: p.primary },
+  selfLetter: { fontSize: 12, fontWeight: '700', color: p.primary },
   dot: {
     position: 'absolute', top: 0, right: -2, width: 10, height: 10,
     borderRadius: 5, backgroundColor: C.error,
