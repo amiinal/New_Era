@@ -196,28 +196,35 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
     city && b.city && b.city.toLowerCase() === city.toLowerCase();
 
   const bizCard = (item: Business) => (
-    <Pressable onPress={() => onOpen(item.slug)}
-      style={({ pressed }) => [s.card, pressed && s.pressed]}>
-      <View style={s.bizRow}>
-        <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
-                <View style={{ flex: 1 }}>
-                  <Text style={s.name}>{item.name}</Text>
-                  <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
-                  {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
-                  {(item.matchedListings?.length ?? 0) > 0 ? (
-                    <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
-                  ) : null}
-                  {(item.previewPhotos?.length ?? 0) > 0 ? (
-                    <View style={s.thumbs}>
-                      {item.previewPhotos!.map(u => (
-                        <Image key={u} source={{ uri: img(u) }} style={s.thumb} />
-                      ))}
-                    </View>
-                  ) : null}
-                  <Text onPress={() => onOpen(item.slug)} style={s.more}>See more ›</Text>
-                </View>
-      </View>
-    </Pressable>
+    <>
+      <Pressable onPress={() => onOpen(item.slug)}
+        style={({ pressed }) => [s.card, pressed && s.pressed]}>
+        <View style={s.bizRow}>
+          <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
+          <View style={{ flex: 1 }}>
+            <Text style={s.name}>{item.name}</Text>
+            <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
+            {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
+            {(item.matchedListings?.length ?? 0) > 0 ? (
+              <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
+            ) : null}
+          </View>
+        </View>
+      </Pressable>
+      {(item.previewPhotos?.length ?? 0) > 0 ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}
+          style={s.strip} contentContainerStyle={s.stripInner}>
+          {item.previewPhotos!.slice(0, 5).map(u => (
+            <Pressable key={u} onPress={() => onOpen(item.slug)}>
+              <Image source={{ uri: img(u) }} style={s.stripImg} />
+            </Pressable>
+          ))}
+          <Pressable onPress={() => onOpen(item.slug)} style={s.seeMore}>
+            <Text style={s.seeMoreT}>See more ›</Text>
+          </Pressable>
+        </ScrollView>
+      ) : null}
+    </>
   );
   const emptyCard = (
     <View style={s.card}>
@@ -233,7 +240,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       <View style={s.col}>
       <View style={s.headRow}>
         <Text style={s.h1}>Discover</Text>
-        <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
+        <Pressable onPress={openSheet} style={s.pillText} hitSlop={8}>
           <MapPin size={14} color={p.primary} />
           <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>
         </Pressable>
@@ -372,12 +379,7 @@ const themed = (p: Palette) => StyleSheet.create({
   switch: { ...type.bodySm, color: p.primary, fontWeight: '600' },
   h1: { ...type.h1, fontSize: 22, color: p.ink, flex: 1 },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
-  pill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 1,
-    maxWidth: '42%',
-    backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
-    borderRadius: 18, paddingVertical: 6, paddingHorizontal: space.s3, ...shadow.sm,
-  },
+  pillText: { flexDirection: 'row', alignItems: 'center', gap: 4, flexShrink: 1, maxWidth: '42%' },
   pillT: { ...type.bodySm, color: p.ink, fontWeight: '600', flexShrink: 1 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center', gap: space.s3,
@@ -427,9 +429,15 @@ const themed = (p: Palette) => StyleSheet.create({
   nearH: { ...type.h3, color: p.ink, marginTop: space.s3 },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
   here: { fontSize: 12, color: p.primary, fontWeight: '700', marginTop: 2 },
-  thumbs: { flexDirection: 'row', gap: space.s2, marginTop: space.s2 },
-  thumb: { width: 56, height: 56, borderRadius: radius.md },
-  more: { ...type.bodySm, color: p.primary, fontWeight: '700', marginTop: space.s2 },
+  strip: { marginTop: space.s2 },
+  stripInner: { gap: space.s2, paddingRight: space.s1 },
+  stripImg: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: p.line },
+  seeMore: {
+    width: 96, height: 120, borderRadius: radius.md, backgroundColor: p.surface,
+    borderWidth: 1, borderColor: p.lineStrong, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: space.s2, ...shadow.sm,
+  },
+  seeMoreT: { ...type.bodySm, color: p.primary, fontWeight: '700', textAlign: 'center' },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },
   sheetScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
   sheet: {
