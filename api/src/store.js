@@ -22,6 +22,33 @@ const authed = async (req, reply, prisma) => {
 const ONLINE_MS = 120000;
 const isOnline = (d) => !!d && Date.now() - new Date(d).getTime() < ONLINE_MS;
 
+// Typo-tolerant word match for search: exact substring wins; otherwise one
+// small typo in a long-enough word still matches ("pepered" finds
+// "peppered"). Case is already lowered by callers.
+const lev = (a, b) => {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n;
+  if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) {
+      cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    }
+    prev = cur;
+  }
+  return prev[n];
+};
+const fuzzyHit = (needle, text) => {
+  const t = String(text || '').toLowerCase();
+  if (!needle || t.includes(needle)) return true;
+  if (needle.length < 4) return false;
+  const allow = needle.length >= 7 ? 2 : 1;
+  return t.split(/[^a-z0-9]+/).some(w =>
+    w.length >= 4 && Math.abs(w.length - needle.length) <= allow && lev(w, needle) <= allow);
+};
+
 // Abuse guard for inbox/report routes (each hit can also email the team).
 const floodHits = new Map();
 const flooded = (ip, limit = 5) => {
@@ -80,16 +107,16 @@ export function storeRoutes(app, prisma) {
     });
     if (!q) return withMatches(eligible);
     // Query matches names, categories, AND listing titles/descriptions —
-    // "dresses" finds the tailor who sells them, not just names.
+    // "dresses" finds the tailor who sells them, not just names. Typo tolerant.
     const needles = String(q).toLowerCase().split(/\s+/).filter(Boolean);
     return eligible
       .map(b => {
-        const nameHit = needles.some(n => `${b.name} ${b.category}`.toLowerCase().includes(n));
+        const nameHit = needles.some(n => fuzzyHit(n, `${b.name} ${b.category}`));
         const matched = [];
         for (const l of b.listings) {
           if (matched.length >= 3) break;
           const text = `${l.title} ${l.description || ''}`.toLowerCase();
-          if (needles.some(n => text.includes(n))) matched.push(l.title);
+          if (needles.some(n => fuzzyHit(n, text))) matched.push(l.title);
         }
         return { b, nameHit, matched };
       })
