@@ -114,19 +114,19 @@ export default function Profile() {
           <textarea className="input" placeholder="e.g. Cake lover in Ikeja" value={tagline}
             onChange={(e) => setTagline(e.target.value)} maxLength={120}
             rows={3} style={{ width: '100%', height: 'auto', minHeight: 84, paddingTop: 12, resize: 'vertical' }} />
-          <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '12px 0 4px' }}>
-            Businesses you chat with can see:
+          <p style={{ fontSize: 15, fontWeight: 600, margin: '12px 0 4px' }}>
+            Make your email public
           </p>
           {acc.email ? (
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
               <input type="checkbox" checked={showEmail} onChange={(e) => setShowEmail(e.target.checked)} />
-              Show my email ({acc.email})
+              {acc.email}
             </label>
           ) : null}
           {acc.phone ? (
             <label style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '4px 0', cursor: 'pointer' }}>
               <input type="checkbox" checked={showPhone} onChange={(e) => setShowPhone(e.target.checked)} />
-              Show my phone ({acc.phone})
+              {acc.phone}
             </label>
           ) : null}
           <label className="lbl">Phone number (optional — not verified by us)</label>

@@ -79,17 +79,19 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
           </Pressable>
         )}
         <Text style={s.micro}>Businesses you chat with can see:</Text>
-        {([
-          ['email', account?.email, showEmail, setShowEmail],
-          ['phone', account?.phone, showPhone, setShowPhone],
-        ] as const).map(([kind, value, on, set]) => (
-          value ? (
-            <Pressable key={kind} onPress={() => set(!on)} style={s.check}>
-              <View style={s.box}>{on ? <Check size={16} color={p.primary} /> : null}</View>
-              <Text style={s.checkT}>Show my {kind} ({value})</Text>
-            </Pressable>
-          ) : null
-        ))}
+        <Text style={s.pubT}>Make your email public</Text>
+        {account?.email ? (
+          <Pressable onPress={() => setShowEmail(!showEmail)} style={s.check}>
+            <View style={s.box}>{showEmail ? <Check size={16} color={p.primary} /> : null}</View>
+            <Text style={s.checkT}>{account.email}</Text>
+          </Pressable>
+        ) : null}
+        {account?.phone ? (
+          <Pressable onPress={() => setShowPhone(!showPhone)} style={s.check}>
+            <View style={s.box}>{showPhone ? <Check size={16} color={p.primary} /> : null}</View>
+            <Text style={s.checkT}>{account.phone}</Text>
+          </Pressable>
+        ) : null}
         <View style={s.btnWrap}>
           <Button title={busy ? 'Saving…' : 'Save'} onPress={save} disabled={busy} />
         </View>        <View style={{ height: space.s3 }} />
@@ -140,6 +142,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   area: { height: 84, paddingTop: space.s3, textAlignVertical: 'top' },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s3, alignSelf: 'flex-start' },
+  pubT: { ...type.body, color: p.ink, fontWeight: '600', alignSelf: 'flex-start', marginTop: space.s3 },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: space.s2, alignSelf: 'flex-start' },
   box: {
     width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: p.primary,
