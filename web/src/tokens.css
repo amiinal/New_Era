@@ -135,6 +135,43 @@ a > .card:hover, .thread-row .card:hover { box-shadow: var(--shadow-lg); transfo
 /* Full-bleed divider: negative margins cancel the footer padding. */
 .footer .rule { border: none; height: 1px; background: var(--color-line); margin: 24px -32px 0; }
 
+/* Discover redesign: header, search pill, filter sheet, stacked cards. */
+.disc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.disc-head h1 { margin: 0; flex: 1; }
+.pill-text { background: none; border: 0; cursor: pointer; display: inline-flex;
+  align-items: center; gap: 4px; color: var(--color-primary); font-weight: 600;
+  font-size: 14px; padding: 6px 0; max-width: 45%; }
+.pill-text span, .pill-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.searchbar { display: flex; align-items: center; gap: 12px; width: 100%;
+  background: var(--color-surface); border: 0; border-radius: 28px; height: 56px;
+  padding: 0 20px 0 8px; margin-bottom: 12px; cursor: pointer; text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+.searchbar-icon { width: 40px; height: 40px; border-radius: 50%; background: var(--color-primary);
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.searchbar-hint { color: var(--color-body-text); font-size: 16px; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.disc-list { display: flex; flex-direction: column; gap: 0; }
+.btn-blue { background: var(--color-primary); }
+.btn-blue:hover { background: var(--color-primary); filter: brightness(1.15); }
+.fchip { border: 1px solid var(--color-line-strong); background: var(--color-surface);
+  color: var(--color-body-text); border-radius: 18px; padding: 8px 16px; font-size: 14px;
+  cursor: pointer; }
+.fchip.on { background: var(--color-primary); border-color: var(--color-primary);
+  color: #fff; font-weight: 700; }
+.sheet-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 50;
+  display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto;
+  background: var(--color-background); border-radius: 24px 24px 0 0; padding: 20px; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sheet-head h2 { margin: 0; }
+.sheet-x { background: none; border: 0; cursor: pointer; color: var(--color-body-text); padding: 4px; }
+.drop { background: var(--color-surface); border: 1px solid var(--color-line-strong);
+  border-radius: 12px; margin-top: 4px; padding: 4px 0; max-height: 180px; overflow-y: auto; }
+.drop-item { display: block; width: 100%; text-align: left; background: none; border: 0;
+  cursor: pointer; color: var(--color-ink); font-size: 16px; padding: 8px 16px; }
+.drop-item.on { color: var(--color-primary); font-weight: 700; }
+.subtle { font-weight: 400; font-size: 14px; color: var(--color-body-text); }
+
 /* Install nudge (UX guide §2): compact bar above the nav, never blocking. */
 .install-banner { display: flex; align-items: center; gap: 12px;
   background: var(--color-surface); border-bottom: 1px solid var(--color-line);
