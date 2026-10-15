@@ -39,17 +39,23 @@ adminRoutes(app, prisma);
 // serving actually resolves (else inline/disk photos would break). Probed
 // once at boot; uploads/* always stays local (/img on the API host).
 let r2Direct = false;
+let r2Base = '';
 let r2LastProbe = 0;
 async function probeR2(log) {
   r2LastProbe = Date.now();
   try {
-    const host = new URL(process.env.R2_PUBLIC_URL || '').hostname;
+    // Tolerant: bare hostnames and stray whitespace still resolve.
+    const raw = String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+    const host = new URL(withScheme).hostname;
     await dns.promises.resolve(host);
-    if (!r2Direct && log) console.log(`[img] R2 public serving live at ${process.env.R2_PUBLIC_URL}`);
+    r2Base = withScheme;
+    if (!r2Direct && log) console.log(`[img] R2 public serving live at ${withScheme}`);
     r2Direct = true;
   } catch {
     if (r2Direct && log) console.log('[img] R2 public host lost — serving photo keys relative (/img)');
     r2Direct = false;
+    r2Base = '';
   }
 }
 // Boot probe plus a slow self-heal: a transient DNS miss at boot must not
@@ -60,7 +66,7 @@ const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'ph
 const fixPhoto = (v) => {
   if (typeof v !== 'string' || !v) return v;
   if (/^https?:\/\//.test(v) || v.startsWith('uploads/')) return v;
-  if (r2Direct) return publicUrlFor(v);
+  if (r2Direct && r2Base) return `${r2Base}/${v}`;
   return v;
 };
 const fixPhotos = (v) => {
