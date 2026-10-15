@@ -111,8 +111,9 @@ export default function Profile() {
           <input className="input" placeholder="e.g. Adaeze" value={displayName}
             onChange={(e) => setDisplayName(e.target.value)} maxLength={40} style={{ width: '100%' }} />
           <label className="lbl">Short tagline</label>
-          <input className="input" placeholder="e.g. Cake lover in Ikeja" value={tagline}
-            onChange={(e) => setTagline(e.target.value)} maxLength={120} style={{ width: '100%' }} />
+          <textarea className="input" placeholder="e.g. Cake lover in Ikeja" value={tagline}
+            onChange={(e) => setTagline(e.target.value)} maxLength={120}
+            rows={3} style={{ width: '100%', height: 'auto', minHeight: 84, paddingTop: 12, resize: 'vertical' }} />
           <p style={{ fontSize: 13, color: 'var(--color-body-text)', margin: '12px 0 4px' }}>
             Businesses you chat with can see:
           </p>
