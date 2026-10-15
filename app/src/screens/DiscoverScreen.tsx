@@ -10,7 +10,6 @@ import { radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { Skeleton } from '../components/Skeleton';
-import { TabHead } from '../components/TabHead';
 import { DrawerRoute } from '../components/Drawer';
 import { Palette, useTheme } from '../useTheme';
 
@@ -36,6 +35,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [failed, setFailed] = useState(false);
   const [hasBiz, setHasBiz] = useState<boolean | null>(null);
   const [seenCats, setSeenCats] = useState<string[]>([]);
+  const [seenCities, setSeenCities] = useState<string[]>([]);
+  // Country type-to-filter dropdown + focused-field highlight.
   // PWA nudge: mobile browsers visiting the web app get an install card.
   // Never in the installed PWA (standalone), never on native builds.
   const [installCard, setInstallCard] = useState(false);
@@ -52,6 +53,11 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [dCity, setDCity] = useState('');
   const [dCountry, setDCountry] = useState('NG');
   const [dCat, setDCat] = useState('');
+  const [countryQ, setCountryQ] = useState('');
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [focused, setFocused] = useState<'q' | 'city' | 'country' | null>(null);
+  const focusStyle = (k: 'q' | 'city' | 'country') =>
+    focused === k ? { borderColor: p.primary, borderWidth: 2 } : null;
 
   const runLoad = async (scope: { country: string; city?: string; q?: string; category?: string }) => {
     try {
@@ -66,6 +72,13 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
           }
         }
         return next;
+      });
+      setSeenCities(prev => {
+        const next = [...prev];
+        for (const b of rows) {
+          if (b.city && !next.includes(b.city)) next.push(b.city);
+        }
+        return next.slice(0, 8);
       });
       api.recordEvent('search', scope).catch(() => {});
     } catch { setItems([]); setFailed(true); }
@@ -131,6 +144,10 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   };
 
   const countryName = COUNTRIES.find(c => c.code === country)?.name ?? country;
+  const draftCountryName = COUNTRIES.find(c => c.code === dCountry)?.name ?? dCountry;
+  const countryMatches = COUNTRIES.filter(c =>
+    c.name.toLowerCase().includes(countryQ.trim().toLowerCase()),
+  ).slice(0, 8);
   const pillText = `${city ? `${city}, ` : ''}${countryName}`;
   const here = (b: Business) =>
     city && b.city && b.city.toLowerCase() === city.toLowerCase();
@@ -138,24 +155,22 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   return (
     <View style={s.root}>
       <View style={s.col}>
-      <TabHead title="Discover" drawer={mode === 'business' ? 'business' : 'customer'} routes={dRoutes} active={dActive} onNav={onDNav} onSignIn={onSignIn} right={
-        account ? (
+      <View style={s.headRow}>
+        <Text style={s.h1}>Discover</Text>
+        {account ? (
           hasBiz !== null && mode === 'customer' ? (
             <Text onPress={() => setAppMode('business')} style={[s.switch, { color: link }]}>
               {hasBiz ? 'Business view' : 'Start selling'}
             </Text>
-          ) : undefined
+          ) : null
         ) : onStartSelling ? (
           <Text onPress={onStartSelling} style={[s.switch, { color: link }]}>Start selling</Text>
-        ) : undefined
-      } />
-      <View style={s.headRow}>
-        <Text style={s.h1}>Discover</Text>
-        <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
-          <MapPin size={14} color={p.primary} />
-          <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>
-        </Pressable>
+        ) : null}
       </View>
+      <Pressable onPress={openSheet} style={s.pill} hitSlop={8}>
+        <MapPin size={14} color={p.primary} />
+        <Text style={s.pillT} numberOfLines={1}>{pillText}</Text>
+      </Pressable>
       <Pressable onPress={openSheet} style={({ pressed }) => [s.searchBar, pressed && s.pressed]}>
         <View style={s.searchIcon}>
           <Search size={16} color="#fff" />
@@ -223,18 +238,39 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
                 <X size={20} color={p.bodyText} />
               </Pressable>
             </View>
-            <TextInput style={s.input} placeholder="What are you looking for?" placeholderTextColor={p.bodyText}
-              value={dQ} onChangeText={setDQ} autoFocus returnKeyType="search" onSubmitEditing={applySheet} />
+            <TextInput style={[s.input, focusStyle('q')]} placeholder="What are you looking for?" placeholderTextColor={p.bodyText}
+              value={dQ} onChangeText={setDQ} autoFocus returnKeyType="search" onSubmitEditing={applySheet}
+              onFocus={() => setFocused('q')} onBlur={() => setFocused(null)} />
             <ScrollView style={s.sheetBody} keyboardShouldPersistTaps="handled">
-            <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="City" placeholderTextColor={p.bodyText}
-              value={dCity} onChangeText={setDCity} />
-            <Text style={s.sec}>Country</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.countryRow}>
-              {COUNTRIES.map(c => (
-                <Text key={c.code} onPress={() => setDCountry(c.code)}
-                  style={[s.chip, dCountry === c.code && s.chipOn]}>{c.name}</Text>
-              ))}
-            </ScrollView>
+            <TextInput style={[s.input, { marginTop: space.s3 }, focusStyle('city')]} placeholder="City — type it" placeholderTextColor={p.bodyText}
+              value={dCity} onChangeText={setDCity}
+              onFocus={() => setFocused('city')} onBlur={() => setFocused(null)} />
+            {seenCities.length > 0 && (
+              <View style={s.miniChips}>
+                {seenCities.map(c => (
+                  <Text key={c} onPress={() => setDCity(c)} style={[s.miniChip, dCity === c && s.chipOn]}>{c}</Text>
+                ))}
+              </View>
+            )}
+            <Text style={s.sec}>Country — type to find</Text>
+            <TextInput style={[s.input, focusStyle('country')]} placeholder={draftCountryName} placeholderTextColor={p.bodyText}
+              value={countryQ}
+              onFocus={() => { setCountryQ(''); setCountryOpen(true); setFocused('country'); }}
+              onChangeText={t => { setCountryQ(t); setCountryOpen(true); }}
+              onBlur={() => setFocused(null)} />
+            {countryOpen && (
+              <View style={s.drop}>
+                <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+                  {countryMatches.map(c => (
+                    <Text key={c.code} onPress={() => { setDCountry(c.code); setCountryQ(''); setCountryOpen(false); }}
+                      style={[s.dropItem, dCountry === c.code && s.dropOn]}>
+                      {dCountry === c.code ? '✓ ' : ''}{c.name}
+                    </Text>
+                  ))}
+                  {countryMatches.length === 0 && <Text style={s.micro}>No match — try another spelling.</Text>}
+                </ScrollView>
+              </View>
+            )}
             <Text style={s.sec}>Categories</Text>
             <View style={s.chips}>
               {['', ...CATEGORIES, ...seenCats.filter(c => !CATEGORIES.includes(c))].map(c => (
@@ -261,7 +297,8 @@ const themed = (p: Palette) => StyleSheet.create({
   h1: { ...type.h1, fontSize: 22, color: p.ink },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.s3 },
   pill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4, maxWidth: '55%',
+    flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start',
+    maxWidth: '90%', marginBottom: space.s3,
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
     borderRadius: 18, paddingVertical: 6, paddingHorizontal: space.s3, ...shadow.sm,
   },
@@ -289,7 +326,19 @@ const themed = (p: Palette) => StyleSheet.create({
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
   sec: { ...type.h3, color: p.ink, marginBottom: space.s2, marginTop: space.s4 },
-  countryRow: { flexDirection: 'row', marginBottom: space.s2 },
+  miniChips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginTop: space.s2 },
+  miniChip: {
+    paddingVertical: 6, paddingHorizontal: space.s3, borderWidth: 1,
+    borderColor: p.lineStrong, borderRadius: 14, color: p.bodyText, overflow: 'hidden',
+    fontSize: 13,
+  },
+  drop: {
+    backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
+    borderRadius: radius.md, marginTop: space.s1, paddingVertical: space.s1,
+  },
+  dropItem: { ...type.body, color: p.ink, paddingVertical: space.s2, paddingHorizontal: space.s4 },
+  dropOn: { color: p.primary, fontWeight: '700' },
+  micro: { ...type.micro, color: p.bodyText, padding: space.s2 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
   install: {
     flexDirection: 'row', alignItems: 'center', gap: space.s3,
