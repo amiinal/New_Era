@@ -69,7 +69,12 @@ const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'ph
 const fixPhoto = (v) => {
   if (typeof v !== 'string' || !v) return v;
   if (/^https?:\/\//.test(v) || v.startsWith('uploads/')) return v;
-  if (r2Direct && r2Base) return `${r2Base}/${v}`;
+  // Namespace discipline: only R2-upload namespaces (the presign fence
+  // enforces these) map to the public bucket. Bare seed filenames and
+  // anything else stay local (/img) — mapping them 404s (Mama's Kitchen).
+  if (r2Direct && r2Base && /^(business|support|account|chat)\//.test(v)) {
+    return `${r2Base}/${v}`;
+  }
   return v;
 };
 const fixPhotos = (v) => {
