@@ -200,14 +200,22 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       style={({ pressed }) => [s.card, pressed && s.pressed]}>
       <View style={s.bizRow}>
         <Avatar name={item.name} size={48} uri={item.logoKey ? img(item.logoKey) : null} />
-        <View style={{ flex: 1 }}>
-          <Text style={s.name}>{item.name}</Text>
-          <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
-          {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
-          {(item.matchedListings?.length ?? 0) > 0 ? (
-            <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
-          ) : null}
-        </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.name}>{item.name}</Text>
+                  <Text style={s.meta}>{item.category} · {item.city}, {item.country}</Text>
+                  {here(item) ? <Text style={s.here}>In {item.city}</Text> : null}
+                  {(item.matchedListings?.length ?? 0) > 0 ? (
+                    <Text style={s.meta} numberOfLines={1}>Matches: {item.matchedListings!.join(' · ')}</Text>
+                  ) : null}
+                  {(item.previewPhotos?.length ?? 0) > 0 ? (
+                    <View style={s.thumbs}>
+                      {item.previewPhotos!.map(u => (
+                        <Image key={u} source={{ uri: img(u) }} style={s.thumb} />
+                      ))}
+                    </View>
+                  ) : null}
+                  <Text onPress={() => onOpen(item.slug)} style={s.more}>See more ›</Text>
+                </View>
       </View>
     </Pressable>
   );
@@ -419,6 +427,9 @@ const themed = (p: Palette) => StyleSheet.create({
   nearH: { ...type.h3, color: p.ink, marginTop: space.s3 },
   meta: { ...type.micro, color: p.bodyText, marginTop: 4 },
   here: { fontSize: 12, color: p.primary, fontWeight: '700', marginTop: 2 },
+  thumbs: { flexDirection: 'row', gap: space.s2, marginTop: space.s2 },
+  thumb: { width: 56, height: 56, borderRadius: radius.md },
+  more: { ...type.bodySm, color: p.primary, fontWeight: '700', marginTop: space.s2 },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },
   sheetScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
   sheet: {

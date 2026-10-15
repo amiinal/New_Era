@@ -124,7 +124,19 @@ export function storeRoutes(app, prisma) {
       .sort((x, y) => (y.matched.length - x.matched.length) || (Number(y.nameHit) - Number(x.nameHit)))
       .map(r => {
         const { listings: _drop, ...rest } = r.b;
-        return { ...rest, matchedListings: r.matched };
+        // Preview strip: matched items' photos first, else the first listings'.
+        // Name hits still show something sellable; item hits show the hit.
+        const previewPhotos = [];
+        for (const t of r.matched) {
+          const l = r.b.listings.find(x => x.title === t);
+          if (l?.photos[0]) previewPhotos.push(l.photos[0]);
+        }
+        if (previewPhotos.length === 0) {
+          for (const l of r.b.listings.slice(0, 3)) {
+            if (l.photos[0]) previewPhotos.push(l.photos[0]);
+          }
+        }
+        return { ...rest, matchedListings: r.matched, previewPhotos: previewPhotos.slice(0, 3) };
       });
   });
 

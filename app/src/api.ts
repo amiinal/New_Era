@@ -52,6 +52,7 @@ export type Business = {
   country: string; city: string; area: string | null; deliveryArea: string | null;
   logoKey: string | null; coverKey: string | null; bio: string | null;
   matchedListings?: string[];
+  previewPhotos?: string[];
 };
 export type Listing = {
   id: string; businessId: string; type: 'product' | 'service';

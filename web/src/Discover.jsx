@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import Nav from './Nav.jsx';
 import Back from './Back.jsx';
 import Footer from './Footer.jsx';
-import { api, recordEvent } from './lib.js';
+import { api, API, recordEvent } from './lib.js';
 import { COUNTRIES } from './countries.js';
+
+const img = (k) => (!k ? null : (/^https?:\/\//.test(k) ? k : `${API}/img/${k}`));
 
 const CATEGORIES = ['Fashion', 'Beauty', 'Food', 'Home', 'Electronics', 'Services'];
 
@@ -91,6 +93,16 @@ export default function Discover() {
                       Matches: {b.matchedListings.join(' · ')}
                     </p>
                   ) : null}
+                  {(b.previewPhotos?.length ?? 0) > 0 ? (
+                    <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                      {b.previewPhotos.map((u) => (
+                        <img key={u} src={img(u)} alt="" style={{ width: 56, height: 56, borderRadius: 8, objectFit: 'cover' }} />
+                      ))}
+                    </div>
+                  ) : null}
+                  <span style={{ display: 'block', marginTop: 8, fontSize: 14, fontWeight: 600, color: 'var(--color-primary)' }}>
+                    See more ›
+                  </span>
                 </div>
               </Link>
             ))}
