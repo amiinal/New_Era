@@ -333,7 +333,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
                 </ScrollView>
               </View>
             )}
-            <Text style={s.sec}>Categories — pick as many as you like</Text>
+            <Text style={s.sec}>Categories <Text style={s.secSub}>— pick as many as you like</Text></Text>
             <View style={s.chips}>
               {['', ...CATEGORIES, ...seenCats.filter(c => !CATEGORIES.includes(c))].map(c => {
                 const on = c === '' ? dCats.length === 0 : dCats.includes(c);
@@ -394,6 +394,7 @@ const themed = (p: Palette) => StyleSheet.create({
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16,
   },
   sec: { ...type.h3, color: p.ink, marginBottom: space.s2, marginTop: space.s4 },
+  secSub: { fontWeight: '400', fontSize: 14, color: p.bodyText },
   drop: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong,
     borderRadius: radius.md, marginTop: space.s1, paddingVertical: space.s1,

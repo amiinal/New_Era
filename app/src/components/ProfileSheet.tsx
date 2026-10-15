@@ -68,9 +68,9 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
         <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
           value={name} onChangeText={setName} maxLength={40} />
         <TextInput style={[s.input, s.area, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
-          value={tagline} onChangeText={setTagline} maxLength={120} multiline numberOfLines={3} />
-        <Text style={s.label}>Phone number</Text>
-        <TextInput style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="Contact phone (optional, not verified)" placeholderTextColor={p.bodyText}
+          value={tagline} onChangeText={setTagline} maxLength={120} multiline numberOfLines={3} scrollEnabled />
+        <Text style={s.label}>Phone number (optional — not verified by us)</Text>
+        <TextInput style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="e.g. +2348012345678" placeholderTextColor={p.bodyText}
           value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
         {!!contactPhone.trim() && (
           <Pressable onPress={() => setShowContactPhone(!showContactPhone)} style={[s.check, { marginBottom: space.s2 }]}>

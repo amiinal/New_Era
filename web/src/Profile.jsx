@@ -129,7 +129,7 @@ export default function Profile() {
               Show my phone ({acc.phone})
             </label>
           ) : null}
-          <label className="lbl">Contact phone (optional, not verified)</label>
+          <label className="lbl">Phone number (optional — not verified by us)</label>
           <input className="input" placeholder="e.g. +2348012345678" value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)} maxLength={20} style={{ width: '100%' }} />
           {!!contactPhone.trim() && (
