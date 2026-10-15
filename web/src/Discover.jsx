@@ -205,10 +205,10 @@ export default function Discover() {
             </Link>
           ))}
           <Link to={`/s/${b.slug}`} style={{
-            flexShrink: 0, width: 96, height: 120, borderRadius: 12, textDecoration: 'none',
-            background: 'var(--color-surface)', border: '1px solid var(--color-line-strong)',
+            flexShrink: 0, width: 96, height: 120,
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 8,
             color: 'var(--color-primary)', fontWeight: 700, fontSize: 14, textAlign: 'center',
+            textDecoration: 'underline', textUnderlineOffset: 3,
           }}>
             See more ›
           </Link>
