@@ -338,7 +338,7 @@ export default function Discover() {
             </div>
             <div style={{ display: 'flex', gap: 8, marginTop: 20, marginBottom: 8 }}>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setSheet(false)}>Cancel</button>
-              <button className="btn btn-blue" style={{ flex: 2 }} onClick={applySheet}>Apply</button>
+              <button className="btn" style={{ flex: 2 }} onClick={applySheet}>Apply</button>
             </div>
           </div>
         </div>
