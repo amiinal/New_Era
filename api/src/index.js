@@ -65,7 +65,7 @@ const r2Timer = setInterval(() => {
   if (!r2Direct) probeR2(false).catch(() => {});
   else clearInterval(r2Timer);
 }, 60_000);
-const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'photo', 'imageKey', 'photos']);
+const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'photo', 'imageKey', 'photos', 'previewPhotos']);
 const fixPhoto = (v) => {
   if (typeof v !== 'string' || !v) return v;
   if (/^https?:\/\//.test(v) || v.startsWith('uploads/')) return v;
