@@ -1,4 +1,4 @@
-import { ChevronRight, MapPin, Search, X } from 'lucide-react-native';
+import { MapPin, Search, X } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -220,8 +220,7 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
             </Pressable>
           ))}
           <Pressable onPress={() => onOpen(item.slug)} style={s.seeMore}>
-            <Text style={s.seeMoreT}>See more</Text>
-            <ChevronRight size={14} color={p.primary} />
+            <Text style={s.seeMoreT}>See more ›</Text>
           </Pressable>
         </ScrollView>
       ) : null}
@@ -434,11 +433,10 @@ const themed = (p: Palette) => StyleSheet.create({
   stripInner: { gap: space.s2, paddingRight: space.s1 },
   stripImg: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: p.line },
   seeMore: {
-    flexDirection: 'row', width: 96, height: 120, borderRadius: radius.md, backgroundColor: p.surface,
-    borderWidth: 1, borderColor: p.lineStrong, alignItems: 'center', justifyContent: 'center',
-    paddingHorizontal: space.s2, ...shadow.sm,
+    width: 96, height: 120, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: space.s2,
   },
-  seeMoreT: { ...type.bodySm, color: p.primary, fontWeight: '700', textAlign: 'center' },
+  seeMoreT: { ...type.bodySm, color: p.primary, fontWeight: '700', textAlign: 'center', textDecorationLine: 'underline' },
   empty: { ...type.body, color: p.bodyText, marginTop: space.s6, textAlign: 'center' },
   sheetScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', justifyContent: 'flex-end' },
   sheet: {
