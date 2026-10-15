@@ -39,9 +39,7 @@ adminRoutes(app, prisma);
 // once at boot; uploads/* always stays local (/img on the API host).
 let r2Direct = false;
 let r2Base = '';
-let r2LastProbe = 0;
 async function probeR2(log) {
-  r2LastProbe = Date.now();
   try {
     // Tolerant: bare hostnames and stray whitespace still resolve.
     const raw = String(process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
@@ -54,16 +52,19 @@ async function probeR2(log) {
     r2Base = withScheme;
     if (!r2Direct && log) console.log(`[img] R2 public serving live at ${withScheme}`);
     r2Direct = true;
+    clearInterval(r2Timer);
   } catch {
-    if (r2Direct && log) console.log('[img] R2 public host lost — serving photo keys relative (/img)');
-    r2Direct = false;
-    r2Base = '';
+    // Never downgrade on transient failure: a passing probe stays latched
+    // until restart, so responses can't flap mid-session.
+    if (log) console.log('[img] R2 public host unresolved — serving photo keys relative (/img)');
   }
 }
-// Boot probe plus a slow self-heal: a transient DNS miss at boot must not
-// pin relative URLs forever.
+// Boot probe, retried until the first success; then latched.
 await probeR2(true);
-setInterval(() => { probeR2(false).catch(() => {}); }, 60_000);
+const r2Timer = setInterval(() => {
+  if (!r2Direct) probeR2(false).catch(() => {});
+  else clearInterval(r2Timer);
+}, 60_000);
 const PHOTO_KEYS = new Set(['logoKey', 'coverKey', 'headerKey', 'avatarKey', 'photo', 'imageKey', 'photos']);
 const fixPhoto = (v) => {
   if (typeof v !== 'string' || !v) return v;
