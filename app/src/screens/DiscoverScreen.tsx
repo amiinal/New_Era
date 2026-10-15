@@ -1,4 +1,4 @@
-import { MapPin, Search, X } from 'lucide-react-native';
+import { ChevronRight, MapPin, Search, X } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -220,7 +220,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
             </Pressable>
           ))}
           <Pressable onPress={() => onOpen(item.slug)} style={s.seeMore}>
-            <Text style={s.seeMoreT}>See more ›</Text>
+            <Text style={s.seeMoreT}>See more</Text>
+            <ChevronRight size={14} color={p.primary} />
           </Pressable>
         </ScrollView>
       ) : null}
@@ -433,7 +434,7 @@ const themed = (p: Palette) => StyleSheet.create({
   stripInner: { gap: space.s2, paddingRight: space.s1 },
   stripImg: { width: 120, height: 120, borderRadius: radius.md, backgroundColor: p.line },
   seeMore: {
-    width: 96, height: 120, borderRadius: radius.md, backgroundColor: p.surface,
+    flexDirection: 'row', width: 96, height: 120, borderRadius: radius.md, backgroundColor: p.surface,
     borderWidth: 1, borderColor: p.lineStrong, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: space.s2, ...shadow.sm,
   },

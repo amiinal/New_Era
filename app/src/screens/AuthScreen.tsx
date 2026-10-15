@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { useBg } from '../background';
@@ -131,7 +131,10 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
     <View style={s.root}>
       <View style={s.card}>
         {onBack ? (
-          <Text onPress={onBack} style={[s.link, { textAlign: 'left', marginBottom: space.s2 }]}>‹ Back</Text>
+          <Pressable onPress={onBack} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: space.s2 }} hitSlop={8}>
+            <ChevronLeft size={18} color={p.primary} />
+            <Text style={s.link}>Back</Text>
+          </Pressable>
         ) : null}
         <Text style={s.h1}>{title}</Text>
         <Text style={s.sub}>

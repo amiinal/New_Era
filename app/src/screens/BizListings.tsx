@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react-native';
+import { Check, ChevronRight } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img, Listing, symFor } from '../api';
@@ -79,8 +79,9 @@ export function BizListings({ dRoutes, dActive, onDNav }: {
             }[l.availability]}</Text>
           </View>
           <View style={s.side}>
-            <Pressable onPress={() => setAvFor(l)} style={s.av}>
-              <Text style={[s.avT, { color: link }]}>Set ›</Text>
+            <Pressable onPress={() => setAvFor(l)} style={[s.av, { flexDirection: 'row', alignItems: 'center' }]}>
+              <Text style={[s.avT, { color: link }]}>Set</Text>
+              <ChevronRight size={14} color={link} />
             </Pressable>
             <Text onPress={() => remove(l)} style={s.del}>Delete</Text>
           </View>

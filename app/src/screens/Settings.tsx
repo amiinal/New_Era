@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import React, { useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -94,7 +94,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         </View>
         <Pressable onPress={() => toggle('password')} style={s.item}>
           <Text style={s.itemT}>{account?.hasPassword ? 'Change password' : 'Add a password (2nd step)'}</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
         {panel === 'password' && (
           <View style={s.card}>
@@ -109,7 +109,7 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         )}
         <Pressable onPress={() => toggle('email')} style={s.item}>
           <Text style={s.itemT}>Change email</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
         {panel === 'email' && (
           <View style={s.card}>
@@ -141,11 +141,11 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <Text style={s.sec}>Help</Text>
         <Pressable onPress={onHelp} style={s.item}>
           <Text style={s.itemT}>Help center & FAQ</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
         <Pressable onPress={() => setChat(true)} style={s.item}>
           <Text style={s.itemT}>Contact support</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
 
         <Text style={s.sec}>Take a break</Text>
@@ -158,11 +158,11 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         <Text style={s.sec}>Legal</Text>
         <Pressable onPress={() => setLegal('terms')} style={s.item}>
           <Text style={s.itemT}>Terms of Use</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
         <Pressable onPress={() => setLegal('privacy')} style={s.item}>
           <Text style={s.itemT}>Privacy Policy</Text>
-          <Text style={s.chev}>›</Text>
+          <ChevronRight size={20} color={p.bodyText} />
         </Pressable>
 
         <View style={{ height: space.s5 }} />

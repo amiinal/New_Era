@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Pressable, ScrollView, Share, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
-import { MoreVertical } from 'lucide-react-native';
+import { ChevronLeft, MoreVertical } from 'lucide-react-native';
 import { api, img, SITE_URL, Storefront } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, shadow, space, type } from '../theme';
@@ -98,7 +98,7 @@ export function StorefrontScreen({
     <ScrollView style={s.root}>
       {onBack ? (
         <Pressable onPress={onBack} hitSlop={8} style={s.backRow}>
-          <Text style={s.backT}>‹</Text>
+          <ChevronLeft size={22} color={p.primary} />
         </Pressable>
       ) : null}
       {(b.coverKey || listings[0]?.photos[0]) ? (
@@ -209,11 +209,6 @@ const themed = (p: Palette) => StyleSheet.create({
     position: 'absolute', top: space.s3, left: space.s4, zIndex: 10,
     width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center',
     backgroundColor: p.surface, ...shadow.sm,
-  },
-  backT: {
-    fontSize: 24, color: p.primary, fontWeight: '600',
-    lineHeight: 34, textAlign: 'center', textAlignVertical: 'center',
-    includeFontPadding: false, marginTop: -2, marginLeft: -1,
   },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8 },
   coverWrap: {

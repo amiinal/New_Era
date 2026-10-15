@@ -1,8 +1,9 @@
+import { Check, Circle } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Business } from '../api';
 import { useAuth } from '../auth';
-import { radius, shadow, space, type } from '../theme';
+import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Avatar } from '../components/Avatar';
 import { BizProfile } from '../components/BizProfile';
@@ -114,14 +115,29 @@ export function BusinessHome({ onOpenStore, onManage, onCustomerView, dRoutes, d
       <View style={s.card}>
         <Text style={s.t}>Discovery checklist</Text>
         <Text style={s.micro}>You need all three to appear in searches.</Text>
-        <Text style={s.check}>✓ Category · {biz.category}</Text>
-        <Text style={s.check}>✓ Location · {biz.area ? `${biz.area}, ` : ''}{biz.city}</Text>
+        <View style={s.checkRow}>
+          <Check size={14} color={C.success} />
+          <Text style={s.check}>Category · {biz.category}</Text>
+        </View>
+        <View style={s.checkRow}>
+          <Check size={14} color={C.success} />
+          <Text style={s.check}>Location · {biz.area ? `${biz.area}, ` : ''}{biz.city}</Text>
+        </View>
         {photoCount === null ? (
-          <Text style={s.check}>○ Photo listings · loading…</Text>
+          <View style={s.checkRow}>
+            <Circle size={14} color={p.bodyText} />
+            <Text style={s.check}>Photo listings · loading…</Text>
+          </View>
         ) : photoCount >= 3 ? (
-          <Text style={s.check}>✓ Photo listings · {photoCount} — you&apos;re showing up in searches.</Text>
+          <View style={s.checkRow}>
+            <Check size={14} color={C.success} />
+            <Text style={s.check}>Photo listings · {photoCount} — you&apos;re showing up in searches.</Text>
+          </View>
         ) : (
-          <Text style={s.check}>○ Photo listings · {photoCount} of 3 — add {3 - photoCount} more to be found in Discover.</Text>
+          <View style={s.checkRow}>
+            <Circle size={14} color={p.bodyText} />
+            <Text style={s.check}>Photo listings · {photoCount} of 3 — add {3 - photoCount} more to be found in Discover.</Text>
+          </View>
         )}
       </View>
 
@@ -172,7 +188,8 @@ const themed = (p: Palette) => StyleSheet.create({
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginTop: space.s3, ...shadow.md },
   t: { ...type.h3, color: p.ink },
-  check: { ...type.bodySm, color: p.ink, marginTop: space.s2 },
+  check: { ...type.bodySm, color: p.ink, flex: 1 },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: space.s2 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   range: { ...type.bodySm, color: p.bodyText, padding: space.s2 },
   rangeOn: { color: p.primary, fontWeight: '700' },

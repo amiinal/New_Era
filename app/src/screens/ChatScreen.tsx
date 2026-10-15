@@ -3,7 +3,7 @@ import {
   ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform,
   Pressable, StyleSheet, Text, TextInput, View,
 } from 'react-native';
-import { MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
+import { ChevronLeft, MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import { api, Business, img, Message, Peer } from '../api';
@@ -129,7 +129,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
       <View style={s.head}>
         {onBack ? (
           <Pressable onPress={onBack} hitSlop={8} style={s.backBtn}>
-            <Text style={s.backT}>‹</Text>
+            <ChevronLeft size={26} color={p.primary} />
           </Pressable>
         ) : null}
         <Pressable onPress={openPeer} hitSlop={8}>
@@ -248,7 +248,6 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.chatBg },
   head: { flexDirection: 'row', alignItems: 'center', gap: space.s2, backgroundColor: p.surface, paddingHorizontal: space.s3, paddingVertical: space.s3 },
   backBtn: { padding: space.s1 },
-  backT: { fontSize: 26, color: p.primary, fontWeight: '600', lineHeight: 28 },
   peer: { ...type.h3, color: p.ink, flex: 1 },
   presence: { ...type.micro, color: p.bodyText },
   kebab: { padding: space.s1 },

@@ -36,8 +36,9 @@ export function ListingScreen({ id, onChat, onBack }: { id: string; onChat: (bus
   };
   return (
     <ScrollView style={s.root}>
-      <Pressable onPress={onBack} hitSlop={8} style={s.back}>
-        <Text style={s.backT}>‹ Back</Text>
+      <Pressable onPress={onBack} hitSlop={8} style={[s.back, { flexDirection: 'row', alignItems: 'center' }]}>
+        <ChevronLeft size={18} color={p.primary} />
+        <Text style={s.backT}>Back</Text>
       </Pressable>
       {item.photos.length > 0 ? (
         <View>

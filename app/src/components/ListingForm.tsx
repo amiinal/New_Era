@@ -1,5 +1,6 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+import { X } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import {
   Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
@@ -104,7 +105,7 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
               <View key={j} style={s.thumbWrap}>
                 <Image source={{ uri: /:\/\//.test(u) ? u : img(u) }} style={s.thumb} />
                 <Pressable onPress={() => setPhotos(photos.filter((_, k) => k !== j))} style={s.rm} hitSlop={8}>
-                  <Text style={s.rmT}>✕</Text>
+                  <X size={12} color="#fff" />
                 </Pressable>
               </View>
             ))}
