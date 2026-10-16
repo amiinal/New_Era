@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { radius, shadow, space, type } from '../theme';
@@ -24,6 +24,7 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
 }) {
   const { account } = useAuth();
   const [reason, setReason] = useState<string | null>(null);
+  const [detail, setDetail] = useState('');
   const [contact, setContact] = useState(account?.email ?? account?.phone ?? '');
   const [busy, setBusy] = useState(false);
   const { p } = useTheme();
@@ -31,10 +32,15 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
 
   const send = async () => {
     if (!reason) { Alert.alert('Pick a reason', 'Choose what is wrong so the team can act.'); return; }
+    if (reason === 'Something else' && !detail.trim()) {
+      Alert.alert('Tell us what it is', 'Describe the issue so the team can act.');
+      return;
+    }
     setBusy(true);
     try {
       await api.report({
-        targetType, targetId, reason,
+        targetType, targetId,
+        reason: reason === 'Something else' ? `Something else — ${detail.trim()}` : reason,
         ...(contact.trim() ? { contact: contact.trim() } : {}),
       });
       onSent();
@@ -45,8 +51,9 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onClose}>
-      <View style={s.scrim}>
-        <View style={s.card}>
+      <Pressable style={s.scrim} onPress={onClose}>
+        <Pressable style={s.card} onPress={() => { }}>
+        <ScrollView keyboardShouldPersistTaps="handled">
           <Text style={s.h1}>Report {title}</Text>
           <Text style={s.micro}>What&apos;s wrong?</Text>
           {REPORT_REASONS.map(r => (
@@ -54,21 +61,29 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
               <Text style={[s.optT, reason === r && s.optTOn]}>{r}</Text>
             </Pressable>
           ))}
+          {reason === 'Something else' ? (
+            <>
+              <Text style={[s.micro, { marginTop: space.s1 }]}>Tell us what it is</Text>
+              <Field style={[s.input, s.area]} placeholder="Describe the issue…" placeholderTextColor={p.bodyText}
+                value={detail} onChangeText={setDetail} multiline numberOfLines={3} maxLength={400} />
+            </>
+          ) : null}
           <Text style={[s.micro, { marginTop: space.s3 }]}>Your email or phone (for follow-up)</Text>
           <Field style={s.input} placeholder="How can we reach you?" placeholderTextColor={p.bodyText}
             value={contact} onChangeText={setContact} autoCapitalize="none" keyboardType="email-address" />
           <Button title={busy ? 'Sending…' : 'Send report'} onPress={send} disabled={busy} />
           <View style={{ height: space.s2 }} />
           <Button title="Cancel" variant="tertiary" onPress={onClose} />
-        </View>
-      </View>
+        </ScrollView>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }
 
 const themed = (p: Palette) => StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,.4)', alignItems: 'center', justifyContent: 'center', padding: space.s4 },
-  card: { width: '100%', maxWidth: 420, backgroundColor: p.background, borderRadius: radius.lg, padding: space.s5, ...shadow.lg },
+  card: { width: '100%', maxWidth: 420, maxHeight: '90%', backgroundColor: p.background, borderRadius: radius.lg, padding: space.s5, ...shadow.lg },
   h1: { ...type.h3, color: p.ink, marginBottom: space.s1 },
   micro: { ...type.micro, color: p.bodyText, marginBottom: space.s2 },
   opt: {
@@ -82,4 +97,5 @@ const themed = (p: Palette) => StyleSheet.create({
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,
   },
+  area: { height: 84, paddingTop: space.s3, textAlignVertical: 'top' },
 });
