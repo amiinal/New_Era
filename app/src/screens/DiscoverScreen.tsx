@@ -293,8 +293,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
       )}
       </View>
       <Modal visible={sheet} animationType="slide" transparent onRequestClose={() => setSheet(false)}>
-        <View style={s.sheetScrim}>
-          <View style={s.sheet}>
+        <Pressable style={s.sheetScrim} onPress={() => { setCityOpen(false); setCountryOpen(false); setSheet(false); }}>
+          <Pressable style={s.sheet} onPress={() => { }}>
             <View style={s.sheetHead}>
               <Text style={s.sheetTitle}>Find businesses</Text>
               <Pressable onPress={() => setSheet(false)} hitSlop={8} style={s.sheetX}>
@@ -361,8 +361,8 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
               <View style={{ flex: 1 }}><Button title="Cancel" variant="secondary" onPress={() => setSheet(false)} /></View>
               <View style={{ flex: 2 }}><Button title="Apply" onPress={applySheet} /></View>
             </View>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
