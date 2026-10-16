@@ -52,12 +52,22 @@ export const shadow = {
   },
 } as const;
 
+// Font families: Inter, bundled via @expo-google-fonts/inter (static per
+// weight — React Native can't map fontWeight onto a single variable file,
+// so each weight gets its own family; weights stay on styles as fallback).
+export const font = {
+  regular: 'Inter_400Regular',
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+} as const;
+
 // Type scale (§1.2): size + weight pairs.
 export const type = {
-  h1: { fontSize: 28, fontWeight: '700' },
-  h2: { fontSize: 22, fontWeight: '600' },
-  h3: { fontSize: 18, fontWeight: '600' },
-  body: { fontSize: 16, fontWeight: '400' },
-  bodySm: { fontSize: 14, fontWeight: '400' },
-  micro: { fontSize: 12, fontWeight: '500' },
+  h1: { fontSize: 28, fontWeight: '700', fontFamily: font.bold },
+  h2: { fontSize: 22, fontWeight: '600', fontFamily: font.semibold },
+  h3: { fontSize: 18, fontWeight: '600', fontFamily: font.semibold },
+  body: { fontSize: 16, fontWeight: '400', fontFamily: font.regular },
+  bodySm: { fontSize: 14, fontWeight: '400', fontFamily: font.regular },
+  micro: { fontSize: 12, fontWeight: '500', fontFamily: font.medium },
 } as const;

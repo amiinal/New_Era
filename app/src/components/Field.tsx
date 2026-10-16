@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { TextInput, TextInputProps } from 'react-native';
+import { font } from '../theme';
 import { useTheme } from '../useTheme';
 
 // Brand-consistent text field: grey idle (from style), blue focus border
 // + blue cursor on iOS/Android/web. Single place so profile, search,
-// chat, and auth all match — never black.
+// chat, and auth all match — never black. Inter throughout (DS §1.2).
 export function Field(props: TextInputProps) {
   const { p } = useTheme();
   const [focused, setFocused] = useState(false);
@@ -18,6 +19,7 @@ export function Field(props: TextInputProps) {
       onFocus={(e) => { setFocused(true); onFocus?.(e); }}
       onBlur={(e) => { setFocused(false); onBlur?.(e); }}
       style={[
+        { fontFamily: font.regular },
         style,
         focused
           ? ({ borderColor: p.primary, borderWidth: 2, outlineColor: p.primary } as object)

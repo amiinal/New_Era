@@ -80,7 +80,7 @@ const themed = (p: Palette) => StyleSheet.create({
   bubble: { maxWidth: '80%', padding: space.s3, borderRadius: radius.lg, ...shadow.sm },
   them: { backgroundColor: p.surface, alignSelf: 'flex-start' },
   me: { backgroundColor: C.primary, alignSelf: 'flex-end' },
-  text: { fontSize: 15, color: p.ink },
+  text: { fontSize: 15, color: p.ink, fontFamily: 'Inter_400Regular' },
   box: { flexDirection: 'row', gap: space.s2, marginTop: space.s3, marginBottom: space.s3 },
   input: {
     flex: 1, height: 48, borderRadius: radius.md, borderWidth: 1,

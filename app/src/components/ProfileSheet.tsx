@@ -146,7 +146,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   area: { height: 84, paddingTop: space.s3, textAlignVertical: 'top' },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s3, alignSelf: 'flex-start' },
-  pubT: { ...type.body, color: p.ink, fontWeight: '600', alignSelf: 'flex-start', marginTop: space.s3 },
+  pubT: { ...type.body, color: p.ink, fontWeight: '600', fontFamily: 'Inter_600SemiBold', alignSelf: 'flex-start', marginTop: space.s3 },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginTop: space.s2, alignSelf: 'flex-start' },
   box: {
     width: 24, height: 24, borderRadius: 4, borderWidth: 1, borderColor: p.primary,

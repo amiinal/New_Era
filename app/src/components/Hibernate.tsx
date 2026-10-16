@@ -92,5 +92,5 @@ const themed = (p: Palette) => StyleSheet.create({
   h1: { ...type.h1, color: p.ink, textAlign: 'center' },
   sub: { ...type.bodySm, color: p.bodyText, textAlign: 'center', marginTop: space.s2, marginBottom: space.s5 },
   micro: { ...type.micro, color: p.bodyText, textAlign: 'center' },
-  link: { color: p.primary, fontWeight: '600' },
+  link: { color: p.primary, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
 });

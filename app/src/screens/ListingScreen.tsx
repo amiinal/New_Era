@@ -98,7 +98,7 @@ const themed = (p: Palette) => StyleSheet.create({
   root: { flex: 1, backgroundColor: p.background },
   center: { flex: 1, textAlign: 'center', marginTop: space.s8, color: p.bodyText },
   back: { paddingHorizontal: space.s4, paddingTop: space.s3 },
-  backT: { ...type.body, color: p.primary, fontWeight: '600' },
+  backT: { ...type.body, color: p.primary, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   photoEmpty: {
     height: 280, borderRadius: 16, backgroundColor: p.line,
     alignItems: 'center', justifyContent: 'center', alignSelf: 'center', marginTop: space.s4,
@@ -120,6 +120,6 @@ const themed = (p: Palette) => StyleSheet.create({
   desc: { ...type.body, color: p.ink, marginTop: space.s2 },
   avail: { marginTop: space.s2 },
   avDot: { width: 8, height: 8, borderRadius: 4 },
-  availT: { fontSize: 13, color: p.bodyText },
+  availT: { fontSize: 13, color: p.bodyText, fontFamily: 'Inter_400Regular' },
   micro: { ...type.micro, color: p.bodyText, marginTop: space.s2 },
 });

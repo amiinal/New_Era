@@ -267,7 +267,7 @@ const themed = (p: Palette) => StyleSheet.create({
     paddingVertical: space.s2, paddingHorizontal: space.s4, borderWidth: 1,
     borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText, overflow: 'hidden',
   },
-  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '700' },
+  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '700', fontFamily: 'Inter_700Bold' },
   card: {
     backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4,
     marginBottom: space.s2, ...shadow.md,
@@ -291,5 +291,5 @@ const themed = (p: Palette) => StyleSheet.create({
   itemRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   answer: { ...type.bodySm, color: p.bodyText, marginTop: space.s2 },
   itemT: { ...type.body, color: p.ink, flex: 1 },
-  chev: { fontSize: 20, color: p.bodyText },
+  chev: { fontSize: 20, color: p.bodyText, fontFamily: 'Inter_400Regular' },
 });

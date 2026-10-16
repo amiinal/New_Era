@@ -166,15 +166,15 @@ const themed = (p: Palette) => StyleSheet.create({
     position: 'absolute', top: 4, right: 12, width: 24, height: 24, borderRadius: 12,
     backgroundColor: 'rgba(0,0,0,.55)', alignItems: 'center', justifyContent: 'center',
   },
-  rmT: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  rmT: { color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: 'Inter_700Bold' },
   addBtn: {
     width: 96, height: 96, borderRadius: radius.md, borderWidth: 1, borderColor: p.lineStrong,
     alignItems: 'center', justifyContent: 'center', marginRight: space.s2,
   },
-  addT: { fontWeight: '600' },
+  addT: { fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   toggle: { flexDirection: 'row', gap: space.s2, marginBottom: space.s4, flexWrap: 'wrap' },
   opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
-  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600' },
+  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,

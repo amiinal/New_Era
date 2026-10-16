@@ -225,7 +225,7 @@ const themed = (p: Palette) => StyleSheet.create({
     position: 'absolute', top: 44, right: 12, backgroundColor: p.surface,
     borderRadius: 8, elevation: 4, zIndex: 10, minWidth: 180,
   },
-  menuItem: { padding: space.s4, fontSize: 14, color: C.error },
+  menuItem: { padding: space.s4, fontSize: 14, color: C.error, fontFamily: 'Inter_400Regular' },
   note: { ...type.micro, color: C.success, marginTop: space.s2 },
   previewNote: { ...type.micro, color: p.bodyText, marginTop: space.s2, fontStyle: 'italic' },
   actions: { flexDirection: 'row', gap: space.s2, marginTop: space.s4 },
@@ -235,7 +235,7 @@ const themed = (p: Palette) => StyleSheet.create({
   cellWide: { flexBasis: '31%', alignSelf: 'stretch' },
   cert: { flexDirection: 'row', gap: space.s3, backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginHorizontal: space.s4, marginBottom: space.s3, alignItems: 'center', ...shadow.md },
   certImg: { width: 44, height: 44, borderRadius: radius.md },
-  certT: { ...type.bodySm, fontWeight: '600', color: p.ink },
+  certT: { ...type.bodySm, fontWeight: '600', fontFamily: 'Inter_600SemiBold', color: p.ink },
   micro: { ...type.micro, color: p.bodyText },
   link: { ...type.body, color: p.primary, textAlign: 'center', marginVertical: space.s6 },
 });

@@ -31,7 +31,7 @@ export function BizNav({ active, onTab, chatsDot }: { active: BizTab; onTab: (t:
               <Icon size={24} color={on ? activeColor : p.bodyText} />
               {chatsDot && key === 'bchats' ? <View style={s.dot} /> : null}
             </View>
-            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
+            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const, fontFamily: 'Inter_600SemiBold' }]}>{label}</Text>
           </Pressable>
         );
       })}
@@ -61,7 +61,7 @@ export function BottomNav({ active, onTab, onAvatar, chatsDot }: { active: Tab; 
               <Icon size={24} color={on ? activeColor : p.bodyText} />
               {chatsDot && key === 'chats' ? <View style={s.dot} /> : null}
             </View>
-            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const }]}>{label}</Text>
+            <Text style={[s.label, on && { color: activeColor, fontWeight: '600' as const, fontFamily: 'Inter_600SemiBold' }]}>{label}</Text>
           </Pressable>
         );
       })}
@@ -92,12 +92,12 @@ const themed = (p: Palette) => StyleSheet.create({
   tab: { flex: 1, alignItems: 'center', paddingTop: 10, paddingBottom: 18, borderRadius: 12, marginHorizontal: 4 },
   tabOn: { backgroundColor: 'rgba(44,62,122,.07)' },
   pressed: { opacity: 0.7 },
-  label: { fontSize: 12, color: p.bodyText },
+  label: { fontSize: 12, color: p.bodyText, fontFamily: 'Inter_400Regular' },
   selfAvatar: {
     width: 24, height: 24, borderRadius: 12, borderWidth: 1, borderColor: p.lineStrong,
     backgroundColor: p.background, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
-  selfLetter: { fontSize: 12, fontWeight: '700', color: p.primary },
+  selfLetter: { fontSize: 12, fontWeight: '700', fontFamily: 'Inter_700Bold', color: p.primary },
   dot: {
     position: 'absolute', top: 0, right: -2, width: 10, height: 10,
     borderRadius: 5, backgroundColor: C.error,

@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   img: { width: '100%', aspectRatio: 1 },
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 8 },
   arrow: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  count: { fontSize: 14, color: '#5B5F6B', fontWeight: '600' },
-  x: { color: '#fff', fontSize: 16 },
+  count: { fontSize: 14, color: '#5B5F6B', fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
+  x: { color: '#fff', fontSize: 16, fontFamily: 'Inter_400Regular' },
   xrow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 16 },
 });

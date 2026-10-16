@@ -105,7 +105,7 @@ const themed = (p: Palette) => StyleSheet.create({
   prev: { width: '100%', height: 180, borderRadius: radius.lg },
   portrait: { width: 180, height: 320, borderRadius: radius.lg, alignSelf: 'center',
     alignItems: 'center', justifyContent: 'center', padding: 20 },
-  portraitT: { color: '#fff', fontSize: 18, fontWeight: '700', textAlign: 'center' },
+  portraitT: { color: '#fff', fontSize: 18, fontWeight: '700', fontFamily: 'Inter_700Bold', textAlign: 'center' },
   dots: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginVertical: space.s3 },
   dot: { width: 40, height: 40, borderRadius: 20 },
   dotOn: { borderWidth: 2, borderColor: p.ink },

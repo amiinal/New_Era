@@ -92,7 +92,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   optOn: { borderColor: p.primary },
   optT: { ...type.body, color: p.ink },
-  optTOn: { fontWeight: '600', color: p.primary },
+  optTOn: { fontWeight: '600', fontFamily: 'Inter_600SemiBold', color: p.primary },
   input: {
     backgroundColor: p.surface, borderWidth: 1, borderColor: p.lineStrong, color: p.ink,
     borderRadius: radius.md, height: 48, paddingHorizontal: space.s4, fontSize: 16, marginBottom: space.s3,

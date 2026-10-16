@@ -152,16 +152,16 @@ const themed = (p: Palette) => StyleSheet.create({
   fresh: { borderWidth: 1, borderColor: C.success },
   row: { flexDirection: 'row', gap: space.s3, alignItems: 'center' },
   t: { ...type.h3, color: p.ink },
-  tNew: { fontWeight: '700' },
+  tNew: { fontWeight: '700', fontFamily: 'Inter_700Bold' },
   micro: { ...type.micro, color: p.bodyText, marginTop: 4 },
   badge: {
     minWidth: 22, height: 22, borderRadius: 11, backgroundColor: C.error,
     alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6,
   },
-  badgeT: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  badgeT: { color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: 'Inter_700Bold' },
   plus: {
     width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(194,78,34,.12)',
   },
-  plusT: { fontSize: 24, color: C.cta },
+  plusT: { fontSize: 24, color: C.cta, fontFamily: 'Inter_400Regular' },
 });

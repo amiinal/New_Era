@@ -60,14 +60,14 @@ const themed = (p: Palette) => StyleSheet.create({
   empty: { backgroundColor: p.line },
   body: { padding: space.s4 - 4, flex: 1 },
   spacer: { flex: 1, minHeight: 8 },
-  title: { fontSize: 16, fontWeight: '600', color: p.ink },
-  desc: { fontSize: 13, color: p.bodyText, marginTop: 2 },
+  title: { fontSize: 16, fontWeight: '600', fontFamily: 'Inter_600SemiBold', color: p.ink },
+  desc: { fontSize: 13, color: p.bodyText, marginTop: 2, fontFamily: 'Inter_400Regular' },
   price: { fontSize: 14, color: p.ink, fontVariant: ['tabular-nums'], marginTop: 4 },
-  avail: { fontSize: 12, color: p.bodyText },
+  avail: { fontSize: 12, color: p.bodyText, fontFamily: 'Inter_400Regular' },
   dot: { width: 8, height: 8, borderRadius: 4 },
   msgBtn: {
     marginTop: 0, height: 36, borderRadius: 8, backgroundColor: C.cta,
     alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6,
   },
-  msgT: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  msgT: { color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
 });

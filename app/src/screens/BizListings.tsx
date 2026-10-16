@@ -149,7 +149,7 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   thumb: { width: 64, height: 64, borderRadius: radius.md },
   side: { width: 110, gap: space.s2 },
   av: { backgroundColor: p.surface, borderRadius: 8, padding: space.s3 },
-  avT: { ...type.bodySm, fontWeight: '600' },
+  avT: { ...type.bodySm, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   del: { ...type.bodySm, color: C.error, padding: space.s2 },
   sheetWrap: {
     position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
@@ -164,5 +164,5 @@ const themed = (p: Palette, dark: boolean) => StyleSheet.create({
   optRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   optSel: { backgroundColor: dark ? 'rgba(123,144,214,.12)' : 'rgba(44,62,122,.06)', borderRadius: 8 },
   tick: { color: p.primary },
-  optOn: { color: p.primary, fontWeight: '700' },
+  optOn: { color: p.primary, fontWeight: '700', fontFamily: 'Inter_700Bold' },
 });

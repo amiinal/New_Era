@@ -73,5 +73,5 @@ const styles = StyleSheet.create({
   root: {
     flex: 1, backgroundColor: C.primary, alignItems: 'center', justifyContent: 'center',
   },
-  word: { color: '#fff', fontSize: 28, fontWeight: '700', marginTop: 16 },
+  word: { color: '#fff', fontSize: 28, fontWeight: '700', fontFamily: 'Inter_700Bold', marginTop: 16 },
 });

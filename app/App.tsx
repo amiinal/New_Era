@@ -1,4 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
+import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts } from '@expo-google-fonts/inter';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
@@ -345,11 +346,11 @@ function Shell() {
           <Text style={styles.pausedT}>Update for the latest fixes and features — it takes a minute.</Text>
           <View style={{ height: 16 }} />
           <Text onPress={() => Linking.openURL(RELEASES_URL)}
-            style={{ backgroundColor: C.cta, color: '#fff', fontWeight: '700', fontSize: 16, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 12, overflow: 'hidden', textAlign: 'center' }}>
+            style={{ backgroundColor: C.cta, color: '#fff', fontWeight: '700', fontFamily: 'Inter_700Bold', fontSize: 16, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 12, overflow: 'hidden', textAlign: 'center' }}>
             Update New Era
           </Text>
           <View style={{ height: 12 }} />
-          <Text onPress={() => setUpdateLater(true)} style={{ color: p.primary, fontWeight: '600', fontSize: 14 }}>Later</Text>
+          <Text onPress={() => setUpdateLater(true)} style={{ color: p.primary, fontWeight: '600', fontFamily: 'Inter_600SemiBold', fontSize: 14 }}>Later</Text>
         </View>
         <StatusBar style="auto" />
       </SafeAreaView>
@@ -479,11 +480,13 @@ function Shell() {
 
 export default function App() {
   // First-run brand moment (§1.7): plays once, then never again.
+  // Inter (DS §1.2) loads before first paint so text never swaps mid-read.
+  const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
   const [intro, setIntro] = useState<boolean | null>(null);
   useEffect(() => {
     getFlag('seenIntro').then(v => setIntro(v ? false : true));
   }, []);
-  if (intro === null) return null;
+  if (intro === null || !fontsLoaded) return null;
   if (intro) {
     return <Intro onDone={() => {
       setFlag('seenIntro', '1');
@@ -511,6 +514,6 @@ const styles = StyleSheet.create({
       : null),
   },
   paused: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  pausedH: { fontSize: 22, fontWeight: '700', color: C.ink, textAlign: 'center' },
-  pausedT: { fontSize: 14, color: C.bodyText, textAlign: 'center', marginTop: 8 },
+  pausedH: { fontSize: 22, fontWeight: '700', fontFamily: 'Inter_700Bold', color: C.ink, textAlign: 'center' },
+  pausedT: { fontSize: 14, color: C.bodyText, textAlign: 'center', marginTop: 8, fontFamily: 'Inter_400Regular' },
 });

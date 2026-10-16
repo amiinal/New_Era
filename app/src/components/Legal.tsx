@@ -229,6 +229,6 @@ const themed = (p: Palette) => StyleSheet.create({
   h1: { ...type.h1, color: p.ink, marginBottom: space.s2 },
   micro: { ...type.bodySm, color: p.bodyText, marginBottom: space.s3 },
   card: { backgroundColor: p.surface, borderRadius: radius.lg, padding: space.s4, marginBottom: space.s2, ...shadow.md },
-  t: { ...type.body, color: p.ink, fontWeight: '600' },
+  t: { ...type.body, color: p.ink, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   answer: { ...type.bodySm, color: p.bodyText, marginTop: space.s2 },
 });

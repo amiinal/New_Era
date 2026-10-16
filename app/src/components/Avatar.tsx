@@ -43,5 +43,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 3,
   },
-  letter: { fontWeight: '700' },
+  letter: { fontWeight: '700', fontFamily: 'Inter_700Bold' },
 });

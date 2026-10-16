@@ -45,7 +45,7 @@ export function Button({ title, onPress, variant = 'primary', disabled, pill }: 
 
 const themed = (p: Palette) => StyleSheet.create({
   base: { height: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
-  label: { fontSize: 14, fontWeight: '600' },
+  label: { fontSize: 14, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   primary: { backgroundColor: C.cta, ...shadow.cta },
   secondary: { backgroundColor: p.surface, borderWidth: 1, borderColor: p.primary, ...shadow.sm },
   tertiary: {},

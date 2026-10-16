@@ -255,7 +255,7 @@ const themed = (p: Palette) => StyleSheet.create({
   },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s2, marginBottom: space.s3 },
   opt: { padding: space.s3, borderWidth: 1, borderColor: p.lineStrong, borderRadius: radius.md, color: p.bodyText },
-  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600' },
+  optOn: { borderColor: p.primary, color: p.primary, fontWeight: '600', fontFamily: 'Inter_600SemiBold' },
   check: { flexDirection: 'row', alignItems: 'center', gap: space.s2, marginBottom: space.s3 },
   box: {
     width: 24, height: 24, borderRadius: 4, borderWidth: 1,
