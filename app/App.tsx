@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts } from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
+import { interMap } from './src/fonts';
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, BackHandler, Linking, Platform, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
@@ -481,7 +482,7 @@ function Shell() {
 export default function App() {
   // First-run brand moment (§1.7): plays once, then never again.
   // Inter (DS §1.2) loads before first paint so text never swaps mid-read.
-  const [fontsLoaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
+  const [fontsLoaded] = useFonts(interMap);
   const [intro, setIntro] = useState<boolean | null>(null);
   useEffect(() => {
     getFlag('seenIntro').then(v => setIntro(v ? false : true));
