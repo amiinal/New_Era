@@ -1,6 +1,6 @@
 import { Check, X } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Alert, Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, ImageBackground, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
@@ -11,6 +11,7 @@ import { useAuth } from '../auth';
 import { useBg } from '../background';
 import { C, radius, space, type } from '../theme';
 import { Button } from '../components/Button';
+import { Field } from '../components/Field';
 import { ListingForm } from '../components/ListingForm';
 import { Palette, useTheme } from '../useTheme';
 import { confirmAction } from '../ui';
@@ -119,7 +120,7 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
           {step === 0 && (
             <>
               <Text style={s.h1}>Your business</Text>
-              <TextInput style={s.input} placeholder="Business name (required)" placeholderTextColor={p.bodyText} value={name} onChangeText={setName} />
+              <Field style={s.input} placeholder="Business name (required)" placeholderTextColor={p.bodyText} value={name} onChangeText={setName} />
               <Text style={s.sec}>Category</Text>
               <View style={s.wrap}>
                 {CATEGORIES.map(c => (
@@ -127,11 +128,11 @@ export function Onboarding({ onDone, onAddMore }: { onDone: () => void; onAddMor
                 ))}
               </View>
               {category === 'Other' ? (
-                <TextInput style={s.input} placeholder="Type your category" placeholderTextColor={p.bodyText}
+                <Field style={s.input} placeholder="Type your category" placeholderTextColor={p.bodyText}
                   value={customCategory} onChangeText={setCustomCategory} maxLength={40} />
               ) : null}
-              <TextInput style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
-              <TextInput style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
+              <Field style={s.input} placeholder="City (required)" placeholderTextColor={p.bodyText} value={city} onChangeText={setCity} />
+              <Field style={s.input} placeholder="Area / neighborhood" placeholderTextColor={p.bodyText} value={area} onChangeText={setArea} />
               <Pressable onPress={() => setNationwide(!nationwide)} style={s.check}>
                 <View style={s.box}>{nationwide ? <Check size={16} color={link} /> : null}</View>
                 <Text style={s.checkT}>Serve nationwide (online / delivery)</Text>
@@ -189,7 +190,7 @@ function CertStep({ businessId, onDone }: { businessId: string; onDone: () => vo
     <>
       <Text style={s.h1}>Certificates (optional)</Text>
       <Text style={s.micro}>Self-reported — shown with a “not verified” label until Phase 2 review.</Text>
-      <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Certificate title" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
+      <Field style={[s.input, { marginTop: space.s3 }]} placeholder="Certificate title" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
       <Pressable onPress={pick} style={s.logoRow}>
         {photo
           ? <Image source={{ uri: photo }} style={s.logo} />

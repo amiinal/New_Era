@@ -1,9 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Business, img } from '../api';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 
 const words = (t: string) => t.split(/\s+/).filter(Boolean).length;
@@ -54,7 +55,7 @@ export function BizProfile({ onClose, onSaved }: { onClose: () => void; onSaved:
       <Text style={s.sec}>Header background</Text>
       <PickBox uri={cover} shown={biz?.coverKey} wide onPick={pick(setCover)} />
         <Text style={s.sec}>Bio</Text>
-        <TextInput style={[s.input, { minHeight: 96, textAlignVertical: 'top' }]} multiline
+        <Field style={[s.input, { minHeight: 96, textAlignVertical: 'top' }]} multiline
           placeholder="Tell customers who you are (max 250 words)…" placeholderTextColor={p.bodyText}
           value={bio} onChangeText={setBio} maxLength={1600} />
         <Text style={s.micro}>{words(bio)}/250 words</Text>

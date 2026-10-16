@@ -1,9 +1,10 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Alert, Image, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { radius, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 
 export const STORY_BGS = [
@@ -66,7 +67,7 @@ export function Composer({ businessId, onClose, onPosted }: {
         {mode === 'photo' && uri && (
           <>
             <Image source={{ uri }} style={s.prev} />
-            <TextInput style={s.input} placeholder="Add a caption…" placeholderTextColor={p.bodyText} value={caption}
+            <Field style={s.input} placeholder="Add a caption…" placeholderTextColor={p.bodyText} value={caption}
               onChangeText={setCaption} />
             <Button title={busy ? 'Posting…' : 'Post'} onPress={post} disabled={busy} />
           </>
@@ -76,7 +77,7 @@ export function Composer({ businessId, onClose, onPosted }: {
             <View style={[s.portrait, { backgroundColor: bg }]}>
               <Text style={s.portraitT}>{text || 'Your text here'}</Text>
             </View>
-            <TextInput style={s.input} placeholder="Type your update…" placeholderTextColor={p.bodyText} value={text}
+            <Field style={s.input} placeholder="Type your update…" placeholderTextColor={p.bodyText} value={text}
               onChangeText={setText} multiline />
             <View style={s.dots}>
               {STORY_BGS.map(b => (

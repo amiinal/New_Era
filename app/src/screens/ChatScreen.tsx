@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator, Alert, FlatList, Image, KeyboardAvoidingView, Modal, Platform,
-  Pressable, StyleSheet, Text, TextInput, View,
+  Pressable, StyleSheet, Text, View,
 } from 'react-native';
 import { ChevronLeft, MoreHorizontal, MoreVertical, Plus, Send } from 'lucide-react-native';
 import * as Clipboard from 'expo-clipboard';
@@ -13,6 +13,7 @@ import { C, radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
 import { CautionSheet } from '../components/CautionSheet';
+import { Field } from '../components/Field';
 import { Palette, useTheme } from '../useTheme';
 import { confirmAction } from '../ui';
 import { PeerSheet } from '../components/PeerSheet';
@@ -198,7 +199,7 @@ export function ChatScreen({ threadId, context, onExit, onOpenStore, onBack }: {
         <Pressable onPress={attach} style={s.plusBtn} hitSlop={8}>
           <Plus size={22} color={p.primary} />
         </Pressable>
-        <TextInput style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
+        <Field style={s.input} placeholder="Type a message…" placeholderTextColor={p.bodyText} value={draft}
           onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
         <Pressable onPress={send} style={({ pressed }) => [s.sendBtn, pressed && s.pressed]} hitSlop={8}>
           <Send size={20} color="#fff" />

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 
 // Keep in step with web/src/ReportForm.jsx.
@@ -54,7 +55,7 @@ export function ReportDialog({ targetType, targetId, title, onClose, onSent }: {
             </Pressable>
           ))}
           <Text style={[s.micro, { marginTop: space.s3 }]}>Your email or phone (for follow-up)</Text>
-          <TextInput style={s.input} placeholder="How can we reach you?" placeholderTextColor={p.bodyText}
+          <Field style={s.input} placeholder="How can we reach you?" placeholderTextColor={p.bodyText}
             value={contact} onChangeText={setContact} autoCapitalize="none" keyboardType="email-address" />
           <Button title={busy ? 'Sending…' : 'Send report'} onPress={send} disabled={busy} />
           <View style={{ height: space.s2 }} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, ImageBackground, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Check, ChevronDown, ChevronLeft, ChevronUp } from 'lucide-react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
@@ -8,6 +8,7 @@ import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { C, radius, shadow, space, type } from '../theme';
 import { Button } from '../components/Button';
+import { Field } from '../components/Field';
 import { LegalReader } from '../components/Legal';
 import { Palette, useTheme } from '../useTheme';
 
@@ -148,7 +149,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
 
         {stage === 'contact' && (
           <>
-            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Email address" placeholderTextColor={p.bodyText}
+            <Field style={[s.field, { backgroundColor: fieldBg }]} placeholder="Email address" placeholderTextColor={p.bodyText}
               value={to} onChangeText={setTo} autoCapitalize="none"
               keyboardType="email-address" />
             <Pressable onPress={() => setDrop(!drop)} style={[s.fieldRow, { backgroundColor: fieldBg }]}>
@@ -183,7 +184,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
         )}
         {stage === 'code' && (
           <>
-            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="6-digit code" placeholderTextColor={p.bodyText} value={code}
+            <Field style={[s.field, { backgroundColor: fieldBg }]} placeholder="6-digit code" placeholderTextColor={p.bodyText} value={code}
               onChangeText={setCode} keyboardType="number-pad" maxLength={6} />
             <Button pill title="Verify" onPress={verify} />
             <Text style={s.swapLine}>
@@ -196,7 +197,7 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
         )}
         {stage === 'password' && (
           <>
-            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Password" placeholderTextColor={p.bodyText}
+            <Field style={[s.field, { backgroundColor: fieldBg }]} placeholder="Password" placeholderTextColor={p.bodyText}
               value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
             <Button pill title="Sign in" onPress={submitPassword} />
             <Text style={s.swapLine}>
@@ -209,9 +210,9 @@ export function AuthScreen({ onBack }: { onBack?: () => void }) {
         )}
         {stage === 'reset' && (
           <>
-            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="Reset code" placeholderTextColor={p.bodyText}
+            <Field style={[s.field, { backgroundColor: fieldBg }]} placeholder="Reset code" placeholderTextColor={p.bodyText}
               value={resetCode} onChangeText={setResetCode} keyboardType="number-pad" maxLength={6} />
-            <TextInput style={[s.field, { backgroundColor: fieldBg }]} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
+            <Field style={[s.field, { backgroundColor: fieldBg }]} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
               value={newPassword} onChangeText={setNewPassword} secureTextEntry autoCapitalize="none" />
             <Button pill title="Reset & sign in" onPress={submitReset} />
             <Text style={s.swapLine}>

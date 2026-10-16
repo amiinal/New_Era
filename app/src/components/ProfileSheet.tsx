@@ -1,11 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Check } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, img } from '../api';
 import { useAuth } from '../auth';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 import { Help, Settings } from '../screens/Settings';
 
@@ -66,12 +67,12 @@ export function ProfileSheet({ onClose, onSaved, onSwitchMode }: { onClose: () =
           : <View style={[s.av, s.empty]} />}
         <View style={{ height: space.s3 }} />
         <Button title="Choose photo" variant="secondary" onPress={pick} />
-        <TextInput style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
+        <Field style={[s.input, { marginTop: space.s3 }]} placeholder="Your name (shown to businesses)" placeholderTextColor={p.bodyText}
           value={name} onChangeText={setName} maxLength={40} />
-        <TextInput style={[s.input, s.area, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
+        <Field style={[s.input, s.area, { marginTop: space.s3, marginBottom: space.s2 }]} placeholder="Short tagline (e.g. Cake lover in Ikeja)" placeholderTextColor={p.bodyText}
           value={tagline} onChangeText={setTagline} maxLength={120} multiline numberOfLines={3} scrollEnabled />
         <Text style={s.label}>Phone number (optional — not verified by us)</Text>
-        <TextInput style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="e.g. +2348012345678" placeholderTextColor={p.bodyText}
+        <Field style={[s.input, { marginTop: space.s1, marginBottom: space.s2 }]} placeholder="e.g. +2348012345678" placeholderTextColor={p.bodyText}
           value={contactPhone} onChangeText={setContactPhone} keyboardType="phone-pad" maxLength={20} />
         {!!contactPhone.trim() && (
           <Pressable onPress={() => setShowContactPhone(!showContactPhone)} style={[s.check, { marginBottom: space.s2 }]}>

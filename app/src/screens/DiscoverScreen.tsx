@@ -1,13 +1,14 @@
 import { MapPin, Search, X } from 'lucide-react-native';
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, Business, img, SITE_URL } from '../api';
 import { COUNTRIES } from '../countries';
 import { getFlag, setFlag } from '../store';
 import { C, radius, shadow, space, type } from '../theme';
 import { Avatar } from '../components/Avatar';
 import { Button } from '../components/Button';
+import { Field } from '../components/Field';
 import { Skeleton } from '../components/Skeleton';
 import { DrawerRoute } from '../ui';
 import { Palette, useTheme } from '../useTheme';
@@ -72,9 +73,6 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
   const [countryQ, setCountryQ] = useState('');
   const [countryOpen, setCountryOpen] = useState(false);
   const [cityOpen, setCityOpen] = useState(false);
-  const [focused, setFocused] = useState<'q' | 'city' | 'country' | null>(null);
-  const focusStyle = (k: 'q' | 'city' | 'country') =>
-    focused === k ? { borderColor: p.primary, borderWidth: 2 } : null;
 
   const runLoad = async (scope: { country: string; city?: string; q?: string; cats?: string[] }) => {
     setNearby(null);
@@ -303,14 +301,12 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
                 <X size={20} color={p.bodyText} />
               </Pressable>
             </View>
-            <TextInput style={[s.input, focusStyle('q')]} placeholder="What are you looking for?" placeholderTextColor={p.bodyText}
-              value={dQ} onChangeText={setDQ} autoFocus returnKeyType="search" onSubmitEditing={applySheet}
-              onFocus={() => setFocused('q')} onBlur={() => setFocused(null)} />
+            <Field style={s.input} placeholder="What are you looking for?" placeholderTextColor={p.bodyText}
+              value={dQ} onChangeText={setDQ} autoFocus returnKeyType="search" onSubmitEditing={applySheet} />
             <ScrollView style={s.sheetBody} keyboardShouldPersistTaps="handled">
-            <TextInput style={[s.input, { marginTop: space.s3 }, focusStyle('city')]} placeholder="Search by city" placeholderTextColor={p.bodyText}
+            <Field style={[s.input, { marginTop: space.s3 }]} placeholder="Search by city" placeholderTextColor={p.bodyText}
               value={dCity} onChangeText={t => { setDCity(t); setCityOpen(true); }}
-              onFocus={() => { setCityOpen(true); setFocused('city'); }} onPressIn={() => setCityOpen(true)}
-              onBlur={() => setFocused(null)} />
+              onFocus={() => { setCityOpen(true); }} onPressIn={() => setCityOpen(true)} />
             {cityOpen && (
               <View style={s.drop}>
                 <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
@@ -329,12 +325,11 @@ export function DiscoverScreen({ onOpen, dRoutes, dActive, onDNav, onStartSellin
               </View>
             )}
             <Text style={s.sec}>Country</Text>
-            <TextInput style={[s.input, focusStyle('country')]} placeholder={draftCountryName} placeholderTextColor={p.bodyText}
+            <Field style={s.input} placeholder={draftCountryName} placeholderTextColor={p.bodyText}
               value={countryQ}
-              onFocus={() => { setCountryQ(''); setCountryOpen(true); setFocused('country'); }}
+              onFocus={() => { setCountryQ(''); setCountryOpen(true); }}
               onPressIn={() => setCountryOpen(true)}
-              onChangeText={t => { setCountryQ(t); setCountryOpen(true); }}
-              onBlur={() => setFocused(null)} />
+              onChangeText={t => { setCountryQ(t); setCountryOpen(true); }} />
             {countryOpen && (
               <View style={s.drop}>
                 <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">

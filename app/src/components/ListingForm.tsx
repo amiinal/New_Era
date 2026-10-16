@@ -3,11 +3,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { X } from 'lucide-react-native';
 import React, { useRef, useState } from 'react';
 import {
-  Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
+  Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { api, img, Listing } from '../api';
 import { radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 
 const AVAIL: Listing['availability'][] = ['in_stock', 'limited', 'sold_out', 'made_to_order'];
@@ -123,10 +124,10 @@ export function ListingForm({ businessId, initial, onClose, onSaved }: {
               </Text>
             ))}
           </View>
-          <TextInput style={s.input} placeholder="Name" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
-          <TextInput style={[s.input, s.area]} placeholder="Short description (what makes it good?)" placeholderTextColor={p.bodyText}
+          <Field style={s.input} placeholder="Name" placeholderTextColor={p.bodyText} value={title} onChangeText={setTitle} />
+          <Field style={[s.input, s.area]} placeholder="Short description (what makes it good?)" placeholderTextColor={p.bodyText}
             value={desc} onChangeText={setDesc} multiline numberOfLines={3} maxLength={280} />
-          <TextInput style={s.input} placeholder="Price (or leave blank for on request)" placeholderTextColor={p.bodyText}
+          <Field style={s.input} placeholder="Price (or leave blank for on request)" placeholderTextColor={p.bodyText}
             value={price} onChangeText={setPrice} keyboardType="numbers-and-punctuation" />
           {kind === 'service' && (
             <Text style={s.micro}>Services show "starting from" and are inquiry-only (LST-2/3).</Text>

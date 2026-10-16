@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api, SupportMsg } from '../api';
 import { C, radius, shadow, space, type } from '../theme';
 import { Button } from './Button';
+import { Field } from './Field';
 import { Palette, useTheme } from '../useTheme';
 
 // In-app support chat: message the team, read replies here.
@@ -58,7 +59,7 @@ export function SupportChat({ onClose }: { onClose: () => void }) {
             ))}
         </ScrollView>
         <View style={s.box}>
-          <TextInput style={s.input} placeholder="What do you need help with?" placeholderTextColor={p.bodyText}
+          <Field style={s.input} placeholder="What do you need help with?" placeholderTextColor={p.bodyText}
             value={draft} onChangeText={setDraft} onSubmitEditing={send} returnKeyType="send" />
           <View style={s.send}><Button title="Send" onPress={send} /></View>
         </View>

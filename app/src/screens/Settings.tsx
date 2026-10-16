@@ -1,12 +1,13 @@
 import { ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import React, { useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import { C, radius, shadow, space, type } from '../theme';
 import { Palette, useTheme } from '../useTheme';
 import { Button } from '../components/Button';
+import { Field } from '../components/Field';
 import { LegalReader } from '../components/Legal';
 import { SupportChat } from '../components/SupportChat';
 import { Prohibited } from '../components/Prohibited';
@@ -99,10 +100,10 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
         {panel === 'password' && (
           <View style={s.card}>
             {account?.hasPassword ? (
-              <TextInput style={s.field} placeholder="Current password" placeholderTextColor={p.bodyText}
+              <Field style={s.field} placeholder="Current password" placeholderTextColor={p.bodyText}
                 value={current} onChangeText={setCurrent} secureTextEntry autoCapitalize="none" />
             ) : null}
-            <TextInput style={s.field} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
+            <Field style={s.field} placeholder="New password (8+ characters)" placeholderTextColor={p.bodyText}
               value={next} onChangeText={setNext} secureTextEntry autoCapitalize="none" />
             <Button title={busy ? 'Saving…' : 'Save password'} onPress={submitPassword} disabled={busy} />
           </View>
@@ -115,14 +116,14 @@ export function Settings({ onClose, onHelp }: { onClose: () => void; onHelp: () 
           <View style={s.card}>
             {!emailSent ? (
               <>
-                <TextInput style={s.field} placeholder="New email address" placeholderTextColor={p.bodyText}
+                <Field style={s.field} placeholder="New email address" placeholderTextColor={p.bodyText}
                   value={newEmail} onChangeText={setNewEmail} autoCapitalize="none" keyboardType="email-address" />
                 <Button title={busy ? 'Sending…' : 'Send code'} onPress={sendEmailCode} disabled={busy} />
               </>
             ) : (
               <>
                 <Text style={s.micro}>Code sent to {newEmail.trim()}.</Text>
-                <TextInput style={[s.field, { marginTop: space.s2 }]} placeholder="6-digit code" placeholderTextColor={p.bodyText}
+                <Field style={[s.field, { marginTop: space.s2 }]} placeholder="6-digit code" placeholderTextColor={p.bodyText}
                   value={emailCode} onChangeText={setEmailCode} keyboardType="number-pad" maxLength={6} />
                 <Button title={busy ? 'Saving…' : 'Confirm new email'} onPress={confirmEmail} disabled={busy} />
               </>
